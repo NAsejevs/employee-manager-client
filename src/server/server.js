@@ -1,4 +1,3 @@
-const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -6,8 +5,6 @@ const app = express();
 const db = require('./database');
 
 let employees = [];
-
-const employeeDirectory = "employees/";
 
 const corsOptions = {
 	origin: "*",
@@ -27,13 +24,6 @@ const server = app.listen(8080, () => {
 
 // Server is on and is ready to listen and respond!
 server.on('listening', () => {
-	// Retrieve employee information from ./employees folder and store it in employees variable.
-	fs.readdirSync(employeeDirectory).forEach(file => {
-		employees.push(
-			JSON.parse(fs.readFileSync(employeeDirectory + file, 'utf-8'))
-		);
-	});
-
 	// Initialize database.
 	db.connect();
 	employees = db.getEmployees((employees) => {

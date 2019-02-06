@@ -1,10 +1,12 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import { Table, Button } from 'react-bootstrap';
+import { Table, Button, Row, Col, Form, FormControl } from 'react-bootstrap';
 
 import { updateDisplayEmployees } from '../actions/employeeActions';
 
 import { getServerEmployees, setServerEmployeeWorking } from '../utils/utils';
+
+import '../styles/main.css';
 
 class Employees extends React.Component {
 
@@ -48,20 +50,49 @@ class Employees extends React.Component {
 		);
 
 		return (
-			<Table bordered hover size="sm">
-				<thead>
-					<tr>
-					<th>#</th>
-					<th>Vārds</th>
-					<th>Uzvārds</th>
-					<th>Personas Kods</th>
-					<th>Komandas</th>
-					</tr>
-				</thead>
-				<tbody>
-					{employees}
-				</tbody>
-			</Table>
+			<Row>
+				<Col>
+					<Row>
+						<Col className="searchBar">
+								<Form inline>
+									<Form.Label>Rādīt </Form.Label>
+									<Form.Control as="select" className="entriesCount">
+										<option>10</option>
+										<option>25</option>
+										<option>50</option>
+										<option>100</option>
+										<option>visus</option>
+									</Form.Control>
+									<Form.Label> ierakstus</Form.Label>
+								</Form>
+						</Col>
+						<Col className="searchBar">
+							<Form inline className="justify-content-end">
+								<FormControl type="text" className="mr-sm-2" />
+								<Button variant="outline-success">Meklēt</Button>
+							</Form>
+						</Col>
+					</Row>
+					<Row>
+						<Col>
+							<Table hover size="sm">
+								<thead>
+									<tr>
+									<th>#</th>
+									<th>VĀRDS</th>
+									<th>UZVĀRDS</th>
+									<th>PERSONAS KODS</th>
+									<th>KOMANDAS</th>
+									</tr>
+								</thead>
+								<tbody>
+									{employees}
+								</tbody>
+							</Table>
+						</Col>
+					</Row>
+				</Col>
+			</Row>
 		);
 	}
 

@@ -3,64 +3,93 @@ import React from 'react';
 
 import Employees from './Employees';
 import Registration from './Registration';
+import DateTime from "./DateTime";
+
 import logo from '../images/logo.png';
 
-import { Container, Row, Col, Navbar } from 'react-bootstrap';
+import { Container, Row, Col, Navbar, Nav } from 'react-bootstrap';
 
 class App extends React.Component {
+	
+	constructor() {
+		super();
+
+		this.visibility = {
+			VISIBILITY_EMPLOYEES: 1, 
+			VISIBILITY_REGISTRATION: 2
+		};
+		Object.freeze(this.visibility);
+
+		this.state = {
+			visibilityState: this.visibility.VISIBILITY_EMPLOYEES
+		}
+	}
+
 	render() {
-		const months = [
-			"Janvāris",
-			"Februāris",
-			"Marts",
-			"Aprīlis",
-			"Maijs",
-			"Jūnijs",
-			"Jūlijs",
-			"Augusts",
-			"Septembris",
-			"Oktobris",
-			"Novembris",
-			"Decembris"
-		];
+		let renderComponent = null;
 
-		const date = new Date();
-		
-
-		const displayDate = date.getDate().toString() + ". " 
-			+ months[date.getMonth()]
-			+ " "
-			+ date.getFullYear()
-			+ ". gads";
+		switch(this.state.visibilityState) {
+			case this.visibility.VISIBILITY_EMPLOYEES: {
+				renderComponent = <Employees/>;
+				break;
+			}
+			case this.visibility.VISIBILITY_REGISTRATION: {
+				renderComponent = <Registration/>;
+				break;
+			}
+			default: {
+				renderComponent = <Employees/>;
+			}
+		}
 
 		return (
 			<Container>
-				<Navbar bg="dark" variant="dark">
-					<Navbar.Brand>
-						<img 
-							src={logo}
-							width="30"
-							height="30"
-							className="d-inline-block align-top"
-						/>
-						{' VĀRPAS 1'}
-					</Navbar.Brand>
-					<Navbar.Collapse className="justify-content-end">
-						<Navbar.Text>
-							{displayDate}
-						</Navbar.Text>
-					</Navbar.Collapse>
-				</Navbar>
 				<Row>
-					<Col xs={8}>
-						<Employees/>
-					</Col>
 					<Col>
-						<Registration/>
+						<Navbar bg="dark" variant="dark">
+							<Navbar.Brand>
+								<img 
+									src={logo}
+									alt=""
+									width="30"
+									height="30"
+									className="d-inline-block align-top"
+								/>
+								{' VĀRPAS 1'}
+							</Navbar.Brand>
+							<Navbar.Collapse className="justify-content-start">
+								<Nav className="mr-auto">
+									<Nav.Link onClick={this.onClickEmployees}>Darbinieki</Nav.Link>
+									<Nav.Link onClick={this.onClickRegistration}>Reģistrācija</Nav.Link>
+								</Nav>
+							</Navbar.Collapse>
+							<Navbar.Collapse className="justify-content-end">
+								<Navbar.Text>
+									<DateTime/>
+								</Navbar.Text>
+							</Navbar.Collapse>
+						</Navbar>
+					</Col>
+				</Row>
+				<Row>
+					<Col>
+						{renderComponent}
 					</Col>
 				</Row>
 			</Container>
 		);
+	}
+
+	onClickEmployees = () => {
+		this.setState({
+			visibilityState: this.visibility.VISIBILITY_EMPLOYEES
+		});
+	}
+
+	onClickRegistration = () => {
+		this.setState({
+			visibilityState: this.visibility.VISIBILITY_REGISTRATION
+		});
 	}
 }
 

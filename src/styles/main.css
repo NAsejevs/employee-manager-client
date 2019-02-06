@@ -1,0 +1,12 @@
+body {
+	min-width: 800px;
+}
+
+.searchBar {
+	margin: 10px;
+}
+
+.entriesCount {
+	margin-left: 10px;
+	margin-right: 10px;
+}

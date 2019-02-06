@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Row, Col } from 'react-bootstrap';
 
 import { addServerEmployee, getServerEmployees } from '../utils/utils';
 
@@ -32,6 +32,7 @@ class Registration extends React.Component {
 
 	onFormSubmit = (event) => {
 		event.preventDefault();
+		event.stopPropagation();
 		
 		const employee = {
 			name: this.state.name,
@@ -54,25 +55,30 @@ class Registration extends React.Component {
 
 	render() {
 		return (
-			<Form>
-				<Form.Group>
-					<Form.Label>Vārds</Form.Label>
-					<Form.Control required value={this.state.name} onChange={this.onNameChange}/>
-					<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-				</Form.Group>
+			<Row>
+				<Col>
+					<Form onSubmit={this.onFormSubmit}>
+						<Form.Group>
+							<Form.Label>* Vārds</Form.Label>
+							<Form.Control required value={this.state.name} onChange={this.onNameChange}/>
+						</Form.Group>
 
-				<Form.Group>
-					<Form.Label>Uzvārds</Form.Label>
-					<Form.Control required value={this.state.surname} onChange={this.onSurnameChange}/>
-				</Form.Group>
-				<Form.Group>
-					<Form.Label>Personas Kods</Form.Label>
-					<Form.Control required value={this.state.personalCode} onChange={this.onPersonalCodeChange}/>
-				</Form.Group>
-				<Button type="submit" onClick={this.onFormSubmit}>
-					Pievienot!
-				</Button>
-			</Form>
+						<Form.Group>
+							<Form.Label>* Uzvārds</Form.Label>
+							<Form.Control required value={this.state.surname} onChange={this.onSurnameChange}/>
+						</Form.Group>
+
+						<Form.Group>
+							<Form.Label>Personas Kods</Form.Label>
+							<Form.Control value={this.state.personalCode} onChange={this.onPersonalCodeChange}/>
+						</Form.Group>
+
+						<Button type="submit">
+							Pievienot!
+						</Button>
+					</Form>
+				</Col>
+			</Row>
 		);
 	}
 }
