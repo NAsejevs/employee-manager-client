@@ -9,3 +9,10 @@ export const getServerEmployees = () => {
 export const addServerEmployee = (employee) => {
 	return axios.post(serverURL + "createEmployee", employee);
 }
+
+export const setServerEmployeeWorking = (id, working) => {
+	return axios.post(serverURL + "setEmployeeWorking", {
+		id, 
+		working
+	});
+}

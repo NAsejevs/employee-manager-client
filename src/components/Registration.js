@@ -37,7 +37,6 @@ class Registration extends React.Component {
 			name: this.state.name,
 			surname: this.state.surname,
 			personalCode: this.state.personalCode,
-			age: 1,
 		}
 
 		addServerEmployee(employee).then(() => {
@@ -46,7 +45,11 @@ class Registration extends React.Component {
 			});
 		});
 
-		this.setState({ name: "", surname: "" });
+		this.setState({ 
+			name: "", 
+			surname: "" , 
+			personalCode: "",
+		});
 	}
 
 	render() {
@@ -54,16 +57,17 @@ class Registration extends React.Component {
 			<Form>
 				<Form.Group>
 					<Form.Label>Vārds</Form.Label>
-					<Form.Control value={this.state.name} onChange={this.onNameChange}/>
+					<Form.Control required value={this.state.name} onChange={this.onNameChange}/>
+					<Form.Control.Feedback>Looks good!</Form.Control.Feedback>
 				</Form.Group>
 
 				<Form.Group>
 					<Form.Label>Uzvārds</Form.Label>
-					<Form.Control value={this.state.surname} onChange={this.onSurnameChange}/>
+					<Form.Control required value={this.state.surname} onChange={this.onSurnameChange}/>
 				</Form.Group>
 				<Form.Group>
 					<Form.Label>Personas Kods</Form.Label>
-					<Form.Control value={this.state.personalCode} onChange={this.onPersonalCodeChange}/>
+					<Form.Control required value={this.state.personalCode} onChange={this.onPersonalCodeChange}/>
 				</Form.Group>
 				<Button type="submit" onClick={this.onFormSubmit}>
 					Pievienot!

@@ -5,7 +5,7 @@ const cors = require('cors');
 const app = express();
 const db = require('./database');
 
-const employees = [];
+let employees = [];
 
 const employeeDirectory = "employees/";
 
@@ -36,33 +36,29 @@ server.on('listening', () => {
 
 	// Initialize database.
 	db.connect();
-	db.getEmployees();
+	employees = db.getEmployees((employees) => {
+		console.log("Connected to the DB and got employees (", employees.length, "): \n", employees);
+	});
 });
 
 // Create employee file in relative folder and add the employee to they employee array.
 app.post("/createEmployee", (req, res) => {
-	if (!fs.existsSync(employeeDirectory)) {
-		fs.mkdirSync(employeeDirectory);
-	}
-
-	req.body = {id: employees.length, ...req.body};
-
-	const fileName = req.body.name + "_" + req.body.surname + ".json";
-	const fileContent = JSON.stringify(req.body);
-
-	fs.writeFile(employeeDirectory + fileName, fileContent, (err) => {
-		if (err) {
-			console.log(err);
-		}
+	db.addEmployee(req.body, () => {
+		res.end();
 	});
-
-	employees.push(req.body);
-
-	res.end();
 });
 
 // Send the client the full list of employees.
 app.post("/retrieveEmployees", (req, res) => {
-	res.send(employees);
-	res.end();
+	db.getEmployees((employees) => {
+		res.send(employees);
+		res.end();
+	});
+});
+
+// Send the client the full list of employees.
+app.post("/setEmployeeWorking", (req, res) => {
+	db.setEmployeeWorking(req.body.id, req.body.working, () => {
+		res.end();
+	});
 });

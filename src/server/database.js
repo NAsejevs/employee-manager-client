@@ -1,6 +1,13 @@
 const sqlite3 = require('sqlite3').verbose();
 let db = null;
 
+// --- SQLite3 cheat sheet ---
+// https://github.com/mapbox/node-sqlite3/wiki/API
+// db.all : query multiple rows
+// db.get : query 0 or 1 row
+// db.each : call callback for every row in result
+// db.run : create/alter tables or indert/update table data
+
 module.exports.connect = () => {
 	db = new sqlite3.Database('database.db', (err) => {
 		if (err) {
@@ -11,14 +18,46 @@ module.exports.connect = () => {
 	});
 }
 
-module.exports.getEmployees = () => {
-	db.all("SELECT * FROM employees", (err, row) => {
+module.exports.getEmployees = (callback) => {
+	db.all(`SELECT * FROM employees`, (err, rows) => {
 		if (err) {
 			console.log(err);
 		} else {
-			console.log(row);
+			callback(rows);
 		}
 	});
+}
 
-	db.close();
+module.exports.addEmployee = (employee, callback) => {
+	const query = `INSERT INTO employees (
+		name, 
+		surname, 
+		personalCode
+	) VALUES (
+		"${employee.name}", 
+		"${employee.surname}",
+		"${employee.personalCode}"
+	)`;
+
+	db.run(query, (err) => {
+		if (err) {
+			console.log(err);
+		} else {
+			callback();
+		}
+	});
+}
+
+module.exports.setEmployeeWorking = (id, working, callback) => {
+	const query = `UPDATE employees SET 
+		working = ${working} 
+		WHERE id = ${id}`;
+
+	db.run(query, (err) => {
+		if (err) {
+			console.log(err);
+		} else {
+			callback();
+		}
+	});
 }
