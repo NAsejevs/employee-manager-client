@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Button, Alert, Modal } from 'react-bootstrap';
 
 import { addServerEmployee, getServerEmployees } from '../utils/utils';
 
@@ -14,6 +14,7 @@ class Registration extends React.Component {
 			name: "",
 			surname: "",
 			personalCode: "",
+			success: false,
 		}
 	}
 
@@ -43,7 +44,17 @@ class Registration extends React.Component {
 		addServerEmployee(employee).then(() => {
 			getServerEmployees().then((res) => {
 				this.props.updateDisplayEmployees(res.data);
+				this.setState({
+					success: true,
+				});
+				setTimeout(() => {
+					this.setState({
+						success: false,
+					});
+				}, 3000);
 			});
+		}).catch(() => {
+			console.log(" wefwef");
 		});
 
 		this.setState({ 
@@ -55,9 +66,13 @@ class Registration extends React.Component {
 
 	render() {
 		return (
-			<Row>
-				<Col>
-					<Form onSubmit={this.onFormSubmit}>
+			<Modal.Dialog className="modalContainer">
+				<Form onSubmit={this.onFormSubmit}>
+					<Modal.Header>
+						<Modal.Title>Jauna Darbinieka Reģistrācija</Modal.Title>
+					</Modal.Header>
+
+					<Modal.Body>
 						<Form.Group>
 							<Form.Label>* Vārds</Form.Label>
 							<Form.Control required value={this.state.name} onChange={this.onNameChange}/>
@@ -72,13 +87,18 @@ class Registration extends React.Component {
 							<Form.Label>Personas Kods</Form.Label>
 							<Form.Control value={this.state.personalCode} onChange={this.onPersonalCodeChange}/>
 						</Form.Group>
+						<Alert variant={"success"} show={this.state.success}>
+							Darbinieks veiksmīgi pievienots darbinieku sarakstam!
+						</Alert>
+					</Modal.Body>
 
+					<Modal.Footer>
 						<Button type="submit">
 							Pievienot!
 						</Button>
-					</Form>
-				</Col>
-			</Row>
+					</Modal.Footer>
+				</Form>
+			</Modal.Dialog>
 		);
 	}
 }

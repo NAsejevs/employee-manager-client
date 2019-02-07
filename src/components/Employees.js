@@ -1,10 +1,17 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import { Table, Button, Row, Col, Form, FormControl } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { Table, Button, Modal, Badge, Image, ButtonToolbar } from 'react-bootstrap';
 
 import { updateDisplayEmployees } from '../actions/employeeActions';
 
 import { getServerEmployees, setServerEmployeeWorking } from '../utils/utils';
+
+import trash from '../images/trash.png';
+import cancel from '../images/cancel.png';
+import checkmark from '../images/checkmark.png';
+import edit from '../images/edit.png';
+import user from '../images/user.png';
 
 import '../styles/main.css';
 
@@ -24,7 +31,7 @@ class Employees extends React.Component {
 
 	render() {
 		const workingStyle = {
-			backgroundColor: "#ccffcc",
+			backgroundColor: "#ffffe6",
 		}
 
 		const notWorkingStyle = null;
@@ -34,65 +41,72 @@ class Employees extends React.Component {
 		}).map((employee, index) =>
 			<tr key={index} style={employee.working ? workingStyle : notWorkingStyle}>
 				<td>{employee.id}</td>
-				<td>{employee.name}</td>
-				<td>{employee.surname}</td>
+				<td>
+					<Image src={user} width="24" height="24"/>
+					<Link to={`/employee/${employee.id}`}>
+						{employee.name + " " + employee.surname}
+					</Link>
+				</td>
 				<td>{employee.personalCode}</td>
 				<td>
-					<Button 
-						size="sm"
-						variant={employee.working ? "danger" : "success"} 
-						onClick={() => this.setEmployeeWorking(employee.id, !employee.working)}
+					<Badge 
+						variant={employee.working ? "success" : "info"}
 					>
-						{employee.working ? "AIZIET" : "IENĀKT"}
-					</Button>
+						{employee.working ? "Strādā" : "Nestrādā"}
+					</Badge>
+				</td>
+				<td>
+					<ButtonToolbar>
+						<Button 
+							className="mr-2"
+							size="sm"
+							variant={employee.working ? "warning" : "success"} 
+							onClick={() => this.setEmployeeWorking(employee.id, !employee.working)}
+						>
+							{
+								employee.working 
+								? <Image src={checkmark} width="24" height="24"/>
+								: <Image src={cancel} width="24" height="24"/>
+							}
+						</Button>
+						{/* <Button
+							className="mr-2"
+							size="sm"
+							variant={"primary"} 
+						>
+							<Image src={edit} width="24" height="24"/>
+						</Button>
+						<Button 
+							size="sm"
+							variant={"danger"} 
+						>
+							<Image src={trash} width="24" height="24"/>
+						</Button> */}
+					</ButtonToolbar>
 				</td>
 			</tr>
 		);
 
 		return (
-			<Row>
-				<Col>
-					<Row>
-						<Col className="searchBar">
-								<Form inline>
-									<Form.Label>Rādīt </Form.Label>
-									<Form.Control as="select" className="entriesCount">
-										<option>10</option>
-										<option>25</option>
-										<option>50</option>
-										<option>100</option>
-										<option>visus</option>
-									</Form.Control>
-									<Form.Label> ierakstus</Form.Label>
-								</Form>
-						</Col>
-						<Col className="searchBar">
-							<Form inline className="justify-content-end">
-								<FormControl type="text" className="mr-sm-2" />
-								<Button variant="outline-success">Meklēt</Button>
-							</Form>
-						</Col>
-					</Row>
-					<Row>
-						<Col>
-							<Table hover size="sm">
-								<thead>
-									<tr>
-									<th>#</th>
-									<th>VĀRDS</th>
-									<th>UZVĀRDS</th>
-									<th>PERSONAS KODS</th>
-									<th>KOMANDAS</th>
-									</tr>
-								</thead>
-								<tbody>
-									{employees}
-								</tbody>
-							</Table>
-						</Col>
-					</Row>
-				</Col>
-			</Row>
+			<Modal.Dialog className="modalContainer">
+				<Modal.Header>
+					<Modal.Title>Darbinieku Saraksts</Modal.Title>
+				</Modal.Header>
+				<Table hover>
+					<thead>
+						<tr>
+						<th>#</th>
+						<th>VĀRDS</th>
+						<th>PERSONAS KODS</th>
+						<th>STATUS</th>
+						<th>KOMANDAS</th>
+						</tr>
+					</thead>
+					<tbody>
+						{employees}
+					</tbody>
+				</Table>
+			</Modal.Dialog>
 		);
 	}
 

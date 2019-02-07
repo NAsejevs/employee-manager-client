@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/nilsasejevs/.nvm/versions/node/v10.13.0/bin/node /usr/local/Cellar/yarn/1.12.3/libexec/bin/yarn.js
+  /Users/nilsasejevs/.nvm/versions/node/v10.13.0/bin/node /usr/local/Cellar/yarn/1.12.3/libexec/bin/yarn.js add react-router-dom
 
 PATH: 
   /Users/nilsasejevs/.nvm/versions/node/v10.13.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:/opt/X11/bin:~/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin
@@ -14,7 +14,7 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: EACCES: permission denied, mkdir '/Users/nilsasejevs/Desktop/dev/employee-manager/node_modules/abbrev'
+  Error: EACCES: permission denied, unlink '/Users/nilsasejevs/Desktop/dev/employee-manager/node_modules/.yarn-integrity'
 
 npm manifest: 
   {

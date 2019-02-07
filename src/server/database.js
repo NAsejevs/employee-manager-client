@@ -28,6 +28,16 @@ module.exports.getEmployees = (callback) => {
 	});
 }
 
+module.exports.getEmployee = (id, callback) => {
+	db.get(`SELECT * FROM employees WHERE id=${id}`, (err, row) => {
+		if (err) {
+			console.log(err);
+		} else {
+			callback(row);
+		}
+	});
+}
+
 module.exports.addEmployee = (employee, callback) => {
 	const query = `INSERT INTO employees (
 		name, 

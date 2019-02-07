@@ -1,12 +1,12 @@
-body {
-	min-width: 800px;
+.container {
+	min-width: 700px;
 }
 
-.searchBar {
-	margin: 10px;
+.modalContainer {
+	max-width: 100%;
+	margin: 0;
 }
 
-.entriesCount {
-	margin-left: 10px;
-	margin-right: 10px;
+.table {
+	margin-bottom: 0;
 }

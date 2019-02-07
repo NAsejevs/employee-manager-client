@@ -27,7 +27,7 @@ server.on('listening', () => {
 	// Initialize database.
 	db.connect();
 	employees = db.getEmployees((employees) => {
-		console.log("Connected to the DB and got employees (", employees.length, "): \n", employees);
+		//console.log("Connected to the DB and got employees (", employees.length, "): \n", employees);
 	});
 });
 
@@ -46,7 +46,16 @@ app.post("/retrieveEmployees", (req, res) => {
 	});
 });
 
-// Send the client the full list of employees.
+// Send the client a signle employee by ID.
+app.post("/getEmployee", (req, res) => {
+	console.log("hello", req.body);
+	db.getEmployee(req.body.id, (employee) => {
+		res.send(employee);
+		res.end();
+	});
+});
+
+// Toggle the employee's working state
 app.post("/setEmployeeWorking", (req, res) => {
 	db.setEmployeeWorking(req.body.id, req.body.working, () => {
 		res.end();

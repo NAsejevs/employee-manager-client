@@ -6,6 +6,12 @@ export const getServerEmployees = () => {
 	return axios.post(serverURL + "retrieveEmployees");
 }
 
+export const getServerEmployee = (id) => {
+	return axios.post(serverURL + "getEmployee", { 
+		id 
+	});
+}
+
 export const addServerEmployee = (employee) => {
 	return axios.post(serverURL + "createEmployee", employee);
 }
