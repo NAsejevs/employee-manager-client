@@ -7,10 +7,10 @@ import { updateDisplayEmployees } from '../actions/employeeActions';
 
 import { getServerEmployees, setServerEmployeeWorking } from '../utils/utils';
 
-import trash from '../images/trash.png';
+// import trash from '../images/trash.png';
 import cancel from '../images/cancel.png';
 import checkmark from '../images/checkmark.png';
-import edit from '../images/edit.png';
+// import edit from '../images/edit.png';
 import user from '../images/user.png';
 
 import '../styles/main.css';
@@ -26,7 +26,7 @@ class Employees extends React.Component {
 			getServerEmployees().then((res) => {
 				this.props.updateDisplayEmployees(res.data);
 			});
-		}, 1000);
+		}, 5000);
 	}
 
 	render() {
@@ -34,12 +34,10 @@ class Employees extends React.Component {
 			backgroundColor: "#ffffe6",
 		}
 
-		const notWorkingStyle = null;
-
 		const employees = this.props.employees.sort((a, b) => {
 			return b.id - a.id
 		}).map((employee, index) =>
-			<tr key={index} style={employee.working ? workingStyle : notWorkingStyle}>
+			<tr key={index} style={employee.working ? workingStyle : null}>
 				<td>{employee.id}</td>
 				<td>
 					<Image src={user} width="24" height="24"/>

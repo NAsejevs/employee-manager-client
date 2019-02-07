@@ -38,6 +38,16 @@ module.exports.getEmployee = (id, callback) => {
 	});
 }
 
+module.exports.getEmployeeWorkLog = (id, callback) => {
+	db.all(`SELECT * FROM work_log WHERE employee_id=${id}`, (err, rows) => {
+		if (err) {
+			console.log(err);
+		} else {
+			callback(rows);
+		}
+	});
+}
+
 module.exports.addEmployee = (employee, callback) => {
 	const query = `INSERT INTO employees (
 		name, 
@@ -59,7 +69,7 @@ module.exports.addEmployee = (employee, callback) => {
 }
 
 module.exports.setEmployeeWorking = (id, working, callback) => {
-	const query = `UPDATE employees SET 
+	let query = `UPDATE employees SET 
 		working = ${working} 
 		WHERE id = ${id}`;
 
@@ -70,4 +80,38 @@ module.exports.setEmployeeWorking = (id, working, callback) => {
 			callback();
 		}
 	});
+
+	// Log the start and end time of each entry/exit of employee
+	if(working) {
+		const date = new Date();
+		const jsonDate = date.toJSON();
+
+		query = `INSERT INTO work_log (
+			employee_id, 
+			start_time
+		) VALUES (
+			"${id}", 
+			"${jsonDate}"
+		)`;
+
+		db.run(query, (err) => {
+			if (err) {
+				console.log(err);
+			}
+		});
+	} else {
+		const date = new Date();
+		const jsonDate = date.toJSON();
+
+		query = `UPDATE work_log SET 
+			end_time = "${jsonDate}" 
+			WHERE employee_id = ${id}
+			AND (end_time IS null OR end_time = '')`;
+
+		db.run(query, (err) => {
+			if (err) {
+				console.log(err);
+			}
+		});
+	}
 }

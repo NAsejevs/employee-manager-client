@@ -12,6 +12,12 @@ export const getServerEmployee = (id) => {
 	});
 }
 
+export const getServerEmployeeWorkLog = (id) => {
+	return axios.post(serverURL + "getEmployeeWorkLog", { 
+		id 
+	});
+}
+
 export const addServerEmployee = (employee) => {
 	return axios.post(serverURL + "createEmployee", employee);
 }

@@ -87,7 +87,7 @@ class Registration extends React.Component {
 							<Form.Label>Personas Kods</Form.Label>
 							<Form.Control value={this.state.personalCode} onChange={this.onPersonalCodeChange}/>
 						</Form.Group>
-						<Alert variant={"success"} show={this.state.success}>
+						<Alert variant={"success"} show={this.state.success} onClose={() => null}>
 							Darbinieks veiksmīgi pievienots darbinieku sarakstam!
 						</Alert>
 					</Modal.Body>

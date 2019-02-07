@@ -48,9 +48,16 @@ app.post("/retrieveEmployees", (req, res) => {
 
 // Send the client a signle employee by ID.
 app.post("/getEmployee", (req, res) => {
-	console.log("hello", req.body);
 	db.getEmployee(req.body.id, (employee) => {
 		res.send(employee);
+		res.end();
+	});
+});
+
+// Send the client a signle employee by ID.
+app.post("/getEmployeeWorkLog", (req, res) => {
+	db.getEmployeeWorkLog(req.body.id, (workLog) => {
+		res.send(workLog);
 		res.end();
 	});
 });

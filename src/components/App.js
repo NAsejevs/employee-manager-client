@@ -34,12 +34,8 @@ class App extends React.Component {
 								</Navbar.Brand>
 								<Navbar.Collapse className="justify-content-start">
 									<Nav className="mr-auto">
-										<Nav.Link>
-											<Link to="/">Darbinieki</Link>
-										</Nav.Link>
-										<Nav.Link>
-											<Link to="/registration">Reģistrācija</Link>
-										</Nav.Link>
+										<Link to="/">Darbinieki</Link>
+										<Link to="/registration">Reģistrācija</Link>
 									</Nav>
 								</Navbar.Collapse>
 								<Navbar.Collapse className="justify-content-end">
