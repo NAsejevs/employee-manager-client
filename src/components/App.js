@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import { Route, Link, BrowserRouter as Router, Switch } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
+import { LinkContainer } from 'react-router-bootstrap';
 
 import Employees from './Employees';
 import ViewEmployee from "./ViewEmployee";
@@ -34,8 +35,12 @@ class App extends React.Component {
 								</Navbar.Brand>
 								<Navbar.Collapse className="justify-content-start">
 									<Nav className="mr-auto">
-										<Link to="/">Darbinieki</Link>
-										<Link to="/registration">Reģistrācija</Link>
+										<LinkContainer exact={true} to="/">
+											<Nav.Link>Darbinieki</Nav.Link>
+										</LinkContainer>
+										<LinkContainer to="/registration">
+											<Nav.Link>Reģistrācija</Nav.Link>
+										</LinkContainer>
 									</Nav>
 								</Navbar.Collapse>
 								<Navbar.Collapse className="justify-content-end">
