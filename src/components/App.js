@@ -33,7 +33,7 @@ class App extends React.Component {
 									/>
 									{" VĀRPAS 1"}
 								</Navbar.Brand>
-								<Navbar.Toggle aria-controls="responsive-navbar-nav" />
+								<Navbar.Toggle aria-controls="responsive-navbar-nav"/>
 								<Navbar.Collapse id="responsive-navbar-nav">
 									<Nav className="mr-auto">
 										<LinkContainer exact={true} to="/">

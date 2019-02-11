@@ -29,3 +29,7 @@ body {
 	font-size: 1.25rem;
 	height: 40px;
 }
+
+.filterForm {
+	margin-bottom: 20px;
+}
