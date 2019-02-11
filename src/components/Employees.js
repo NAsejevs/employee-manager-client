@@ -1,20 +1,20 @@
-import { connect } from 'react-redux';
-import React from 'react';
-import { Table, Badge, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import { connect } from "react-redux";
+import React from "react";
+import { Table, Badge, Image, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { LinkContainer } from "react-router-bootstrap";
 
-import { updateDisplayEmployees } from '../actions/employeeActions';
+import { updateDisplayEmployees } from "../actions/employeeActions";
 
-import { getServerEmployees, setServerEmployeeWorking } from '../utils/utils';
+import { getServerEmployees, setServerEmployeeWorking } from "../utils/utils";
 
-// import trash from '../images/trash.png';
-import cancel from '../images/cancel.png';
-import checkmark from '../images/checkmark.png';
-// import edit from '../images/edit.png';
-import user from '../images/user.png';
+// import trash from "../images/trash.png";
+import cancel from "../images/cancel.png";
+import checkmark from "../images/checkmark.png";
+// import edit from "../images/edit.png";
+import user from "../images/user.png";
 
-import '../styles/main.css';
-import ContainerBox from './ContainerBox';
+import "../styles/main.css";
+import ContainerBox from "./ContainerBox";
 
 class Employees extends React.Component {
 
@@ -70,10 +70,10 @@ class Employees extends React.Component {
 				</td>
 				<td>
 					<OverlayTrigger
-						placement={'top'}
+						placement={"top"}
 						overlay={
 							<Tooltip id={`tooltip-top`}>
-								Atzīmēt kā {employee.working ? 'izgājušu' : 'ienākušu'}
+								Atzīmēt kā {employee.working ? "izgājušu" : "ienākušu"}
 							</Tooltip>
 						}
 					>
@@ -93,7 +93,7 @@ class Employees extends React.Component {
 		);
 
 		return (
-			<ContainerBox header={'Darbinieku Saraksts'}>
+			<ContainerBox header={"Darbinieku Saraksts"}>
 				<Table hover>
 					<thead>
 						<tr>

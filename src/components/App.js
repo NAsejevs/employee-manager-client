@@ -1,19 +1,19 @@
-import { connect } from 'react-redux';
-import React from 'react';
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
-import { LinkContainer } from 'react-router-bootstrap';
+import { connect } from "react-redux";
+import React from "react";
+import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
+import { LinkContainer } from "react-router-bootstrap";
 
-import Employees from './Employees';
+import Employees from "./Employees";
 import ViewEmployee from "./ViewEmployee";
-import Registration from './Registration';
+import Registration from "./Registration";
 import DateTime from "./DateTime";
 import NotFound from "./NotFound";
 
-import logo from '../images/logo.png';
+import logo from "../images/logo.png";
 
-import { Container, Row, Col, Navbar, Nav } from 'react-bootstrap';
+import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
 
-import '../styles/main.css';
+import "../styles/main.css";
 
 class App extends React.Component {
 	render() {
@@ -22,7 +22,7 @@ class App extends React.Component {
 				<Container className="container">
 					<Row>
 						<Col>
-							<Navbar bg="dark" variant="dark" fixed="top">
+							<Navbar bg="dark" variant="dark" fixed="top" expand="md">
 								<Navbar.Brand>
 									<img 
 										src={logo}
@@ -31,9 +31,10 @@ class App extends React.Component {
 										height="30"
 										className="d-inline-block align-top"
 									/>
-									{' VĀRPAS 1'}
+									{" VĀRPAS 1"}
 								</Navbar.Brand>
-								<Navbar.Collapse className="justify-content-start">
+								<Navbar.Toggle aria-controls="responsive-navbar-nav" />
+								<Navbar.Collapse id="responsive-navbar-nav">
 									<Nav className="mr-auto">
 										<LinkContainer exact={true} to="/">
 											<Nav.Link>Darbinieki</Nav.Link>
@@ -42,8 +43,6 @@ class App extends React.Component {
 											<Nav.Link>Reģistrācija</Nav.Link>
 										</LinkContainer>
 									</Nav>
-								</Navbar.Collapse>
-								<Navbar.Collapse className="justify-content-end">
 									<Navbar.Text>
 										<DateTime/>
 									</Navbar.Text>

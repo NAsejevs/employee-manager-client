@@ -1,8 +1,8 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 const app = express();
-const db = require('./database');
+const db = require("./database");
 
 let employees = [];
 
@@ -23,7 +23,7 @@ const server = app.listen(8080, () => {
 });
 
 // Server is on and is ready to listen and respond!
-server.on('listening', () => {
+server.on("listening", () => {
 	// Initialize database.
 	db.connect();
 	employees = db.getEmployees((employees) => {
@@ -62,7 +62,7 @@ app.post("/getEmployeeWorkLog", (req, res) => {
 	});
 });
 
-// Toggle the employee's working state
+// Toggle the employee"s working state
 app.post("/setEmployeeWorking", (req, res) => {
 	db.setEmployeeWorking(req.body.id, req.body.working, () => {
 		res.end();

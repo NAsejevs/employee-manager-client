@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require("sqlite3").verbose();
 let db = null;
 
 // --- SQLite3 cheat sheet ---
@@ -9,7 +9,7 @@ let db = null;
 // db.run : create/alter tables or indert/update table data
 
 module.exports.connect = () => {
-	db = new sqlite3.Database('database.db', (err) => {
+	db = new sqlite3.Database("database.db", (err) => {
 		if (err) {
 			console.log("Failed to connect to database: ", err);
 		} else {
@@ -106,7 +106,7 @@ module.exports.setEmployeeWorking = (id, working, callback) => {
 		query = `UPDATE work_log SET 
 			end_time = "${jsonDate}" 
 			WHERE employee_id = ${id}
-			AND (end_time IS null OR end_time = '')`;
+			AND (end_time IS null OR end_time = "")`;
 
 		db.run(query, (err) => {
 			if (err) {

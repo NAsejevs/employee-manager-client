@@ -1,12 +1,12 @@
-import { connect } from 'react-redux';
-import React from 'react';
-import { Table } from 'react-bootstrap';
+import { connect } from "react-redux";
+import React from "react";
+import { Table } from "react-bootstrap";
 
-import { getServerEmployee, getServerEmployeeWorkLog } from '../utils/utils';
+import { getServerEmployee, getServerEmployeeWorkLog } from "../utils/utils";
 
-import '../styles/main.css';
+import "../styles/main.css";
 
-import ContainerBox from './ContainerBox';
+import ContainerBox from "./ContainerBox";
 
 class ViewEmployee extends React.Component {
 	constructor(props) {

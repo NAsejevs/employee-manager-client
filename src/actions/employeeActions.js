@@ -1,4 +1,4 @@
-import { UPDATE_EMPLOYEES } from './actionTypes';
+import { UPDATE_EMPLOYEES } from "./actionTypes";
 
 export const updateDisplayEmployees = (employees) => {
 	return {

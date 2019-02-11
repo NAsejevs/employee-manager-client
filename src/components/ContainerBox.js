@@ -1,16 +1,16 @@
-import { connect } from 'react-redux';
-import React from 'react';
+import { connect } from "react-redux";
+import React from "react";
 
-import '../styles/main.css';
+import "../styles/main.css";
 
 class ContainerBox extends React.Component {
 	render() {
 		return (
-			<div className='container-box'>
-				<div className='container-box-header'>
+			<div className="container-box">
+				<div className="container-box-header">
 					{this.props.header}
 				</div>
-				<div className='container-box-body'>
+				<div className="container-box-body">
 					{this.props.children}
 				</div>
 			</div>

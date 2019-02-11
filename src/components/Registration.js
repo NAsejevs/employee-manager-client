@@ -1,12 +1,12 @@
-import { connect } from 'react-redux';
-import React from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
+import { connect } from "react-redux";
+import React from "react";
+import { Form, Button, Alert } from "react-bootstrap";
 
-import { addServerEmployee, getServerEmployees } from '../utils/utils';
+import { addServerEmployee, getServerEmployees } from "../utils/utils";
 
-import { updateDisplayEmployees } from '../actions/employeeActions';
+import { updateDisplayEmployees } from "../actions/employeeActions";
 
-import ContainerBox from './ContainerBox';
+import ContainerBox from "./ContainerBox";
 
 class Registration extends React.Component {
 	constructor(props) {
@@ -68,7 +68,7 @@ class Registration extends React.Component {
 
 	render() {
 		return (
-			<ContainerBox header={'Jauna Darbinieka Reģistrācija'}>
+			<ContainerBox header={"Jauna Darbinieka Reģistrācija"}>
 				<Form onSubmit={this.onFormSubmit}>
 					<Form.Group>
 						<Form.Label>* Vārds</Form.Label>

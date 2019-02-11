@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-import { serverURL } from '../server/serverConfig';
+import { serverURL } from "../server/serverConfig";
 
 export const getServerEmployees = () => {
 	return axios.post(serverURL + "retrieveEmployees");
