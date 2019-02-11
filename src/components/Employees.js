@@ -5,12 +5,10 @@ import { LinkContainer } from "react-router-bootstrap";
 
 import { updateDisplayEmployees } from "../actions/employeeActions";
 
-import { getServerEmployees, setServerEmployeeWorking } from "../utils/utils";
+import { addZero, getServerEmployees, setServerEmployeeWorking } from "../utils/utils";
 
-// import trash from "../images/trash.png";
 import cancel from "../images/cancel.png";
 import checkmark from "../images/checkmark.png";
-// import edit from "../images/edit.png";
 import user from "../images/user.png";
 
 import "../styles/main.css";
@@ -44,6 +42,14 @@ class Employees extends React.Component {
 		clearInterval(this.state.updateInterval);
 	}
 
+	setEmployeeWorking = (id, working) => {
+		setServerEmployeeWorking(id, working).then(() => {
+			getServerEmployees().then((res) => {
+				this.props.updateDisplayEmployees(res.data);
+			});
+		});
+	}
+
 	render() {
 		const workingStyle = {
 			backgroundColor: "#ffffe6",
@@ -51,46 +57,64 @@ class Employees extends React.Component {
 
 		const employees = this.props.employees.sort((a, b) => {
 			return b.id - a.id
-		}).map((employee, index) =>
-			<tr key={index} style={employee.working ? workingStyle : null}>
-				<td>{employee.id}</td>
-				<td>
-					<Image src={user} width="20" height="20" className="mr-2"/>
-					<LinkContainer to={`/employee/${employee.id}`}>
-						<a href="#">{employee.name + " " + employee.surname}</a>
-					</LinkContainer>
-				</td>
-				<td>{employee.personalCode}</td>
-				<td>
-					<Badge 
-						variant={employee.working ? "success" : "info"}
-					>
-						{employee.working ? "Strādā" : "Nestrādā"}
-					</Badge>
-				</td>
-				<td>
-					<OverlayTrigger
-						placement={"top"}
-						overlay={
-							<Tooltip id={`tooltip-top`}>
-								Atzīmēt kā {employee.working ? "izgājušu" : "ienākušu"}
-							</Tooltip>
-						}
-					>
-						<span
-							className="mr-2"
-							onClick={() => this.setEmployeeWorking(employee.id, !employee.working)}
+		}).map((employee, index) => {
+			let lastWorkTimePure = employee.working 
+				? new Date(employee.last_work_start) 
+				: new Date(employee.last_work_end) 
+
+			const lastWorkTime =
+				+ addZero(lastWorkTimePure.getHours()) + ":" 
+				+ addZero(lastWorkTimePure.getMinutes());
+
+
+			const lastWork = employee.working 
+				? "IENĀCA: " + lastWorkTime
+				: "IZGĀJA: " + lastWorkTime
+
+			return (
+				<tr key={index} style={employee.working ? workingStyle : null}>
+					<td>{employee.id}</td>
+					<td>
+						<Image src={user} width="20" height="20" className="mr-2"/>
+						<LinkContainer to={`/employee/${employee.id}`}>
+							<a href="#">{employee.name + " " + employee.surname}</a>
+						</LinkContainer>
+					</td>
+					<td>{employee.personalCode}</td>
+					<td>
+						<Badge 
+							style={{ fontSize: "14px" }}
+							variant={employee.working 
+								? "success" 
+								: "info"}
 						>
-							{
-								employee.working 
-								? <Image src={cancel} width="24" height="24"/>
-								: <Image src={checkmark} width="24" height="24"/>
+							{lastWork}
+						</Badge>
+					</td>
+					<td>
+						<OverlayTrigger
+							placement={"top"}
+							overlay={
+								<Tooltip id={`tooltip-top`}>
+									Atzīmēt kā {employee.working ? "izgājušu" : "ienākušu"}
+								</Tooltip>
 							}
-						</span>
-					</OverlayTrigger>
-				</td>
-			</tr>
-		);
+						>
+							<span
+								className="mr-2"
+								onClick={() => this.setEmployeeWorking(employee.id, !employee.working)}
+							>
+								{
+									employee.working 
+									? <Image src={cancel} width="24" height="24"/>
+									: <Image src={checkmark} width="24" height="24"/>
+								}
+							</span>
+						</OverlayTrigger>
+					</td>
+				</tr>
+			);
+		});
 
 		return (
 			<ContainerBox header={"Darbinieku Saraksts"}>
@@ -110,14 +134,6 @@ class Employees extends React.Component {
 				</Table>
 			</ContainerBox>
 		);
-	}
-
-	setEmployeeWorking = (id, working) => {
-		setServerEmployeeWorking(id, working).then(() => {
-			getServerEmployees().then((res) => {
-				this.props.updateDisplayEmployees(res.data);
-			});
-		});
 	}
 }
 

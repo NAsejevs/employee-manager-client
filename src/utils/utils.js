@@ -3,7 +3,7 @@ import axios from "axios";
 import { serverURL } from "../server/serverConfig";
 
 export const getServerEmployees = () => {
-	return axios.post(serverURL + "retrieveEmployees");
+	return axios.post(serverURL + "getEmployees");
 }
 
 export const getServerEmployee = (id) => {
@@ -27,4 +27,11 @@ export const setServerEmployeeWorking = (id, working) => {
 		id, 
 		working
 	});
+}
+
+export const addZero = (i) => {
+	if (i < 10) {
+		i = "0" + i;
+	}
+	return i;
 }

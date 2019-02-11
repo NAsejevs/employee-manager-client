@@ -39,7 +39,7 @@ app.post("/createEmployee", (req, res) => {
 });
 
 // Send the client the full list of employees.
-app.post("/retrieveEmployees", (req, res) => {
+app.post("/getEmployees", (req, res) => {
 	db.getEmployees((employees) => {
 		res.send(employees);
 		res.end();

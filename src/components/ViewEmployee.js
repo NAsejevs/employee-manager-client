@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import React from "react";
 import { Table } from "react-bootstrap";
 
-import { getServerEmployee, getServerEmployeeWorkLog } from "../utils/utils";
+import { addZero, getServerEmployee, getServerEmployeeWorkLog } from "../utils/utils";
 
 import "../styles/main.css";
 
@@ -57,13 +57,6 @@ class ViewEmployee extends React.Component {
 		clearInterval(this.state.updateInterval);
 	}
 
-	addZero = (i) => {
-		if (i < 10) {
-			i = "0" + i;
-		}
-		return i;
-	}
-
 	render() {
 		const workLog = this.state.workLog.map((log, index) => {
 			const stillWorking = log.end_time === null ? true : false;
@@ -72,23 +65,23 @@ class ViewEmployee extends React.Component {
 
 			const startTimeString = 
 				// Date
-				+ this.addZero(startTimePure.getDate()) + "." 
-				+ this.addZero(startTimePure.getMonth() + 1) + "." 
-				+ this.addZero(startTimePure.getFullYear()) + " "
+				addZero(startTimePure.getDate()) + "." 
+				+ addZero(startTimePure.getMonth() + 1) + "." 
+				+ addZero(startTimePure.getFullYear()) + " "
 				// Time
-				+ this.addZero(startTimePure.getHours()) + ":" 
-				+ this.addZero(startTimePure.getMinutes()) + ":" 
-				+ this.addZero(startTimePure.getSeconds());
+				+ addZero(startTimePure.getHours()) + ":" 
+				+ addZero(startTimePure.getMinutes()) + ":" 
+				+ addZero(startTimePure.getSeconds());
 
 			const endTimeString = stillWorking ? " - " :
 				// Date
-				this.addZero(endTimePure.getDate()) + "." 
-				+ this.addZero(endTimePure.getMonth() + 1) + "." 
-				+ this.addZero(endTimePure.getFullYear()) + " "
+				addZero(endTimePure.getDate()) + "." 
+				+ addZero(endTimePure.getMonth() + 1) + "." 
+				+ addZero(endTimePure.getFullYear()) + " "
 				// Time
-				+ this.addZero(endTimePure.getHours()) + ":" 
-				+ this.addZero(endTimePure.getMinutes()) + ":" 
-				+ this.addZero(endTimePure.getSeconds());
+				+ addZero(endTimePure.getHours()) + ":" 
+				+ addZero(endTimePure.getMinutes()) + ":" 
+				+ addZero(endTimePure.getSeconds());
 
 			// Calculate actual worked time
 			let workTimeSeconds = Math.floor((endTimePure - (startTimePure))/1000);

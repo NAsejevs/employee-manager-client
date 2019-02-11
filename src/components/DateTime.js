@@ -1,6 +1,8 @@
 import React from "react";
 import { Row, Col } from "react-bootstrap";
 
+import { addZero } from "../utils/utils";
+
 class DateTime extends React.Component {
 	constructor() {
 		super();
@@ -16,13 +18,6 @@ class DateTime extends React.Component {
 		setInterval(() => {
 			this.getDateTime();
 		}, 1000);
-	}
-
-	addZero = (i) => {
-		if (i < 10) {
-			i = "0" + i;
-		}
-		return i;
 	}
 
 	getDateTime = () => {
@@ -48,9 +43,9 @@ class DateTime extends React.Component {
 			+ months[date.getMonth()].toLocaleLowerCase();
 
 		const displayTime = " " 
-			+ this.addZero(date.getHours()) + ":" 
-			+ this.addZero(date.getMinutes()) + ":" 
-			+ this.addZero(date.getSeconds());
+			+ addZero(date.getHours()) + ":" 
+			+ addZero(date.getMinutes()) + ":" 
+			+ addZero(date.getSeconds());
 
 		this.setState({
 			currentDate: displayDate,
