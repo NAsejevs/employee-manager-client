@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Table, Button, Modal, Badge, Image, ButtonToolbar } from 'react-bootstrap';
+import { Table, Badge, Image, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 
 import { updateDisplayEmployees } from '../actions/employeeActions';
 
@@ -14,19 +14,34 @@ import checkmark from '../images/checkmark.png';
 import user from '../images/user.png';
 
 import '../styles/main.css';
+import ContainerBox from './ContainerBox';
 
 class Employees extends React.Component {
+
+	constructor() {
+		super();
+
+		this.state = {
+			updateInterval: null,
+		}
+	}
 
 	componentDidMount() {
 		getServerEmployees().then((res) => {
 			this.props.updateDisplayEmployees(res.data);
 		});
 		
-		setInterval(() => {
+		const updateInterval = setInterval(() => {
 			getServerEmployees().then((res) => {
 				this.props.updateDisplayEmployees(res.data);
 			});
 		}, 5000);
+
+		this.setState({ updateInterval: updateInterval });
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.state.updateInterval);
 	}
 
 	render() {
@@ -40,10 +55,10 @@ class Employees extends React.Component {
 			<tr key={index} style={employee.working ? workingStyle : null}>
 				<td>{employee.id}</td>
 				<td>
-					<Image src={user} width="24" height="24"/>
-					<Link to={`/employee/${employee.id}`}>
-						{employee.name + " " + employee.surname}
-					</Link>
+					<Image src={user} width="20" height="20" className="mr-2"/>
+					<LinkContainer to={`/employee/${employee.id}`}>
+						<a href="#">{employee.name + " " + employee.surname}</a>
+					</LinkContainer>
 				</td>
 				<td>{employee.personalCode}</td>
 				<td>
@@ -54,42 +69,31 @@ class Employees extends React.Component {
 					</Badge>
 				</td>
 				<td>
-					<ButtonToolbar>
-						<Button 
+					<OverlayTrigger
+						placement={'top'}
+						overlay={
+							<Tooltip id={`tooltip-top`}>
+								Atzīmēt kā {employee.working ? 'izgājušu' : 'ienākušu'}
+							</Tooltip>
+						}
+					>
+						<span
 							className="mr-2"
-							size="sm"
-							variant={employee.working ? "warning" : "success"} 
 							onClick={() => this.setEmployeeWorking(employee.id, !employee.working)}
 						>
 							{
 								employee.working 
-								? <Image src={checkmark} width="24" height="24"/>
-								: <Image src={cancel} width="24" height="24"/>
+								? <Image src={cancel} width="24" height="24"/>
+								: <Image src={checkmark} width="24" height="24"/>
 							}
-						</Button>
-						{/* <Button
-							className="mr-2"
-							size="sm"
-							variant={"primary"} 
-						>
-							<Image src={edit} width="24" height="24"/>
-						</Button>
-						<Button 
-							size="sm"
-							variant={"danger"} 
-						>
-							<Image src={trash} width="24" height="24"/>
-						</Button> */}
-					</ButtonToolbar>
+						</span>
+					</OverlayTrigger>
 				</td>
 			</tr>
 		);
 
 		return (
-			<Modal.Dialog className="modalContainer">
-				<Modal.Header>
-					<Modal.Title>Darbinieku Saraksts</Modal.Title>
-				</Modal.Header>
+			<ContainerBox header={'Darbinieku Saraksts'}>
 				<Table hover>
 					<thead>
 						<tr>
@@ -104,7 +108,7 @@ class Employees extends React.Component {
 						{employees}
 					</tbody>
 				</Table>
-			</Modal.Dialog>
+			</ContainerBox>
 		);
 	}
 

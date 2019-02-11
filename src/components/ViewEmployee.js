@@ -1,10 +1,12 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import { Modal, Table } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 
 import { getServerEmployee, getServerEmployeeWorkLog } from '../utils/utils';
 
 import '../styles/main.css';
+
+import ContainerBox from './ContainerBox';
 
 class ViewEmployee extends React.Component {
 	constructor(props) {
@@ -12,8 +14,12 @@ class ViewEmployee extends React.Component {
 
 		this.state = {
 			userId: this.props.match.params.id,
-			employee: {},
+			employee: {
+				name: " ",
+				surname: " "
+			},
 			workLog: [],
+			updateInterval: null,
 		}
 	}
 
@@ -30,7 +36,7 @@ class ViewEmployee extends React.Component {
 			});
 		});
 
-		setInterval(() => {
+		const updateInterval = setInterval(() => {
 			getServerEmployee(this.state.userId).then((res) => {
 				this.setState({
 					employee: res.data
@@ -42,7 +48,13 @@ class ViewEmployee extends React.Component {
 					workLog: res.data
 				});
 			});
-		}, 1000);
+		}, 5000);
+
+		this.setState({ updateInterval: updateInterval });
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.state.updateInterval);
 	}
 
 	addZero = (i) => {
@@ -107,10 +119,7 @@ class ViewEmployee extends React.Component {
 		});
 
 		return (
-			<Modal.Dialog className="modalContainer">
-				<Modal.Header>
-					<Modal.Title>{this.state.employee.name + " " + this.state.employee.surname}</Modal.Title>
-				</Modal.Header>
+			<ContainerBox header={this.state.employee.name + " " + this.state.employee.surname}>
 				<Table hover>
 					<thead>
 						<tr>
@@ -123,7 +132,7 @@ class ViewEmployee extends React.Component {
 						{workLog}
 					</tbody>
 				</Table>
-			</Modal.Dialog>
+			</ContainerBox>
 		);
 	}
 }

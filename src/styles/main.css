@@ -10,3 +10,22 @@
 .table {
 	margin-bottom: 0;
 }
+
+body {
+	background-color:#ececec;
+}
+
+.container-box-body {
+	background-color: white;
+	padding: 20px;
+}
+
+.container-box-header {
+	background-color: #343a40 !important;
+	margin-top: 20px;
+	color: white;
+	padding: 5px;
+	padding-left: 15px;
+	font-size: 1.25rem;
+	height: 40px;
+}
