@@ -2,6 +2,12 @@ import axios from "axios";
 
 import { serverURL } from "../server/serverConfig";
 
+const requestConfig = {
+    headers: {
+		"Content-Type": "application/json"
+    }
+};
+
 export const getServerEmployees = () => {
 	return axios.post(serverURL + "getEmployees");
 }
@@ -9,13 +15,13 @@ export const getServerEmployees = () => {
 export const getServerEmployee = (id) => {
 	return axios.post(serverURL + "getEmployee", { 
 		id 
-	});
+	}, requestConfig);
 }
 
 export const getServerEmployeeWorkLog = (id) => {
 	return axios.post(serverURL + "getEmployeeWorkLog", { 
 		id 
-	});
+	}, requestConfig);
 }
 
 export const addServerEmployee = (employee) => {

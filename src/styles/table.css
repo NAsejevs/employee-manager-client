@@ -1,3 +1,16 @@
 .react-bootstrap-table table {
     table-layout: auto;
 }
+
+.react-bootstrap-table-pagination {
+    padding-top: 20px;
+    flex-wrap: nowrap;
+}
+
+.react-bootstrap-table-page-btns-ul {
+    justify-content: flex-end;
+}
+
+.react-bootstrap-table table thead tr th {
+    border-top: 0;
+}

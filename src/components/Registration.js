@@ -1,12 +1,10 @@
 import { connect } from "react-redux";
 import React from "react";
-import { Form, Button, Alert } from "react-bootstrap";
+import { Form, Button, Alert, Modal } from "react-bootstrap";
 
 import { addServerEmployee, getServerEmployees } from "../utils/utils";
 
 import { updateDisplayEmployees } from "../actions/employeeActions";
-
-import ContainerBox from "./ContainerBox";
 
 class Registration extends React.Component {
 	constructor(props) {
@@ -55,8 +53,6 @@ class Registration extends React.Component {
 					});
 				}, 3000);
 			});
-		}).catch(() => {
-			console.log(" wefwef");
 		});
 
 		this.setState({ 
@@ -68,8 +64,12 @@ class Registration extends React.Component {
 
 	render() {
 		return (
-			<ContainerBox header={"Jauna Darbinieka Reģistrācija"}>
+			<Modal show={this.props.showRegistrationModal} onHide={this.props.handleRegistrationClose}>
 				<Form onSubmit={this.onFormSubmit}>
+				<Modal.Header closeButton>
+					<Modal.Title>Pievienot Darbinieku</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
 					<Form.Group>
 						<Form.Label>* Vārds</Form.Label>
 						<Form.Control required value={this.state.name} onChange={this.onNameChange}/>
@@ -87,11 +87,14 @@ class Registration extends React.Component {
 					<Alert variant={"success"} show={this.state.success} onClose={() => null}>
 						Darbinieks veiksmīgi pievienots darbinieku sarakstam!
 					</Alert>
+				</Modal.Body>
+				<Modal.Footer>
 					<Button type="submit">
 						Pievienot!
 					</Button>
+				</Modal.Footer>
 				</Form>
-			</ContainerBox>
+			</Modal>
 		);
 	}
 }

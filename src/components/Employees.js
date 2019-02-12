@@ -1,12 +1,10 @@
 import { connect } from "react-redux";
 import React from "react";
 
-import { Badge, Image, OverlayTrigger, Tooltip, Form, Row, Col } from "react-bootstrap";
+import { Badge, Image, OverlayTrigger, Tooltip } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory, { textFilter, Comparator } from "react-bootstrap-table2-filter";
 import paginationFactory from "react-bootstrap-table2-paginator";
-
-import { LinkContainer } from "react-router-bootstrap";
 
 import { updateDisplayEmployees } from "../actions/employeeActions";
 
@@ -21,6 +19,7 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import "../styles/table.css";
 
 import ContainerBox from "./ContainerBox";
+import ViewEmployee from "./ViewEmployee";
 
 
 class Employees extends React.Component {
@@ -29,6 +28,8 @@ class Employees extends React.Component {
 		super();
 
 		this.state = {
+			workLogUserId: null,
+			showWorkLogModal: false,
 			updateInterval: null,
 			employees: [],
 			tableData: [],
@@ -153,14 +154,26 @@ class Employees extends React.Component {
 		});
 	}
 
+	showWorkLog = (userId) => {
+		this.setState({
+			workLogUserId: userId,
+			showWorkLogModal: true,
+		});
+	}
+
+	handleWorkLogClose = () => {
+		this.setState({
+			showWorkLogModal: false,
+			workLogUserId: null,
+		});
+	}
+
 	render() {
 		const nameFormatter = (cell, row) => {
 			return (
 				<div>
 					<Image src={user} width="20" height="20" className="mr-2"/>
-					<LinkContainer to={`/employee/${row.employee.id}`}>
-						<a href="#employee">{cell}</a>
-					</LinkContainer>
+					<a onClick={() => this.showWorkLog(row.employee.id)} href="#employee">{cell}</a>
 				</div>
 			);
 		};
@@ -193,11 +206,13 @@ class Employees extends React.Component {
 				delay: 1,
 			}),
 			filterRenderer: null,
-		}, {
-			dataField: 'personalCode',
-			text: 'Pers. Kods',
-			sort: true,
-		}, {
+		}, 
+		// {
+		// 	dataField: 'personalCode',
+		// 	text: 'Pers. Kods',
+		// 	sort: true,
+		// },
+		{
 			dataField: 'status',
 			text: 'Status',
 			sort: true,
@@ -262,6 +277,11 @@ class Employees extends React.Component {
 					remote={ { filter: true } }
 					onTableChange={ this.onTableChange }
 					pagination={ pagination }
+				/>
+				<ViewEmployee 
+					showWorkLogModal={this.state.showWorkLogModal} 
+					handleWorkLogClose={this.handleWorkLogClose}
+					userId={this.state.workLogUserId}
 				/>
 			</ContainerBox>
 		);

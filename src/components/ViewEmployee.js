@@ -1,21 +1,19 @@
 import { connect } from "react-redux";
 import React from "react";
-import { Table } from "react-bootstrap";
+import { Table, Modal } from "react-bootstrap";
+import DatePicker from "react-datepicker";
 
 import { addZero, getServerEmployee, getServerEmployeeWorkLog } from "../utils/utils";
 
 import "../styles/main.css";
-
-import ContainerBox from "./ContainerBox";
 
 class ViewEmployee extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			userId: this.props.match.params.id,
 			employee: {
-				name: " ",
+				name: "Ielādē...",
 				surname: " "
 			},
 			workLog: [],
@@ -23,38 +21,62 @@ class ViewEmployee extends React.Component {
 		}
 	}
 
-	componentDidMount() {
-		getServerEmployee(this.state.userId).then((res) => {
+	componentDidUpdate(prevProps) {
+		if (this.props.userId !== prevProps.userId && this.props.userId !== null) {
+			this.fetchWorkLog();
+		}
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.state.updateInterval);
+	}
+
+	fetchWorkLog = () => {
+		const userId = this.props.userId;
+
+		getServerEmployee(this.props.userId).then((res) => {
+			if(this.props.userId !== userId) return;
 			this.setState({
 				employee: res.data
 			});
 		});
 
-		getServerEmployeeWorkLog(this.state.userId).then((res) => {
+		getServerEmployeeWorkLog(this.props.userId).then((res) => {
+			if(this.props.userId !== userId) return;
 			this.setState({
 				workLog: res.data
 			});
 		});
 
-		const updateInterval = setInterval(() => {
-			getServerEmployee(this.state.userId).then((res) => {
-				this.setState({
-					employee: res.data
+		this.setState({ 
+			updateInterval: setInterval(() => {
+				getServerEmployee(this.props.userId).then((res) => {
+					if(this.props.userId !== userId) return;
+					this.setState({
+						employee: res.data
+					});
 				});
-			});
 
-			getServerEmployeeWorkLog(this.state.userId).then((res) => {
-				this.setState({
-					workLog: res.data
+				getServerEmployeeWorkLog(this.props.userId).then((res) => {
+					if(this.props.userId !== userId) return;
+					this.setState({
+						workLog: res.data
+					});
 				});
-			});
-		}, 5000);
-
-		this.setState({ updateInterval: updateInterval });
+			}, 5000)
+		});
 	}
 
-	componentWillUnmount() {
+	onModalHide = () => {
 		clearInterval(this.state.updateInterval);
+
+		this.setState({
+			employee: {
+				name: "Ielādē...",
+				surname: " "
+			},
+			workLog: []
+		});
 	}
 
 	render() {
@@ -70,8 +92,7 @@ class ViewEmployee extends React.Component {
 				+ addZero(startTimePure.getFullYear()) + " "
 				// Time
 				+ addZero(startTimePure.getHours()) + ":" 
-				+ addZero(startTimePure.getMinutes()) + ":" 
-				+ addZero(startTimePure.getSeconds());
+				+ addZero(startTimePure.getMinutes());
 
 			const endTimeString = stillWorking ? " - " :
 				// Date
@@ -80,8 +101,7 @@ class ViewEmployee extends React.Component {
 				+ addZero(endTimePure.getFullYear()) + " "
 				// Time
 				+ addZero(endTimePure.getHours()) + ":" 
-				+ addZero(endTimePure.getMinutes()) + ":" 
-				+ addZero(endTimePure.getSeconds());
+				+ addZero(endTimePure.getMinutes());
 
 			// Calculate actual worked time
 			let workTimeSeconds = Math.floor((endTimePure - (startTimePure))/1000);
@@ -95,8 +115,7 @@ class ViewEmployee extends React.Component {
 			
 			const workTimeString =
 				+ workTimeHours + " st. "
-				+ workTimeMinutes + " min. "
-				+ workTimeSeconds + " sek. ";
+				+ workTimeMinutes + " min. ";
 
 			const workingStyle = {
 				backgroundColor: "#ffffe6",
@@ -112,20 +131,39 @@ class ViewEmployee extends React.Component {
 		});
 
 		return (
-			<ContainerBox header={this.state.employee.name + " " + this.state.employee.surname}>
-				<Table hover>
-					<thead>
-						<tr>
-							<th>ATSKAITE SĀKTA</th>
-							<th>ATSKAITE BEIGTA</th>
-							<th>NOSTRĀDĀTS</th>
-						</tr>
-					</thead>
-					<tbody>
-						{workLog}
-					</tbody>
-				</Table>
-			</ContainerBox>
+			<Modal 
+				show={this.props.showWorkLogModal} 
+				onHide={() => { 
+					this.props.handleWorkLogClose()
+					this.onModalHide()
+				}} 
+				size={"lg"}
+			>
+				<Modal.Header closeButton>
+					<Modal.Title>{this.state.employee.name + " " + this.state.employee.surname}</Modal.Title>
+				</Modal.Header>
+
+				<Modal.Body>
+					<DatePicker/>
+					{
+						this.state.workLog.length
+						? (
+						<Table hover>
+							<thead>
+								<tr>
+									<th>ATSKAITE SĀKTA</th>
+									<th>ATSKAITE BEIGTA</th>
+									<th>NOSTRĀDĀTS</th>
+								</tr>
+							</thead>
+							<tbody>
+								{workLog}
+							</tbody>
+						</Table>)
+						: " "
+					}
+				</Modal.Body>
+			</Modal>
 		);
 	}
 }

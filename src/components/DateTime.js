@@ -44,8 +44,7 @@ class DateTime extends React.Component {
 
 		const displayTime = " " 
 			+ addZero(date.getHours()) + ":" 
-			+ addZero(date.getMinutes()) + ":" 
-			+ addZero(date.getSeconds());
+			+ addZero(date.getMinutes());
 
 		this.setState({
 			currentDate: displayDate,

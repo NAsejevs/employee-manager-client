@@ -4,7 +4,6 @@ import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
 
 import Employees from "./Employees";
-import ViewEmployee from "./ViewEmployee";
 import Registration from "./Registration";
 import DateTime from "./DateTime";
 import NotFound from "./NotFound";
@@ -16,6 +15,26 @@ import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
 import "../styles/main.css";
 
 class App extends React.Component {
+	constructor() {
+		super();
+
+		this.state = {
+			showRegistrationModal: false,
+		}
+	}
+
+	showRegistration = () => {
+		this.setState({
+			showRegistrationModal: true,
+		});
+	}
+
+	handleRegistrationClose = () => {
+		this.setState({
+			showRegistrationModal: false,
+		});
+	}
+
 	render() {
 		return (
 			<Router>
@@ -39,9 +58,7 @@ class App extends React.Component {
 										<LinkContainer exact={true} to="/">
 											<Nav.Link>Darbinieki</Nav.Link>
 										</LinkContainer>
-										<LinkContainer to="/registration">
-											<Nav.Link>Reģistrācija</Nav.Link>
-										</LinkContainer>
+										<Nav.Link onClick={this.showRegistration}>Reģistrācija</Nav.Link>
 									</Nav>
 									<Navbar.Text>
 										<DateTime/>
@@ -54,10 +71,12 @@ class App extends React.Component {
 						<Col>
 							<Switch>
 								<Route exact path="/" component={Employees} />
-								<Route path="/registration" component={Registration} />
-								<Route path="/employee/:id" component={ViewEmployee} />
 								<Route component={NotFound} />
 							</Switch>
+							<Registration 
+								showRegistrationModal={this.state.showRegistrationModal}
+								handleRegistrationClose={this.handleRegistrationClose}
+							/>
 						</Col>
 					</Row>
 					<Row>
@@ -68,18 +87,6 @@ class App extends React.Component {
 				</Container>
 			</Router>
 		);
-	}
-
-	onClickEmployees = () => {
-		this.setState({
-			visibilityState: this.visibility.VISIBILITY_EMPLOYEES
-		});
-	}
-
-	onClickRegistration = () => {
-		this.setState({
-			visibilityState: this.visibility.VISIBILITY_REGISTRATION
-		});
 	}
 }
 
