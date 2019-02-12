@@ -33,3 +33,9 @@ body {
 .filterForm {
 	margin-bottom: 20px;
 }
+
+.footer {
+	text-align: center;
+	padding-top: 10px;
+	color: #b1b1b1;
+}

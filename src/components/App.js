@@ -60,6 +60,11 @@ class App extends React.Component {
 							</Switch>
 						</Col>
 					</Row>
+					<Row>
+						<Col className="footer">
+							Vārpas 1 © 2019
+						</Col>
+					</Row>
 				</Container>
 			</Router>
 		);
