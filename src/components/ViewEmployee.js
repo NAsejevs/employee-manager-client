@@ -5,6 +5,8 @@ import DatePicker from "react-datepicker";
 
 import { addZero, getServerEmployee, getServerEmployeeWorkLog } from "../utils/utils";
 
+import "react-datepicker/dist/react-datepicker.css";
+
 import "../styles/main.css";
 
 class ViewEmployee extends React.Component {
@@ -144,7 +146,23 @@ class ViewEmployee extends React.Component {
 				</Modal.Header>
 
 				<Modal.Body>
-					<DatePicker/>
+					<DatePicker
+						selected={new Date()}
+						selectsStart
+						startDate={new Date()}
+						endDate={new Date()}
+						onChange={this.handleChangeStart}
+						className="form-control"
+					/>
+
+					<DatePicker
+						selected={new Date()}
+						selectsEnd
+						startDate={new Date()}
+						endDate={this.state.endDate}
+						onChange={this.handleChangeEnd}
+						className="form-control"
+					/>
 					{
 						this.state.workLog.length
 						? (

@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const compression = require("compression");
 const app = express();
 const db = require("./database");
 
@@ -13,6 +14,7 @@ const corsOptions = {
 
 // Middleware
 app.use(
+	compression(),
 	cors(corsOptions), // User CORS to restric connections from anywhere other than localhost
 	bodyParser.json() // Parse JSON requests
 );
