@@ -66,19 +66,19 @@ class Employees extends React.Component {
 		});
 	}
 
-	onTableChange = (type, { filters }) => {
+	onTableChange = (type, newState) => {
 		this.setState({
 			filter: { 
 				type: type,
-				filters: filters ? filters : "",
+				filters: newState.filters ? newState.filters : "",
 			},
-		})
+		});
 
 		this.formatTable();
 		const result = this.state.tableData.filter((row) => {
 			let valid = true;
-			for (const dataField in filters) {
-				const { filterVal, filterType, comparator } = filters[dataField];
+			for (const dataField in newState.filters) {
+				const { filterVal, filterType, comparator } = newState.filters[dataField];
 	
 				if (filterType === 'TEXT') {
 					if (comparator === Comparator.LIKE) {
@@ -228,6 +228,14 @@ class Employees extends React.Component {
 		}];
 
 		const paginationTotalRenderer = (from, to, size) => {
+			if(to === 0) {
+				return(
+					<span className="react-bootstrap-table-pagination-total">
+						&nbsp;Netika atrasts neviens rezultāts
+					</span>
+				);
+			}
+
 			return(
 				<span className="react-bootstrap-table-pagination-total">
 					&nbsp;Rāda { to-from+1 } no { size } rezultātiem
@@ -239,12 +247,10 @@ class Employees extends React.Component {
 			page: 1,
 			alwaysShowAllBtns: true,
 			showTotal: true,
+			sizePerPage : 10,
 			paginationTotalRenderer: paginationTotalRenderer,
 			sizePerPageList: [
 				{
-					text: "5",
-					value: 5,
-				},{
 					text: "10",
 					value: 10,
 				},{
