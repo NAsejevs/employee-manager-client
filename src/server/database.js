@@ -107,7 +107,7 @@ module.exports.setEmployeeWorking = (id, working, callback) => {
 	}
 
 	query = `UPDATE employees SET 
-		working = ${working},
+		working = "${working}",
 		${lastWork}
 		WHERE id = ${id}`;
 
