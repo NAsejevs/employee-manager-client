@@ -1,17 +1,15 @@
 import { connect } from "react-redux";
 import React from "react";
 
-import { Badge, Image, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Badge, Image, OverlayTrigger, Tooltip, Button } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory, { textFilter, Comparator } from "react-bootstrap-table2-filter";
 import paginationFactory from "react-bootstrap-table2-paginator";
 
 import { updateDisplayEmployees } from "../actions/employeeActions";
 
-import { addZero, getServerEmployees, setServerEmployeeWorking } from "../utils/utils";
+import { addZero, getServerEmployees } from "../utils/utils";
 
-import cancel from "../images/cancel.png";
-import checkmark from "../images/checkmark.png";
 import user from "../images/user.png";
 
 import "../styles/main.css";
@@ -20,6 +18,7 @@ import "../styles/table.css";
 
 import ContainerBox from "./ContainerBox";
 import ViewEmployee from "./ViewEmployee";
+import Commands from "./Commands";
 
 
 class Employees extends React.Component {
@@ -56,14 +55,6 @@ class Employees extends React.Component {
 
 	componentWillUnmount() {
 		clearInterval(this.state.updateInterval);
-	}
-
-	setEmployeeWorking = (id, working) => {
-		setServerEmployeeWorking(id, working).then(() => {
-			getServerEmployees().then((res) => {
-				this.setEmployees(res);
-			});
-		});
 	}
 
 	onTableChange = (type, newState) => {
@@ -129,26 +120,7 @@ class Employees extends React.Component {
 					name: (employee.name + " " + employee.surname),
 					personalCode: employee.personalCode,
 					status: lastWork,
-					commands:
-						<OverlayTrigger
-							placement={"top"}
-							overlay={
-								<Tooltip id={`tooltip-top`}>
-									Atzīmēt kā {employee.working ? "izgājušu" : "ienākušu"}
-								</Tooltip>
-							}
-						>
-							<span
-								className="mr-2"
-								onClick={() => this.setEmployeeWorking(employee.id, !employee.working)}
-							>
-								{
-									employee.working 
-									? <Image src={cancel} width="24" height="24"/>
-									: <Image src={checkmark} width="24" height="24"/>
-								}
-							</span>
-						</OverlayTrigger>
+					commands: employee,
 				});
 			})
 		});
@@ -191,6 +163,12 @@ class Employees extends React.Component {
 			);
 		};
 
+		const commandFormatter = (cell, row) => {
+			return (
+				<Commands employee={row.employee} setEmployees={this.setEmployees}/>
+			);
+		};
+
 		const columns = [{
 			dataField: 'id',
 			text: '#',
@@ -206,20 +184,15 @@ class Employees extends React.Component {
 				delay: 1,
 			}),
 			filterRenderer: null,
-		}, 
-		// {
-		// 	dataField: 'personalCode',
-		// 	text: 'Pers. Kods',
-		// 	sort: true,
-		// },
-		{
+		}, {
 			dataField: 'status',
 			text: 'Status',
 			sort: true,
 			formatter: statusFormatter
 		}, {
 			dataField: 'commands',
-			text: 'Komandas'
+			text: 'Komandas',
+			formatter: commandFormatter
 		}];
 
 		const defaultSorted = [{

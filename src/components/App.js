@@ -7,6 +7,7 @@ import Employees from "./Employees";
 import Registration from "./Registration";
 import DateTime from "./DateTime";
 import NotFound from "./NotFound";
+import DeleteEmployee from "./DeleteEmployee";
 
 import logo from "../images/logo.png";
 
@@ -77,6 +78,7 @@ class App extends React.Component {
 								showRegistrationModal={this.state.showRegistrationModal}
 								handleRegistrationClose={this.handleRegistrationClose}
 							/>
+							<DeleteEmployee/>
 						</Col>
 					</Row>
 					<Row>

@@ -13,6 +13,7 @@
 
 body {
 	background-color:#ececec;
+	margin-bottom: 100px;
 }
 
 .container-box {
@@ -45,4 +46,5 @@ body {
 }
 
 .datePicker {
+
 }
