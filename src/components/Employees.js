@@ -1,12 +1,12 @@
 import { connect } from "react-redux";
 import React from "react";
 
-import { Badge, Image, OverlayTrigger, Tooltip, Button } from "react-bootstrap";
+import { Badge, Image, Button } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory, { textFilter, Comparator } from "react-bootstrap-table2-filter";
 import paginationFactory from "react-bootstrap-table2-paginator";
 
-import { updateDisplayEmployees } from "../actions/employeeActions";
+import { updateEmployees } from "../actions/employeeActions";
 
 import { addZero, getServerEmployees } from "../utils/utils";
 
@@ -30,7 +30,6 @@ class Employees extends React.Component {
 			workLogUserId: null,
 			showWorkLogModal: false,
 			updateInterval: null,
-			employees: [],
 			tableData: [],
 			filter: {
 				type: "",
@@ -73,7 +72,7 @@ class Employees extends React.Component {
 	
 				if (filterType === 'TEXT') {
 					if (comparator === Comparator.LIKE) {
-						valid = row[dataField].toString().indexOf(filterVal) > -1;
+						valid = row[dataField].toString().toLowerCase().indexOf(filterVal.toLowerCase()) > -1;
 					} else {
 						valid = row[dataField] === filterVal;
 					}
@@ -88,9 +87,7 @@ class Employees extends React.Component {
 	}
 
 	setEmployees = (res) => {
-		this.setState({
-			employees: res.data
-		});
+		this.props.updateEmployees(res.data);
 
 		this.formatTable();
 
@@ -100,7 +97,7 @@ class Employees extends React.Component {
 
 	formatTable = () => {
 		this.setState({ tableData: 
-			this.state.employees.map((employee) => {
+			this.props.employees.map((employee) => {
 				let lastWorkTimePure = employee.working 
 					? new Date(employee.last_work_start) 
 					: new Date(employee.last_work_end) 
@@ -145,7 +142,7 @@ class Employees extends React.Component {
 			return (
 				<div>
 					<Image src={user} width="20" height="20" className="mr-2"/>
-					<a onClick={() => this.showWorkLog(row.employee.id)} href="#employee">{cell}</a>
+					<Button variant="link" onClick={() => this.showWorkLog(row.employee.id)}>{cell}</Button>
 				</div>
 			);
 		};
@@ -173,10 +170,12 @@ class Employees extends React.Component {
 			dataField: 'id',
 			text: '#',
 			sort: true,
+			classes: "align-middle",
 		}, {
 			dataField: 'name',
 			text: 'Vārds',
 			sort: true,
+			classes: "align-middle",
 			formatter: nameFormatter,
 			filter: textFilter({
 				placeholder: "Vārds...",
@@ -188,10 +187,12 @@ class Employees extends React.Component {
 			dataField: 'status',
 			text: 'Status',
 			sort: true,
+			classes: "align-middle",
 			formatter: statusFormatter
 		}, {
 			dataField: 'commands',
 			text: 'Komandas',
+			classes: "align-middle",
 			formatter: commandFormatter
 		}];
 
@@ -237,7 +238,7 @@ class Employees extends React.Component {
 					value: 100,
 				},{
 					text: "Visi",
-					value: this.state.employees.length,
+					value: this.props.employees.length,
 				}
 			]
 		});
@@ -275,7 +276,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
-		updateDisplayEmployees: (employees) => dispatch(updateDisplayEmployees(employees)),
+		updateEmployees: (employees) => dispatch(updateEmployees(employees)),
 	};
 }
 

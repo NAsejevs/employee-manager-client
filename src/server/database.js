@@ -119,3 +119,18 @@ module.exports.setEmployeeWorking = (id, working, callback) => {
 		}
 	});
 }
+
+module.exports.deleteEmployee = (id, callback) => {
+	const query = `DELETE FROM employees 
+		WHERE
+		id = ${id}
+	`;
+
+	db.run(query, (err) => {
+		if (err) {
+			console.log(err);
+		} else {
+			callback();
+		}
+	});
+}

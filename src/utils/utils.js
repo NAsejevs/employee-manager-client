@@ -2,10 +2,6 @@ import axios from "axios";
 
 import { serverURL } from "../server/serverConfig";
 
-import store from "../store/configureStore";
-
-import { showDeleteEmployee } from "../actions/commandActions";
-
 const requestConfig = {
 	headers: {
 		"Content-Type": "application/json"
@@ -39,6 +35,12 @@ export const setServerEmployeeWorking = (id, working) => {
 		working
 	});
 }
+
+export const deleteEmployee = (id) => {
+	return axios.post(serverURL + "deleteEmployee", {
+		id
+	});
+}
 // ---------------------------------------
 
 export const setEmployeeWorking = (id, working, callback) => {
@@ -51,11 +53,6 @@ export const setEmployeeWorking = (id, working, callback) => {
 
 export const editEmployee = (id) => {
 	console.log("edit");
-}
-
-export const deleteEmployee = (id) => {
-	console.log("delete");
-	store().dispatch(showDeleteEmployee());
 }
 
 export const addZero = (i) => {

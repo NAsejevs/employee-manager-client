@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Image, OverlayTrigger, Tooltip, Button } from "react-bootstrap";
 
-import { setEmployeeWorking, editEmployee, deleteEmployee } from "../utils/utils";
+import { setEmployeeWorking, editEmployee } from "../utils/utils";
 
 import { showDeleteEmployee, hideDeleteEmployee } from "../actions/commandActions";
 
@@ -68,7 +68,7 @@ const Commands = (props) => {
 				variant="danger" 
 				size="sm"
 				className="mr-1"
-				onClick={() => props.showDeleteEmployee()}
+				onClick={() => props.showDeleteEmployee(props.employee)}
 			>
 				<OverlayTrigger
 					placement={"top"}
@@ -97,7 +97,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
-		showDeleteEmployee: () => dispatch(showDeleteEmployee()),
+		showDeleteEmployee: (employee) => dispatch(showDeleteEmployee(employee)),
 		hideDeleteEmployee: () => dispatch(hideDeleteEmployee()),
 	};
 }

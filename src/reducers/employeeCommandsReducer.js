@@ -9,6 +9,7 @@ export const employeeCommands = (state = employeeInitialState, action) => {
 				deleteEmployee: {
 					...state.deleteEmployee,
 					show: true,
+					employee: action.payload,
 				},
 			}
 		case HIDE_DELETE_EMPLOYEE:
@@ -17,6 +18,7 @@ export const employeeCommands = (state = employeeInitialState, action) => {
 				deleteEmployee: {
 					...state.deleteEmployee,
 					show: false,
+					id: {},
 				},
 			}
 		default:

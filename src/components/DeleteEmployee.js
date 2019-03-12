@@ -1,38 +1,36 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 
 import { showDeleteEmployee, hideDeleteEmployee } from "../actions/commandActions";
 
+import { deleteEmployee } from "../utils/utils";
+
 class DeleteEmployee extends React.Component {
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			show: false,
-		}
-	}
-
-	onModalHide = () => {
-		this.setState({
-			show: false,
-		});
-	}
-
 	render() {
 		return (
 			<Modal 
-				show={this.props.deleteEmployee.show} 
-				onHide={() => this.props.hideDeleteEmployee()} 
-				size={"lg"}
+				centered
+				show={this.props.deleteEmployee.show}
+				onHide={() => this.props.hideDeleteEmployee()}
 			>
 				<Modal.Header closeButton>
-					<Modal.Title>Dzēst Darbinieku?</Modal.Title>
+					<Modal.Title>{this.props.deleteEmployee.employee.name + " " + this.props.deleteEmployee.employee.surname}</Modal.Title>
 				</Modal.Header>
 
 				<Modal.Body>
 					Vai esiet pārliecināts ka vēlaties dzēst šo darbinieku?
 				</Modal.Body>
+
+				<Modal.Footer>
+					<Button variant="secondary" onClick={() => this.props.hideDeleteEmployee()}>Atcelt</Button>
+					<Button variant="danger" onClick={() => {
+						deleteEmployee(this.props.deleteEmployee.employee.id);
+						this.props.hideDeleteEmployee();
+					}}>
+						Dzēst
+					</Button>
+				</Modal.Footer>
 			</Modal>
 		);
 	}

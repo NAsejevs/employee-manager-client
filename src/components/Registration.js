@@ -4,7 +4,7 @@ import { Form, Button, Alert, Modal } from "react-bootstrap";
 
 import { addServerEmployee, getServerEmployees } from "../utils/utils";
 
-import { updateDisplayEmployees } from "../actions/employeeActions";
+import { updateEmployees } from "../actions/employeeActions";
 
 class Registration extends React.Component {
 	constructor(props) {
@@ -43,7 +43,7 @@ class Registration extends React.Component {
 
 		addServerEmployee(employee).then(() => {
 			getServerEmployees().then((res) => {
-				this.props.updateDisplayEmployees(res.data);
+				this.props.updateEmployees(res.data);
 				this.setState({
 					success: true,
 				});
@@ -107,7 +107,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
-		updateDisplayEmployees: (employees) => dispatch(updateDisplayEmployees(employees)),
+		updateEmployees: (employees) => dispatch(updateEmployees(employees)),
 	};
 }
 

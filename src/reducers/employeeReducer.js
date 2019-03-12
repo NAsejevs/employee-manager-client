@@ -6,7 +6,7 @@ export const employees = (state = employeeInitialState, action) => {
 		case UPDATE_EMPLOYEES:
 			return {
 				...state,
-				employees: [...action.employees],
+				employees: [...action.payload],
 			}
 		default:
 			return state;

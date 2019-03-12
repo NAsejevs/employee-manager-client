@@ -135,10 +135,8 @@ class ViewEmployee extends React.Component {
 		return (
 			<Modal 
 				show={this.props.showWorkLogModal} 
-				onHide={() => { 
-					this.props.handleWorkLogClose()
-					this.onModalHide()
-				}} 
+				onHide={() => this.props.handleWorkLogClose()}
+				onExited={() => this.onModalHide()}
 				size={"lg"}
 			>
 				<Modal.Header closeButton>
