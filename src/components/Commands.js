@@ -2,9 +2,14 @@ import React from "react";
 import { connect } from "react-redux";
 import { Image, OverlayTrigger, Tooltip, Button } from "react-bootstrap";
 
-import { setEmployeeWorking, editEmployee } from "../utils/utils";
+import { setEmployeeWorking } from "../utils/utils";
 
-import { showDeleteEmployee, hideDeleteEmployee } from "../actions/commandActions";
+import { 
+	showDeleteEmployee, 
+	hideDeleteEmployee,
+	showEditEmployee,
+	hideEditEmployee,
+} from "../actions/commandActions";
 
 import cancel from "../images/cancel.png";
 import checkmark from "../images/checkmark.png";
@@ -19,7 +24,8 @@ const Commands = (props) => {
 
 	return (
 		<div>
-			<Button 
+			<Button
+				variant={props.employee.working ? "secondary" : "success"}
 				size="sm" 
 				className="mr-1"
 				onClick={() => setEmployeeWorking(props.employee.id, !props.employee.working, (res) => {
@@ -47,7 +53,7 @@ const Commands = (props) => {
 				variant="warning" 
 				size="sm" 
 				className="mr-1" 
-				onClick={() => editEmployee(props.employee.id)}
+				onClick={() => props.showEditEmployee(props.employee)}
 			>
 				<OverlayTrigger
 					placement={"top"}
@@ -99,6 +105,8 @@ function mapDispatchToProps(dispatch) {
 	return {
 		showDeleteEmployee: (employee) => dispatch(showDeleteEmployee(employee)),
 		hideDeleteEmployee: () => dispatch(hideDeleteEmployee()),
+		showEditEmployee: (employee) => dispatch(showEditEmployee(employee)),
+		hideEditEmployee: () => dispatch(hideEditEmployee()),
 	};
 }
 

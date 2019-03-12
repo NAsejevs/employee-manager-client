@@ -64,7 +64,11 @@ class Registration extends React.Component {
 
 	render() {
 		return (
-			<Modal show={this.props.showRegistrationModal} onHide={this.props.handleRegistrationClose}>
+			<Modal 
+				centered
+				show={this.props.showRegistrationModal} 
+				onHide={this.props.handleRegistrationClose}
+			>
 				<Form onSubmit={this.onFormSubmit}>
 				<Modal.Header closeButton>
 					<Modal.Title>Pievienot Darbinieku</Modal.Title>

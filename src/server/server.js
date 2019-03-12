@@ -71,9 +71,16 @@ app.post("/setEmployeeWorking", (req, res) => {
 	});
 });
 
-// Toggle the employee"s working state
+// Delete the employee from it's ID
 app.post("/deleteEmployee", (req, res) => {
 	db.deleteEmployee(req.body.id, () => {
+		res.end();
+	});
+});
+
+// Edit the employee's data
+app.post("/editEmployee", (req, res) => {
+	db.editEmployee(req.body.employee, () => {
 		res.end();
 	});
 });

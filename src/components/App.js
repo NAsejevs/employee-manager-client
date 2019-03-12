@@ -8,6 +8,7 @@ import Registration from "./Registration";
 import DateTime from "./DateTime";
 import NotFound from "./NotFound";
 import DeleteEmployee from "./DeleteEmployee";
+import EditEmployee from "./EditEmployee";
 
 import logo from "../images/logo.png";
 
@@ -79,6 +80,7 @@ class App extends React.Component {
 								handleRegistrationClose={this.handleRegistrationClose}
 							/>
 							<DeleteEmployee/>
+							<EditEmployee/>
 						</Col>
 					</Row>
 					<Row>

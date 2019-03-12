@@ -41,6 +41,12 @@ export const deleteEmployee = (id) => {
 		id
 	});
 }
+
+export const editEmployee = (employee) => {
+	return axios.post(serverURL + "editEmployee", {
+		employee
+	});
+}
 // ---------------------------------------
 
 export const setEmployeeWorking = (id, working, callback) => {
@@ -49,10 +55,6 @@ export const setEmployeeWorking = (id, working, callback) => {
 			callback(res);
 		});
 	});
-}
-
-export const editEmployee = (id) => {
-	console.log("edit");
 }
 
 export const addZero = (i) => {

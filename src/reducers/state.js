@@ -4,4 +4,8 @@ export const employeeInitialState = {
 		show: false,
 		employee: {},
 	},
+	editEmployee: {
+		show: false,
+		employee: {},
+	}
 };

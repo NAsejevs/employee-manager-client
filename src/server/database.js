@@ -134,3 +134,25 @@ module.exports.deleteEmployee = (id, callback) => {
 		}
 	});
 }
+
+module.exports.editEmployee = (employee, callback) => {
+	console.log(employee);
+
+	const query = `UPDATE employees 
+	SET 
+		name = "${employee.name}",
+		surname = "${employee.surname}",
+		personalCode = "${employee.personalCode}"
+	WHERE 
+		id = ${employee.id}`;
+
+		console.log(query);
+
+	db.run(query, (err) => {
+		if (err) {
+			console.log(err);
+		} else {
+			callback();
+		}
+	});
+}
