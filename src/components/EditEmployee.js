@@ -4,7 +4,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 
 import { showEditEmployee, hideEditEmployee } from "../actions/commandActions";
 
-import { editEmployee } from "../utils/utils";
+import { editServerEmployee, getEmployees } from "../utils/utils";
 
 class EditEmployee extends React.Component {
 	constructor(props) {
@@ -89,8 +89,10 @@ class EditEmployee extends React.Component {
 				<Modal.Footer>
 					<Button variant="secondary" onClick={() => this.props.hideEditEmployee()}>Atcelt</Button>
 					<Button variant="success" onClick={() => {
+						editServerEmployee(this.state.employee).then(() => {
+							getEmployees();
+						});
 						this.props.hideEditEmployee();
-						editEmployee(this.state.employee);
 					}}>
 						Rediģēt
 					</Button>

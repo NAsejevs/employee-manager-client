@@ -1,6 +1,9 @@
 import axios from "axios";
+import store from "../store/store";
 
 import { serverURL } from "../server/serverConfig";
+
+import { updateEmployees } from "../actions/employeeActions";
 
 const requestConfig = {
 	headers: {
@@ -36,18 +39,24 @@ export const setServerEmployeeWorking = (id, working) => {
 	});
 }
 
-export const deleteEmployee = (id) => {
+export const deleteServerEmployee = (id) => {
 	return axios.post(serverURL + "deleteEmployee", {
 		id
 	});
 }
 
-export const editEmployee = (employee) => {
+export const editServerEmployee = (employee) => {
 	return axios.post(serverURL + "editEmployee", {
 		employee
 	});
 }
 // ---------------------------------------
+
+export const getEmployees = () => {
+	getServerEmployees().then((res) => {
+		store.dispatch(updateEmployees(res.data));
+	});
+}
 
 export const setEmployeeWorking = (id, working, callback) => {
 	setServerEmployeeWorking(id, working).then(() => {

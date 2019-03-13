@@ -1,7 +1,8 @@
-import { employeeInitialState } from './state';
+import initialState from "../store/initialState";
+
 import { UPDATE_EMPLOYEES } from '../actions/actionTypes';
 
-export const employees = (state = employeeInitialState, action) => {
+export const employees = (state = initialState, action) => {
 	switch (action.type) {
 		case UPDATE_EMPLOYEES:
 			return {

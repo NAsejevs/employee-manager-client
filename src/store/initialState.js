@@ -1,4 +1,4 @@
-export const employeeInitialState = {
+const initialState = {
 	employees: [],
 	deleteEmployee: {
 		show: false,
@@ -9,3 +9,5 @@ export const employeeInitialState = {
 		employee: {},
 	}
 };
+
+export default initialState;

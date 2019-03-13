@@ -1,4 +1,5 @@
-import { employeeInitialState } from './state';
+import initialState from "../store/initialState";
+
 import {
 	SHOW_DELETE_EMPLOYEE,
 	HIDE_DELETE_EMPLOYEE,
@@ -6,7 +7,7 @@ import {
 	HIDE_EDIT_EMPLOYEE,
 } from '../actions/actionTypes';
 
-export const employeeCommands = (state = employeeInitialState, action) => {
+export const employeeCommands = (state = initialState, action) => {
 	switch (action.type) {
 		case SHOW_DELETE_EMPLOYEE:
 			return {

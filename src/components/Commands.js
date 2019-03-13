@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Image, OverlayTrigger, Tooltip, Button } from "react-bootstrap";
 
-import { setEmployeeWorking } from "../utils/utils";
+import { setServerEmployeeWorking, getEmployees } from "../utils/utils";
 
 import { 
 	showDeleteEmployee, 
@@ -28,8 +28,8 @@ const Commands = (props) => {
 				variant={props.employee.working ? "secondary" : "success"}
 				size="sm" 
 				className="mr-1"
-				onClick={() => setEmployeeWorking(props.employee.id, !props.employee.working, (res) => {
-					props.setEmployees(res);
+				onClick={() => setServerEmployeeWorking(props.employee.id, !props.employee.working).then(() => {
+					getEmployees();
 				})}
 			>
 				<OverlayTrigger

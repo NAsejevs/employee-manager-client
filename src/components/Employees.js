@@ -8,7 +8,7 @@ import paginationFactory from "react-bootstrap-table2-paginator";
 
 import { updateEmployees } from "../actions/employeeActions";
 
-import { addZero, getServerEmployees } from "../utils/utils";
+import { addZero, getEmployees } from "../utils/utils";
 
 import user from "../images/user.png";
 
@@ -39,16 +39,14 @@ class Employees extends React.Component {
 	}
 
 	componentDidMount() {
-		getServerEmployees().then((res) => {
-			this.setEmployees(res);
-		});
-		
+		getEmployees();
+
 		this.setState({
-			updateInterval: setInterval(() => {
-				getServerEmployees().then((res) => {
-					this.setEmployees(res);
-				});
-			}, 5000)
+			updateInterval: (
+				setInterval(() => {
+					getEmployees();
+				}, 5000)
+			),
 		});
 	}
 
@@ -56,46 +54,46 @@ class Employees extends React.Component {
 		clearInterval(this.state.updateInterval);
 	}
 
+	componentDidUpdate(prevProps, prevState) {
+		if(prevProps.employees !== this.props.employees) {
+			const filters = this.state.filter.filters;
+			this.onTableChange(this.state.filter.type, { filters });
+		}
+	}
+
 	onTableChange = (type, newState) => {
-		this.setState({
-			filter: { 
-				type: type,
-				filters: newState.filters ? newState.filters : "",
-			},
-		});
+		this.formatTable(() => {
+			this.setState({
+				filter: { 
+					type: type,
+					filters: newState.filters ? newState.filters : "",
+				},
+			});
 
-		this.formatTable();
-		const result = this.state.tableData.filter((row) => {
-			let valid = true;
-			for (const dataField in newState.filters) {
-				const { filterVal, filterType, comparator } = newState.filters[dataField];
-	
-				if (filterType === 'TEXT') {
-					if (comparator === Comparator.LIKE) {
-						valid = row[dataField].toString().toLowerCase().indexOf(filterVal.toLowerCase()) > -1;
-					} else {
-						valid = row[dataField] === filterVal;
+			const result = this.state.tableData.filter((row) => {
+				let valid = true;
+				for (const dataField in newState.filters) {
+					const { filterVal, filterType, comparator } = newState.filters[dataField];
+		
+					if (filterType === 'TEXT') {
+						if (comparator === Comparator.LIKE) {
+							valid = row[dataField].toString().toLowerCase().indexOf(filterVal.toLowerCase()) > -1;
+						} else {
+							valid = row[dataField] === filterVal;
+						}
 					}
+					if (!valid) break;
 				}
-				if (!valid) break;
-			}
-			return valid;
+				return valid;
+			});
+
+			this.setState({
+				tableData: result
+			});
 		});
-		this.setState(() => ({
-			tableData: result
-		}));
 	}
 
-	setEmployees = (res) => {
-		this.props.updateEmployees(res.data);
-
-		this.formatTable();
-
-		const filters = this.state.filter.filters;
-		this.onTableChange(this.state.filter.type, { filters });
-	}
-
-	formatTable = () => {
+	formatTable = (callback = () => null) => {
 		this.setState({ tableData: 
 			this.props.employees.map((employee) => {
 				let lastWorkTimePure = employee.working 
@@ -120,6 +118,8 @@ class Employees extends React.Component {
 					commands: employee,
 				});
 			})
+		}, () => {
+			callback();
 		});
 	}
 
@@ -162,7 +162,7 @@ class Employees extends React.Component {
 
 		const commandFormatter = (cell, row) => {
 			return (
-				<Commands employee={row.employee} setEmployees={this.setEmployees}/>
+				<Commands employee={row.employee}/>
 			);
 		};
 
