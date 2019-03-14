@@ -1,11 +1,12 @@
 import { connect } from "react-redux";
 import React from "react";
-import { Table, Modal } from "react-bootstrap";
+import { Table, Modal, Dropdown, DropdownButton, Col, Row, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import { addZero, getServerEmployee, getServerEmployeeWorkLog } from "../utils/utils";
 
-import "react-datepicker/dist/react-datepicker.css";
+import BoostrapDatePicker from "./BoostrapDatePicker";
 
 import "../styles/main.css";
 
@@ -13,13 +14,26 @@ class ViewEmployee extends React.Component {
 	constructor(props) {
 		super(props);
 
+		const startDate = new Date();
+		startDate.setHours(0,0,0);
+
+		const endDate = new Date();
+		endDate.setHours(23,59,59);
+
 		this.state = {
 			employee: {
 				name: "Ielādē...",
 				surname: " "
 			},
 			workLog: [],
+			results: 0,
 			updateInterval: null,
+			startDate: startDate,
+			endDate: endDate,
+			dropdown: {
+				currentFilter: "Šodiena",
+				filters: ["Šodiena", "Vakardiena", "Pēdējās 7 dienas", "Pēdējās 30 dienas"]
+			}
 		}
 	}
 
@@ -81,8 +95,80 @@ class ViewEmployee extends React.Component {
 		});
 	}
 
+	handleDateChangeStart = (date) => {
+		const startOfDay = new Date(date);
+		startOfDay.setHours(0,0,0);
+		this.setState({
+			startDate: startOfDay,
+		});
+	}
+
+	handleDateChangeEnd = (date) => {
+		const endOfDay = new Date(date);
+		endOfDay.setHours(23,59,59);
+		this.setState({
+			endDate: endOfDay,
+		});
+	}
+
+	onClickFilter = (index) => {
+		switch(index) {
+			case 0: {
+				this.handleDateChangeStart(new Date());
+				this.handleDateChangeEnd(new Date());
+				break;
+			}
+			case 1: {
+				const yesterday = new Date();
+				yesterday.setDate(yesterday.getDate() - 1);
+				this.handleDateChangeStart(yesterday);
+				this.handleDateChangeEnd(yesterday);
+				break;
+			}
+			case 2: {
+				const last7Days = new Date();
+				last7Days.setDate(last7Days.getDate() - 7);
+				this.handleDateChangeStart(last7Days);
+				this.handleDateChangeEnd(new Date());
+				break;
+			}
+			case 3: {
+				const last30Days = new Date();
+				last30Days.setDate(last30Days.getDate() - 30);
+				this.handleDateChangeStart(last30Days);
+				this.handleDateChangeEnd(new Date());
+				break;
+			}
+			default: {
+				this.handleDateChangeStart(new Date());
+				this.handleDateChangeEnd(new Date());
+				break;
+			}
+		}
+
+		this.setState({
+			dropdown: {
+				...this.state.dropdown,
+				currentFilter: this.state.dropdown.filters[index],
+			}			
+		})
+	}
+
 	render() {
-		const workLog = this.state.workLog.map((log, index) => {
+		let filterResults = 0;
+		const workLog = this.state.workLog
+		.filter((log) => {
+			// Filter out all rows which do not match the date
+			const startTimePure = new Date(log.start_time);
+
+			if(startTimePure < this.state.startDate || startTimePure > this.state.endDate) {
+				return false;
+			}
+			filterResults++;
+			return true;
+		})
+		.map((log, index) => {
+			// Format the remaining filtered work logs
 			const stillWorking = log.end_time === null ? true : false;
 			const startTimePure = new Date(log.start_time);
 			const endTimePure = stillWorking ? new Date() : new Date(log.end_time);
@@ -144,25 +230,53 @@ class ViewEmployee extends React.Component {
 				</Modal.Header>
 
 				<Modal.Body>
-					<DatePicker
-						selected={new Date()}
-						selectsStart
-						startDate={new Date()}
-						endDate={new Date()}
-						onChange={this.handleChangeStart}
-						className="form-control"
-					/>
-
-					<DatePicker
-						selected={new Date()}
-						selectsEnd
-						startDate={new Date()}
-						endDate={this.state.endDate}
-						onChange={this.handleChangeEnd}
-						className="form-control"
-					/>
+					<Form>
+						<Row>
+							<Col sm={4}>
+								<Form.Group as={Row}>
+									<Form.Label column sm={2}>No</Form.Label>
+									<Col sm={10}>
+										<DatePicker
+											dateFormat="yyyy/MM/dd"
+											customInput={<BoostrapDatePicker />}
+											selected={this.state.startDate}
+											onChange={this.handleDateChangeStart}
+											maxDate={new Date()}
+										/>
+									</Col>
+								</Form.Group>
+							</Col>
+							<Col sm={4}>
+								<Form.Group as={Row}>
+									<Form.Label column sm={2}>Līdz</Form.Label>
+									<Col sm={10}>
+										<DatePicker
+											dateFormat="yyyy/MM/dd"
+											customInput={<BoostrapDatePicker />}
+											selected={this.state.endDate}
+											onChange={this.handleDateChangeEnd}
+											maxDate={new Date()}
+										/>
+									</Col>
+								</Form.Group>
+							</Col>
+							<Col sm={4}>
+								<DropdownButton
+									variant="secondary"
+									title={this.state.dropdown.currentFilter} 
+									className="text-right"
+								>
+								{
+									this.state.dropdown.filters.map((filter, index) => {
+										return <Dropdown.Item key={index} onClick={() => this.onClickFilter(index)}>{filter}</Dropdown.Item>
+									})
+								}
+								</DropdownButton>
+							</Col>
+						</Row>
+					</Form>
 					{
-						this.state.workLog.length
+						this.state.workLog.length && filterResults
 						? (
 						<Table hover>
 							<thead>
@@ -175,8 +289,12 @@ class ViewEmployee extends React.Component {
 							<tbody>
 								{workLog}
 							</tbody>
-						</Table>)
-						: " "
+						</Table>
+						) : (
+							<div className="text-center">
+								Netika atrasts neviens ieraksts...
+							</div>
+						)
 					}
 				</Modal.Body>
 			</Modal>
