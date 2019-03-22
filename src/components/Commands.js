@@ -9,7 +9,7 @@ import {
 	hideDeleteEmployee,
 	showEditEmployee,
 	hideEditEmployee,
-} from "../actions/commandActions";
+} from "../actions/employeeActions";
 
 import cancel from "../images/cancel.png";
 import checkmark from "../images/checkmark.png";
@@ -97,7 +97,7 @@ const Commands = (props) => {
 
 function mapStateToProps(state) {
 	return {
-		deleteEmployee: state.employeeCommands.deleteEmployee,
+		deleteEmployee: state.employees.deleteEmployee,
 	};
 }
 

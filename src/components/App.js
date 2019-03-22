@@ -1,42 +1,23 @@
 import { connect } from "react-redux";
 import React from "react";
 import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
+import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 
 import Employees from "./Employees";
-import Registration from "./Registration";
+import RegisterEmployee from "./RegisterEmployee";
 import DateTime from "./DateTime";
 import NotFound from "./NotFound";
 import DeleteEmployee from "./DeleteEmployee";
 import EditEmployee from "./EditEmployee";
 
-import logo from "../images/logo.png";
+import { showRegisterEmployee } from "../actions/employeeActions";
 
-import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
+import logo from "../images/logo.png";
 
 import "../styles/main.css";
 
 class App extends React.Component {
-	constructor() {
-		super();
-
-		this.state = {
-			showRegistrationModal: false,
-		}
-	}
-
-	showRegistration = () => {
-		this.setState({
-			showRegistrationModal: true,
-		});
-	}
-
-	handleRegistrationClose = () => {
-		this.setState({
-			showRegistrationModal: false,
-		});
-	}
-
 	render() {
 		return (
 			<Router>
@@ -60,7 +41,7 @@ class App extends React.Component {
 										<LinkContainer exact={true} to="/">
 											<Nav.Link>Darbinieki</Nav.Link>
 										</LinkContainer>
-										<Nav.Link onClick={this.showRegistration}>Reģistrācija</Nav.Link>
+										<Nav.Link onClick={this.props.showRegisterEmployee}>Reģistrācija</Nav.Link>
 									</Nav>
 									<Navbar.Text>
 										<DateTime/>
@@ -75,10 +56,7 @@ class App extends React.Component {
 								<Route exact path="/" component={Employees} />
 								<Route component={NotFound} />
 							</Switch>
-							<Registration 
-								showRegistrationModal={this.state.showRegistrationModal}
-								handleRegistrationClose={this.handleRegistrationClose}
-							/>
+							<RegisterEmployee/>
 							<DeleteEmployee/>
 							<EditEmployee/>
 						</Col>
@@ -101,6 +79,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
+		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
 	};
 }
 

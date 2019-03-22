@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Modal, Button, Form } from "react-bootstrap";
 
-import { showEditEmployee, hideEditEmployee } from "../actions/commandActions";
+import { showEditEmployee, hideEditEmployee } from "../actions/employeeActions";
 
 import { editServerEmployee, getEmployees } from "../utils/utils";
 
@@ -104,7 +104,7 @@ class EditEmployee extends React.Component {
 
 function mapStateToProps(state) {
 	return {
-		editEmployee: state.employeeCommands.editEmployee,
+		editEmployee: state.employees.editEmployee,
 	};
 }
 

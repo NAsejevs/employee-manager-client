@@ -1,9 +1,9 @@
 import axios from "axios";
 import store from "../store/store";
 
-import { serverURL } from "../server/serverConfig";
-
 import { updateEmployees } from "../actions/employeeActions";
+
+const serverURL = "http://localhost:8080/";
 
 const requestConfig = {
 	headers: {
@@ -29,7 +29,7 @@ export const getServerEmployeeWorkLog = (id) => {
 }
 
 export const addServerEmployee = (employee) => {
-	return axios.post(serverURL + "createEmployee", employee);
+	return axios.post(serverURL + "addEmployee", employee);
 }
 
 export const setServerEmployeeWorking = (id, working) => {

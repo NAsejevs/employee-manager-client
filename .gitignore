@@ -1,8 +1,3 @@
-# Created by https://www.gitignore.io/api/vuejs
-# Edit at https://www.gitignore.io/?templates=vuejs
-
-### Vuejs ###
 node_modules
 .vscode
-
-# End of https://www.gitignore.io/api/vuejs
+.lock

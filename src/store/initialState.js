@@ -7,6 +7,9 @@ const initialState = {
 	editEmployee: {
 		show: false,
 		employee: {},
+	},
+	registerEmployee: {
+		show: false
 	}
 };
 

@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Modal, Button } from "react-bootstrap";
 
-import { showDeleteEmployee, hideDeleteEmployee } from "../actions/commandActions";
+import { showDeleteEmployee, hideDeleteEmployee } from "../actions/employeeActions";
 
 import { deleteServerEmployee, getEmployees } from "../utils/utils";
 
@@ -40,7 +40,7 @@ class DeleteEmployee extends React.Component {
 
 function mapStateToProps(state) {
 	return {
-		deleteEmployee: state.employeeCommands.deleteEmployee,
+		deleteEmployee: state.employees.deleteEmployee,
 	};
 }
 
