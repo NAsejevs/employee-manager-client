@@ -3,7 +3,7 @@ import store from "../store/store";
 
 import { updateEmployees } from "../actions/employeeActions";
 
-const serverURL = "http://localhost:8080/";
+const serverURL = "http://192.168.1.150:8080/";
 
 const requestConfig = {
 	headers: {
