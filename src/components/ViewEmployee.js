@@ -4,7 +4,7 @@ import { Table, Modal, Dropdown, DropdownButton, Col, Row, Form } from "react-bo
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-import { addZero, getServerEmployee, getServerEmployeeWorkLog } from "../utils/utils";
+import { addZero, getServerEmployee, getServerEmployeeWorkLog } from "../utils/employeeUtils";
 
 import BoostrapDatePicker from "./BoostrapDatePicker";
 

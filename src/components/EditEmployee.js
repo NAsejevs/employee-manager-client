@@ -4,7 +4,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 
 import { showEditEmployee, hideEditEmployee } from "../actions/employeeActions";
 
-import { editServerEmployee, getEmployees } from "../utils/utils";
+import { editServerEmployee, getEmployees } from "../utils/employeeUtils";
 
 class EditEmployee extends React.Component {
 	constructor(props) {

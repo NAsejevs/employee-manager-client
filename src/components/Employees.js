@@ -8,7 +8,7 @@ import paginationFactory from "react-bootstrap-table2-paginator";
 
 import { updateEmployees } from "../actions/employeeActions";
 
-import { addZero, getEmployees } from "../utils/utils";
+import { addZero, getEmployees } from "../utils/employeeUtils";
 
 import user from "../images/user.png";
 
@@ -105,9 +105,13 @@ class Employees extends React.Component {
 					+ addZero(lastWorkTimePure.getMinutes());
 
 
-				const lastWork = employee.working 
+				let lastWork = employee.working 
 					? "IENĀCA: " + lastWorkTime
-					: "IZGĀJA: " + lastWorkTime
+					: "IZGĀJA: " + lastWorkTime;
+
+				if(employee.working == null) {
+					lastWork = null;
+				}
 
 				return({
 					employee: employee,

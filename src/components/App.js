@@ -3,6 +3,7 @@ import React from "react";
 import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
+import Cookies from 'universal-cookie';
 
 import Employees from "./Employees";
 import RegisterEmployee from "./RegisterEmployee";
@@ -13,11 +14,26 @@ import EditEmployee from "./EditEmployee";
 
 import { showRegisterEmployee } from "../actions/employeeActions";
 
+import { authentication } from "../utils/userUtils";
+
 import logo from "../images/logo.png";
 
 import "../styles/main.css";
 
 class App extends React.Component {
+	constructor() {
+		super();
+	}
+
+	componentDidMount() {
+		const cookies = new Cookies();
+ 
+		cookies.set('myCat', 'Pacman', { path: '/' });
+		console.log(cookies.get('myCat'));
+
+		authentication();
+	}
+
 	render() {
 		return (
 			<Router>

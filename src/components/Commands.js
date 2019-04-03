@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Image, OverlayTrigger, Tooltip, Button } from "react-bootstrap";
 
-import { setServerEmployeeWorking, getEmployees } from "../utils/utils";
+import { setServerEmployeeWorking, getEmployees } from "../utils/employeeUtils";
 
 import { 
 	showDeleteEmployee, 

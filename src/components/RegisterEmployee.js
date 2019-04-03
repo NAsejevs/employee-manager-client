@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import React from "react";
 import { Form, Button, Alert, Modal } from "react-bootstrap";
 
-import { addServerEmployee, getServerEmployees, getServerEmployee, deleteServerEmployee } from "../utils/utils";
+import { addServerEmployee, getServerEmployees, getServerEmployee, deleteServerEmployee } from "../utils/employeeUtils";
 
 import { updateEmployees, showRegisterEmployee, hideRegisterEmployee } from "../actions/employeeActions";
 
@@ -11,6 +11,8 @@ const REGISTER_STATE = {
 	RFID_WAIT: 1,
 	COMPLETE: 2,
 }
+
+const DEBUG_MODE = true;
 
 class RegisterEmployee extends React.Component {
 	constructor(props) {
@@ -62,7 +64,7 @@ class RegisterEmployee extends React.Component {
 					});
 					checkInterval = setInterval(() => {
 						getServerEmployee(newEmployee.id).then((res) => {
-							if(res.data.uid !== null) {
+							if(res.data.uid !== null || DEBUG_MODE) {
 								clearInterval(checkInterval);
 								this.setState({
 									newEmployee: newEmployee,

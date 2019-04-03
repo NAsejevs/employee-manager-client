@@ -1,7 +1,7 @@
 import React from "react";
 import { Row, Col } from "react-bootstrap";
 
-import { addZero } from "../utils/utils";
+import { addZero } from "../utils/employeeUtils";
 
 class DateTime extends React.Component {
 	constructor() {
