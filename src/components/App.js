@@ -14,77 +14,101 @@ import EditEmployee from "./EditEmployee";
 
 import { showRegisterEmployee } from "../actions/employeeActions";
 
-import { authentication } from "../utils/userUtils";
+import { checkSession } from "../utils/userUtils";
 
 import logo from "../images/logo.png";
 
 import "../styles/main.css";
+import LogIn from "./LogIn";
 
 class App extends React.Component {
 	constructor() {
 		super();
+
+		this.state = {
+			loading: true,
+			authenticated: false,
+		}
 	}
 
 	componentDidMount() {
-		const cookies = new Cookies();
- 
-		cookies.set('myCat', 'Pacman', { path: '/' });
-		console.log(cookies.get('myCat'));
-
-		authentication();
+		// Check user session before displaying anything
+		checkSession().then((res) => {
+			this.setState({
+				loading: false,
+				authenticated: res.data,
+			}, () => {
+				console.log("existing key valid: ", this.state.authenticated);
+			});
+		});
 	}
 
 	render() {
-		return (
-			<Router>
-				<Container className="container">
-					<Row>
-						<Col>
-							<Navbar bg="dark" variant="dark" fixed="top" expand="md">
-								<Navbar.Brand>
-									<img 
-										src={logo}
-										alt=""
-										width="30"
-										height="30"
-										className="d-inline-block align-top"
-									/>
-									{" VĀRPAS 1"}
-								</Navbar.Brand>
-								<Navbar.Toggle aria-controls="responsive-navbar-nav"/>
-								<Navbar.Collapse id="responsive-navbar-nav">
-									<Nav className="mr-auto">
-										<LinkContainer exact={true} to="/">
-											<Nav.Link>Darbinieki</Nav.Link>
-										</LinkContainer>
-										<Nav.Link onClick={this.props.showRegisterEmployee}>Reģistrācija</Nav.Link>
-									</Nav>
-									<Navbar.Text>
-										<DateTime/>
-									</Navbar.Text>
-								</Navbar.Collapse>
-							</Navbar>
-						</Col>
-					</Row>
-					<Row>
-						<Col>
-							<Switch>
-								<Route exact path="/" component={Employees} />
-								<Route component={NotFound} />
-							</Switch>
-							<RegisterEmployee/>
-							<DeleteEmployee/>
-							<EditEmployee/>
-						</Col>
-					</Row>
-					<Row>
-						<Col className="footer">
-							Vārpas 1 © 2019
-						</Col>
-					</Row>
-				</Container>
-			</Router>
-		);
+		if(this.state.loading) {
+			// Loading screen
+			return (
+				<div>Ielādē...</div>
+			);
+		} else {
+			if(this.state.authenticated) {
+				// User interface
+				return (
+					<Router>
+						<Container className="container">
+							<Row>
+								<Col>
+									<Navbar bg="dark" variant="dark" fixed="top" expand="md">
+										<Navbar.Brand>
+											<img 
+												src={logo}
+												alt=""
+												width="30"
+												height="30"
+												className="d-inline-block align-top"
+											/>
+											{" VĀRPAS 1"}
+										</Navbar.Brand>
+										<Navbar.Toggle aria-controls="responsive-navbar-nav"/>
+										<Navbar.Collapse id="responsive-navbar-nav">
+											<Nav className="mr-auto">
+												<LinkContainer exact={true} to="/">
+													<Nav.Link>Darbinieki</Nav.Link>
+												</LinkContainer>
+												<Nav.Link onClick={this.props.showRegisterEmployee}>Reģistrācija</Nav.Link>
+											</Nav>
+											<Navbar.Text>
+												<DateTime/>
+											</Navbar.Text>
+										</Navbar.Collapse>
+									</Navbar>
+								</Col>
+							</Row>
+							<Row>
+								<Col>
+									<Switch>
+										<Route exact path="/" component={Employees} />
+										<Route component={NotFound} />
+									</Switch>
+									<RegisterEmployee/>
+									<DeleteEmployee/>
+									<EditEmployee/>
+								</Col>
+							</Row>
+							<Row>
+								<Col className="footer">
+									Vārpas 1 © 2019
+								</Col>
+							</Row>
+						</Container>
+					</Router>
+				);
+			} else {
+				// User Log In
+				return (
+					<LogIn/>
+				);
+			}
+		}
 	}
 }
 

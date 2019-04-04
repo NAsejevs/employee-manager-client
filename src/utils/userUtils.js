@@ -1,5 +1,12 @@
 import { request } from "./config";
 
-export const authentication = () => {
-	return request.post("/authenticate");
+export const checkSession = () => {
+	return request.post("/checkSession");
+}
+
+export const authenticate = (username, password) => {
+	return request.post("/authenticate", {
+		username,
+		password
+	});
 }
