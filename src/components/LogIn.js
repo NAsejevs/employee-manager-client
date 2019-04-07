@@ -11,8 +11,8 @@ class LogIn extends React.Component {
 		super();
 
 		this.state = {
-			username: "",
-			password: "",
+			username: "nils.asejevs",
+			password: "EvoNils112",
 			rememberMe: false,
 			authenticationError: false,
 		}
@@ -34,13 +34,11 @@ class LogIn extends React.Component {
 		e.preventDefault();
 		authenticate(this.state.username, this.state.password).then((res) => {
 			if(res.data) {
-				console.log("log in success");
 				window.location.reload();
 			} else {
 				this.setState({
 					authenticationError: true,
 				});
-				console.log("log in failure");
 			}
 		});
 	}
@@ -73,7 +71,7 @@ class LogIn extends React.Component {
 						<Form.Label>Lietotājvārds</Form.Label>
 						<Form.Control 
 							required
-							value={this.state.name} 
+							value={this.state.username} 
 							onChange={this.onUsernameChange}
 							name="username"
 						/>
@@ -83,7 +81,7 @@ class LogIn extends React.Component {
 						<Form.Label>Parole</Form.Label>
 						<Form.Control 
 							required
-							value={this.state.surname} 
+							value={this.state.password} 
 							onChange={this.onPasswordChange}
 							name="password"
 							type="password"

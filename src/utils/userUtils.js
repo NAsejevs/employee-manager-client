@@ -10,3 +10,17 @@ export const authenticate = (username, password) => {
 		password
 	});
 }
+
+export const logOut = () => {
+	return request.post("/logOut");
+}
+
+export const getUserByUsername = (username) => {
+	return request.post("/getUserByUsername", {
+		username
+	});
+}
+
+export const getUserByKey = () => {
+	return request.post("/getUserByKey");
+}

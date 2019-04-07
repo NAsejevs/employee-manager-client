@@ -54,12 +54,9 @@ class DateTime extends React.Component {
 	
 	render() {
 		return (
-			<Row>
-				<Col>
-					{this.state.currentDate}
-					{this.state.currentTime}
-				</Col>
-			</Row>
+			<span>
+				{this.state.currentDate + this.state.currentTime}
+			</span>
 		);
 	}
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Image, OverlayTrigger, Tooltip, Button } from "react-bootstrap";
+import { Image, OverlayTrigger, Tooltip, Button, Dropdown, ButtonToolbar, DropdownButton } from "react-bootstrap";
 
 import { setServerEmployeeWorking, getEmployees } from "../utils/employeeUtils";
 
@@ -23,75 +23,88 @@ const Commands = (props) => {
 	}
 
 	return (
-		<div>
-			<Button
-				variant={props.employee.working ? "secondary" : "success"}
-				size="sm" 
-				className="mr-1"
-				onClick={() => setServerEmployeeWorking(props.employee.id, !props.employee.working).then(() => {
-					getEmployees();
-				})}
-			>
-				<OverlayTrigger
-					placement={"top"}
-					overlay={
-						<Tooltip id={`tooltip-top`}>
+		<Dropdown>
+			<Dropdown.Toggle as={Button} id="dropdown-custom-components">
+				Custom toggle
+			</Dropdown.Toggle>
+
+			<Dropdown.Menu>
+			<Dropdown.Item eventKey="1">
+				<Button
+					variant={props.employee.working ? "secondary" : "success"}
+					size="sm" 
+					className="w-100"
+					onClick={() => setServerEmployeeWorking(props.employee.id, !props.employee.working).then(() => {
+						getEmployees();
+					})}
+				>
+					<OverlayTrigger
+						placement={"top"}
+						overlay={
+							<Tooltip id={`tooltip-top`}>
+								Atzīmēt kā {props.employee.working ? "izgājušu" : "ienākušu"}
+							</Tooltip>
+						}
+					>
+						<span>
+							{
+								props.employee.working 
+								? <Image src={cancel} width="20" height="auto" style={imageStyle}/>
+								: <Image src={checkmark} width="20" height="auto" style={imageStyle}/>
+							}
 							Atzīmēt kā {props.employee.working ? "izgājušu" : "ienākušu"}
-						</Tooltip>
-					}
+						</span>
+					</OverlayTrigger>
+				</Button>
+			</Dropdown.Item>
+			<Dropdown.Item eventKey="2">
+				<Button 
+					variant="warning" 
+					size="sm" 
+					className="w-100" 
+					onClick={() => props.showEditEmployee(props.employee)}
 				>
-					<span>
-						{
-							props.employee.working 
-							? <Image src={cancel} width="20" height="auto" style={imageStyle}/>
-							: <Image src={checkmark} width="20" height="auto" style={imageStyle}/>
+					<OverlayTrigger
+						placement={"top"}
+						overlay={
+							<Tooltip id={`tooltip-top`}>
+								Rediģēt
+							</Tooltip>
 						}
-					</span>
-				</OverlayTrigger>
-			</Button>
-			<Button 
-				variant="warning" 
-				size="sm" 
-				className="mr-1" 
-				onClick={() => props.showEditEmployee(props.employee)}
-			>
-				<OverlayTrigger
-					placement={"top"}
-					overlay={
-						<Tooltip id={`tooltip-top`}>
-							Rediģēt
-						</Tooltip>
-					}
+					>
+						<span>
+							{
+								<Image src={edit} width="20" height="auto" style={imageStyle}/>
+							}
+						</span>
+					</OverlayTrigger>
+				</Button>
+			</Dropdown.Item>
+			<Dropdown.Item eventKey="3">
+				<Button 
+					variant="danger" 
+					size="sm"
+					className="w-100"
+					onClick={() => props.showDeleteEmployee(props.employee)}
 				>
-					<span>
-						{
-							<Image src={edit} width="20" height="auto" style={imageStyle}/>
+					<OverlayTrigger
+						placement={"top"}
+						overlay={
+							<Tooltip id={`tooltip-top`}>
+								Dzēst
+							</Tooltip>
 						}
-					</span>
-				</OverlayTrigger>
-			</Button>
-			<Button 
-				variant="danger" 
-				size="sm"
-				className="mr-1"
-				onClick={() => props.showDeleteEmployee(props.employee)}
-			>
-				<OverlayTrigger
-					placement={"top"}
-					overlay={
-						<Tooltip id={`tooltip-top`}>
-							Dzēst
-						</Tooltip>
-					}
-				>
-					<span>
-						{
-							<Image src={trash} width="20" height="auto" style={imageStyle}/>
-						}
-					</span>
-				</OverlayTrigger>
-			</Button>
-		</div>
+					>
+						<span>
+							{
+								<Image src={trash} width="20" height="auto" style={imageStyle}/>
+							}
+						</span>
+					</OverlayTrigger>
+				</Button>
+			</Dropdown.Item>
+			</Dropdown.Menu>
+		</Dropdown>
 	);
 };
 
