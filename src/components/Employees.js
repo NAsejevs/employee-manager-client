@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import React from "react";
 
-import { Badge, Image, Button } from "react-bootstrap";
+import { Badge, Form, Button, Collapse } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory, { textFilter, Comparator } from "react-bootstrap-table2-filter";
 import paginationFactory from "react-bootstrap-table2-paginator";
@@ -9,8 +9,6 @@ import paginationFactory from "react-bootstrap-table2-paginator";
 import { updateEmployees } from "../actions/employeeActions";
 
 import { addZero, getEmployees } from "../utils/employeeUtils";
-
-import user from "../images/user.png";
 
 import "../styles/main.css";
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -20,6 +18,7 @@ import ContainerBox from "./ContainerBox";
 import ViewEmployee from "./ViewEmployee";
 import Commands from "./Commands";
 
+import { FiUser, FiMinimize2, FiMaximize2 } from "react-icons/fi";
 
 class Employees extends React.Component {
 
@@ -35,6 +34,9 @@ class Employees extends React.Component {
 				type: "",
 				filters: "",
 			},
+			showFilters: false,
+			showArchive: false,
+			showInactive: true,
 		}
 	}
 
@@ -55,7 +57,9 @@ class Employees extends React.Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.employees !== this.props.employees) {
+		if(prevProps.employees !== this.props.employees
+			|| prevState.showArchive !== this.state.showArchive
+			|| prevState.showInactive !== this.state.showInactive) {
 			const filters = this.state.filter.filters;
 			this.onTableChange(this.state.filter.type, { filters });
 		}
@@ -94,8 +98,18 @@ class Employees extends React.Component {
 	}
 
 	formatTable = (callback = () => null) => {
+		const employees = this.props.employees.filter((employee) => {
+			if(employee.archived && !this.state.showArchive) {
+				return false;
+			}
+			if(!employee.active && !this.state.showInactive) {
+				return false;
+			}
+			return true;
+		});
+
 		this.setState({ tableData: 
-			this.props.employees.map((employee) => {
+			employees.map((employee) => {
 				let lastWorkTimePure = employee.working 
 					? new Date(employee.last_work_start) 
 					: new Date(employee.last_work_end) 
@@ -114,11 +128,13 @@ class Employees extends React.Component {
 				}
 
 				return({
-					employee: employee,
 					id: employee.id,
-					name: (employee.name + " " + employee.surname),
+					name: employee.name + " " + employee.surname,
 					personalCode: employee.personalCode,
-					status: lastWork,
+					status: {
+						lastWork,
+						working: employee.working
+					},
 					commands: employee,
 				});
 			})
@@ -141,12 +157,24 @@ class Employees extends React.Component {
 		});
 	}
 
+	onToggleArchive = () => {
+		this.setState({ showArchive: !this.state.showArchive });
+	}
+
+	onToggleInactive = () => {
+		this.setState({ showInactive: !this.state.showInactive });
+	}
+
+	onToggleFilters = () => {
+		this.setState({ showFilters: !this.state.showFilters });
+	}
+
 	render() {
 		const nameFormatter = (cell, row) => {
 			return (
 				<div>
-					<Image src={user} width="20" height="20" className="mr-2"/>
-					<Button variant="link" onClick={() => this.showWorkLog(row.employee.id)}>{cell}</Button>
+					<FiUser className="mr-2"/>
+					<Button variant="link" onClick={() => this.showWorkLog(row.id)}>{cell}</Button>
 				</div>
 			);
 		};
@@ -155,18 +183,18 @@ class Employees extends React.Component {
 			return (
 				<Badge 
 					style={{ fontSize: "14px" }}
-					variant={row.employee.working 
+					variant={cell.working 
 						? "success" 
 						: "info"}
 				>
-					{cell}
+					{cell.lastWork}
 				</Badge>
 			);
 		};
 
 		const commandFormatter = (cell, row) => {
 			return (
-				<Commands employee={row.employee}/>
+				<Commands employee={cell}/>
 			);
 		};
 
@@ -195,7 +223,7 @@ class Employees extends React.Component {
 			formatter: statusFormatter
 		}, {
 			dataField: 'commands',
-			text: 'Komandas',
+			text: '',
 			classes: "align-middle",
 			formatter: commandFormatter
 		}];
@@ -242,13 +270,56 @@ class Employees extends React.Component {
 					value: 100,
 				},{
 					text: "Visi",
-					value: this.props.employees.length,
+					value: this.state.tableData.length,
 				}
 			]
 		});
 
+		const rowStyle = (row, rowIndex) => {
+			if(!row.commands.active) {
+				return { backgroundColor: "rgba(255, 0, 0, 0.1)" };
+			}
+
+			if(row.commands.archived) {
+				return { backgroundColor: "rgba(255, 255, 0, 0.1)" };
+			}
+		};
+
 		return (
 			<ContainerBox header={"Darbinieku Saraksts"}>
+				<Button 
+					variant="link" 
+					onClick={this.onToggleFilters}
+				>
+					{
+						this.state.showFilters
+						? <FiMinimize2 className="mr-2 mb-1"/>
+						: <FiMaximize2 className="mr-2 mb-1"/>
+					}
+					Filtri
+				</Button>
+
+				<Collapse in={this.state.showFilters}>
+					<Form className="mt-2">
+						<Form.Group>
+							<Form.Check 
+								type="checkbox" 
+								label="Rādīt arhīvā esošos darbiniekus"
+								checked={this.state.showArchive}
+								onChange={this.onToggleArchive}
+							/>
+						</Form.Group>
+						<Form.Group>
+							<Form.Check 
+								type="checkbox" 
+								label="Rādīt deaktivizētus darbiniekus"
+								checked={this.state.showInactive}
+								onChange={this.onToggleInactive}
+							/>
+						</Form.Group>
+					</Form>
+				</Collapse>
+
 				<BootstrapTable 
 					bootstrap4={ true }
 					keyField='id' 
@@ -261,7 +332,9 @@ class Employees extends React.Component {
 					remote={ { filter: true } }
 					onTableChange={ this.onTableChange }
 					pagination={ pagination }
+					rowStyle={ rowStyle }
 				/>
+
 				<ViewEmployee 
 					showWorkLogModal={this.state.showWorkLogModal} 
 					handleWorkLogClose={this.handleWorkLogClose}

@@ -30,6 +30,20 @@ export const setServerEmployeeWorking = (id, working) => {
 	});
 }
 
+export const setServerEmployeeArchived = (id, archived) => {
+	return request.post("/setArchivedEmployee", {
+		id, 
+		archived
+	});
+}
+
+export const setServerEmployeeActive = (id, active) => {
+	return request.post("/setActiveEmployee", {
+		id, 
+		active
+	});
+}
+
 export const deleteServerEmployee = (id) => {
 	return request.post("/deleteEmployee", {
 		id

@@ -1,108 +1,120 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Image, OverlayTrigger, Tooltip, Button, Dropdown, ButtonToolbar, DropdownButton } from "react-bootstrap";
+import { 
+	Button, 
+	Dropdown 
+} from "react-bootstrap";
 
-import { setServerEmployeeWorking, getEmployees } from "../utils/employeeUtils";
+import { 
+	setServerEmployeeWorking, 
+	setServerEmployeeArchived, 
+	setServerEmployeeActive, 
+	getEmployees 
+} from "../utils/employeeUtils";
 
 import { 
 	showDeleteEmployee, 
 	hideDeleteEmployee,
 	showEditEmployee,
-	hideEditEmployee,
+	hideEditEmployee
 } from "../actions/employeeActions";
 
-import cancel from "../images/cancel.png";
-import checkmark from "../images/checkmark.png";
-import edit from "../images/edit.png";
-import trash from "../images/trash.png";
+import { 
+	FiMoreHorizontal, 
+	FiTrash, 
+	FiEdit, 
+	FiUserCheck, 
+	FiUserX, 
+	FiArchive, 
+	FiX,
+	FiCheck
+} from "react-icons/fi";
+
+class commandButton extends React.Component {
+	render() {
+		return (
+			<Button variant="link" onClick={this.props.onClick}>
+				<FiMoreHorizontal/>
+			</Button>
+		);
+	}
+}
 
 const Commands = (props) => {
-
-	const imageStyle = {
-		filter: "invert(100%)",
-	}
-
 	return (
 		<Dropdown>
-			<Dropdown.Toggle as={Button} id="dropdown-custom-components">
-				Custom toggle
-			</Dropdown.Toggle>
-
+			<Dropdown.Toggle as={commandButton} id="dropdown-custom-components"/>
 			<Dropdown.Menu>
-			<Dropdown.Item eventKey="1">
-				<Button
-					variant={props.employee.working ? "secondary" : "success"}
-					size="sm" 
-					className="w-100"
-					onClick={() => setServerEmployeeWorking(props.employee.id, !props.employee.working).then(() => {
-						getEmployees();
-					})}
-				>
-					<OverlayTrigger
-						placement={"top"}
-						overlay={
-							<Tooltip id={`tooltip-top`}>
-								Atzīmēt kā {props.employee.working ? "izgājušu" : "ienākušu"}
-							</Tooltip>
+				<Dropdown.Item eventKey="1">
+					<Button
+						variant="link"
+						size="sm"
+						onClick={() => setServerEmployeeWorking(props.employee.id, !props.employee.working).then(() => {
+							getEmployees();
+						})}
+					>
+						{
+							props.employee.working 
+							? <FiUserX className="mr-2 mb-1"/>
+							: <FiUserCheck className="mr-2 mb-1"/>
 						}
+						Atzīmēt kā {props.employee.working ? "izgājušu" : "ienākušu"}
+					</Button>
+				</Dropdown.Item>
+				<Dropdown.Item eventKey="2">
+					<Button 
+						variant="link" 
+						size="sm"
+						onClick={() => props.showEditEmployee(props.employee)}
 					>
 						<span>
-							{
-								props.employee.working 
-								? <Image src={cancel} width="20" height="auto" style={imageStyle}/>
-								: <Image src={checkmark} width="20" height="auto" style={imageStyle}/>
-							}
-							Atzīmēt kā {props.employee.working ? "izgājušu" : "ienākušu"}
+							<FiEdit className="mr-2 mb-1"/>
+							Rediģēt
 						</span>
-					</OverlayTrigger>
-				</Button>
-			</Dropdown.Item>
-			<Dropdown.Item eventKey="2">
-				<Button 
-					variant="warning" 
-					size="sm" 
-					className="w-100" 
-					onClick={() => props.showEditEmployee(props.employee)}
-				>
-					<OverlayTrigger
-						placement={"top"}
-						overlay={
-							<Tooltip id={`tooltip-top`}>
-								Rediģēt
-							</Tooltip>
-						}
+					</Button>
+				</Dropdown.Item>
+				<Dropdown.Item eventKey="3">
+					<Button 
+						variant="link" 
+						size="sm"
+						onClick={() => setServerEmployeeArchived(props.employee.id, !props.employee.archived).then(() => {
+							getEmployees();
+						})}
 					>
-						<span>
-							{
-								<Image src={edit} width="20" height="auto" style={imageStyle}/>
-							}
-						</span>
-					</OverlayTrigger>
-				</Button>
-			</Dropdown.Item>
-			<Dropdown.Item eventKey="3">
-				<Button 
-					variant="danger" 
-					size="sm"
-					className="w-100"
-					onClick={() => props.showDeleteEmployee(props.employee)}
-				>
-					<OverlayTrigger
-						placement={"top"}
-						overlay={
-							<Tooltip id={`tooltip-top`}>
-								Dzēst
-							</Tooltip>
-						}
+						<FiArchive height="100%" width="auto" className="mr-2 mb-1"/>
+						{ props.employee.archived ? "Izņemt no arhīva" : "Arhivēt" }
+					</Button>
+				</Dropdown.Item>
+				<Dropdown.Item eventKey="4">
+					<Button 
+						variant="link" 
+						size="sm"
+						onClick={() => setServerEmployeeActive(props.employee.id, !props.employee.active).then(() => {
+							getEmployees();
+						})}
 					>
-						<span>
-							{
-								<Image src={trash} width="20" height="auto" style={imageStyle}/>
-							}
-						</span>
-					</OverlayTrigger>
-				</Button>
-			</Dropdown.Item>
+						{ 
+							props.employee.active 
+							? <FiX height="100%" width="auto" className="mr-2 mb-1"/>
+							: <FiCheck height="100%" width="auto" className="mr-2 mb-1"/>
+						}
+						{ 
+							props.employee.active 
+							? "Deaktivizēt" 
+							: "Aktivizēt"
+						}
+					</Button>
+				</Dropdown.Item>
+				<Dropdown.Item eventKey="5">
+					<Button 
+						variant="link" 
+						size="sm"
+						onClick={() => props.showDeleteEmployee(props.employee)}
+					>
+						<FiTrash height="100%" width="auto" className="mr-2 mb-1"/>
+						Dzēst
+					</Button>
+				</Dropdown.Item>
 			</Dropdown.Menu>
 		</Dropdown>
 	);

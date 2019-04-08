@@ -26,8 +26,8 @@ class LogIn extends React.Component {
 		this.setState({ password: event.target.value });
 	}
 
-	onRememberMeChange = (event) => {
-		this.setState({ rememberMe: event.target.value });
+	onRememberMeChange = () => {
+		this.setState({ rememberMe: !this.state.rememberMe });
 	}
 
 	logIn = (e) => {
