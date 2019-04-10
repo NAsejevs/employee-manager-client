@@ -4,7 +4,8 @@ import { Table, Modal, Dropdown, DropdownButton, Col, Row, Form } from "react-bo
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-import { addZero, getServerEmployee, getServerEmployeeWorkLog } from "../utils/utils";
+import { getServerEmployee, getServerEmployeeWorkLog } from "../utils/employeeUtils";
+import { addZero, millisecondConverter } from "../utils/commonUtils";
 
 import BoostrapDatePicker from "./BoostrapDatePicker";
 
@@ -173,37 +174,28 @@ class ViewEmployee extends React.Component {
 			const startTimePure = new Date(log.start_time);
 			const endTimePure = stillWorking ? new Date() : new Date(log.end_time);
 
-			const startTimeString = 
+			const startTimeFormatted = 
 				// Date
-				addZero(startTimePure.getDate()) + "." 
+				  addZero(startTimePure.getDate()) + "." 
 				+ addZero(startTimePure.getMonth() + 1) + "." 
 				+ addZero(startTimePure.getFullYear()) + " "
 				// Time
 				+ addZero(startTimePure.getHours()) + ":" 
 				+ addZero(startTimePure.getMinutes());
 
-			const endTimeString = stillWorking ? " - " :
+			const endTimeFormatted = stillWorking ? " - " :
 				// Date
-				addZero(endTimePure.getDate()) + "." 
+				  addZero(endTimePure.getDate()) + "." 
 				+ addZero(endTimePure.getMonth() + 1) + "." 
 				+ addZero(endTimePure.getFullYear()) + " "
 				// Time
 				+ addZero(endTimePure.getHours()) + ":" 
 				+ addZero(endTimePure.getMinutes());
 
-			// Calculate actual worked time
-			let workTimeSeconds = Math.floor((endTimePure - (startTimePure))/1000);
-			let workTimeMinutes = Math.floor(workTimeSeconds/60);
-			let workTimeHours = Math.floor(workTimeMinutes/60);
-			const workTimeDays = Math.floor(workTimeHours/24);
-
-			workTimeHours = workTimeHours-(workTimeDays*24);
-			workTimeMinutes = workTimeMinutes-(workTimeDays*24*60)-(workTimeHours*60);
-			workTimeSeconds = workTimeSeconds-(workTimeDays*24*60*60)-(workTimeHours*60*60)-(workTimeMinutes*60);
-			
-			const workTimeString =
-				+ workTimeHours + " st. "
-				+ workTimeMinutes + " min. ";
+			const workTime = millisecondConverter(endTimePure - startTimePure);
+			const workTimeFormatted =
+				+ workTime.hours + " st. "
+				+ workTime.minutes + " min. ";
 
 			const workingStyle = {
 				backgroundColor: "#ffffe6",
@@ -211,9 +203,9 @@ class ViewEmployee extends React.Component {
 
 			return (
 				<tr key={index} style={stillWorking ? workingStyle : null}>
-					<td>{startTimeString}</td>
-					<td>{endTimeString}</td>
-					<td>{workTimeString}</td>
+					<td>{startTimeFormatted}</td>
+					<td>{endTimeFormatted}</td>
+					<td>{workTimeFormatted}</td>
 				</tr>
 			);
 		});

@@ -1,53 +1,64 @@
-import axios from "axios";
 import store from "../store/store";
-
+import { request } from "./config";
 import { updateEmployees } from "../actions/employeeActions";
-
-const serverURL = "http://192.168.1.150:8080/";
-
-const requestConfig = {
-	headers: {
-		"Content-Type": "application/json"
-	}
-};
 
 // ------------ Server requests ------------
 export const getServerEmployees = () => {
-	return axios.post(serverURL + "getEmployees");
+	return request.post("/getEmployees");
 }
 
 export const getServerEmployee = (id) => {
-	return axios.post(serverURL + "getEmployee", { 
+	return request.post("/getEmployee", { 
 		id 
-	}, requestConfig);
+	});
 }
 
 export const getServerEmployeeWorkLog = (id) => {
-	return axios.post(serverURL + "getEmployeeWorkLog", { 
+	return request.post("/getEmployeeWorkLog", { 
 		id 
-	}, requestConfig);
+	});
 }
 
 export const addServerEmployee = (employee) => {
-	return axios.post(serverURL + "addEmployee", employee);
+	return request.post("/addEmployee", employee);
 }
 
 export const setServerEmployeeWorking = (id, working) => {
-	return axios.post(serverURL + "setEmployeeWorking", {
+	return request.post("/setEmployeeWorking", {
 		id, 
 		working
 	});
 }
 
+export const setServerEmployeeArchived = (id, archived) => {
+	return request.post("/setArchivedEmployee", {
+		id, 
+		archived
+	});
+}
+
+export const setServerEmployeeActive = (id, active) => {
+	return request.post("/setActiveEmployee", {
+		id, 
+		active
+	});
+}
+
 export const deleteServerEmployee = (id) => {
-	return axios.post(serverURL + "deleteEmployee", {
+	return request.post("/deleteEmployee", {
 		id
 	});
 }
 
 export const editServerEmployee = (employee) => {
-	return axios.post(serverURL + "editEmployee", {
+	return request.post("/editEmployee", {
 		employee
+	});
+}
+
+export const exportServerEmployees = () => {
+	return request.get("/export", {
+		responseType: "blob"
 	});
 }
 // ---------------------------------------
@@ -64,11 +75,4 @@ export const setEmployeeWorking = (id, working, callback) => {
 			callback(res);
 		});
 	});
-}
-
-export const addZero = (i) => {
-	if (i < 10) {
-		i = "0" + i;
-	}
-	return i;
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { Row, Col } from "react-bootstrap";
 
-import { addZero } from "../utils/utils";
+import { addZero } from "../utils/employeeUtils";
 
 class DateTime extends React.Component {
 	constructor() {
@@ -54,12 +54,9 @@ class DateTime extends React.Component {
 	
 	render() {
 		return (
-			<Row>
-				<Col>
-					{this.state.currentDate}
-					{this.state.currentTime}
-				</Col>
-			</Row>
+			<span>
+				{this.state.currentDate + this.state.currentTime}
+			</span>
 		);
 	}
 }

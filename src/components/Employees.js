@@ -1,16 +1,15 @@
 import { connect } from "react-redux";
 import React from "react";
 
-import { Badge, Image, Button } from "react-bootstrap";
+import { Badge, Form, Button, Collapse, Row, Col } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
-import filterFactory, { textFilter, Comparator } from "react-bootstrap-table2-filter";
 import paginationFactory from "react-bootstrap-table2-paginator";
+import download from "downloadjs";
 
-import { updateEmployees } from "../actions/employeeActions";
+import { updateEmployees, showRegisterEmployee } from "../actions/employeeActions";
 
-import { addZero, getEmployees } from "../utils/utils";
-
-import user from "../images/user.png";
+import { getEmployees, exportServerEmployees } from "../utils/employeeUtils";
+import { addZero, millisecondConverter } from "../utils/commonUtils";
 
 import "../styles/main.css";
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -20,6 +19,7 @@ import ContainerBox from "./ContainerBox";
 import ViewEmployee from "./ViewEmployee";
 import Commands from "./Commands";
 
+import { FiUser, FiMinimize2, FiMaximize2, FiUserPlus, FiClipboard } from "react-icons/fi";
 
 class Employees extends React.Component {
 
@@ -35,6 +35,10 @@ class Employees extends React.Component {
 				type: "",
 				filters: "",
 			},
+			showFilters: false,
+			showArchive: false,
+			showInactive: true,
+			nameFilter: ""
 		}
 	}
 
@@ -45,7 +49,7 @@ class Employees extends React.Component {
 			updateInterval: (
 				setInterval(() => {
 					getEmployees();
-				}, 5000)
+				}, 1000)
 			),
 		});
 	}
@@ -55,66 +59,53 @@ class Employees extends React.Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.employees !== this.props.employees) {
-			const filters = this.state.filter.filters;
-			this.onTableChange(this.state.filter.type, { filters });
+		if(prevProps.employees !== this.props.employees
+			|| prevState.showArchive !== this.state.showArchive
+			|| prevState.showInactive !== this.state.showInactive
+			|| prevState.nameFilter !== this.state.nameFilter) {
+			this.onTableChange();
 		}
 	}
 
-	onTableChange = (type, newState) => {
+	onTableChange = () => {
 		this.formatTable(() => {
-			this.setState({
-				filter: { 
-					type: type,
-					filters: newState.filters ? newState.filters : "",
-				},
-			});
+			this.applyNameFilter();
+		});
+	}
 
-			const result = this.state.tableData.filter((row) => {
-				let valid = true;
-				for (const dataField in newState.filters) {
-					const { filterVal, filterType, comparator } = newState.filters[dataField];
-		
-					if (filterType === 'TEXT') {
-						if (comparator === Comparator.LIKE) {
-							valid = row[dataField].toString().toLowerCase().indexOf(filterVal.toLowerCase()) > -1;
-						} else {
-							valid = row[dataField] === filterVal;
-						}
-					}
-					if (!valid) break;
-				}
-				return valid;
-			});
+	applyNameFilter = () => {
+		const result = this.state.tableData.filter((row) => {
+			return row.name.toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
+		});
 
-			this.setState({
-				tableData: result
-			});
+		this.setState({
+			tableData: result
 		});
 	}
 
 	formatTable = (callback = () => null) => {
+		const employees = this.props.employees.filter((employee) => {
+			if(employee.archived && !this.state.showArchive) {
+				return false;
+			}
+			if(!employee.active && !this.state.showInactive) {
+				return false;
+			}
+			return true;
+		});
+
 		this.setState({ tableData: 
-			this.props.employees.map((employee) => {
-				let lastWorkTimePure = employee.working 
-					? new Date(employee.last_work_start) 
-					: new Date(employee.last_work_end) 
-
-				const lastWorkTime =
-					+ addZero(lastWorkTimePure.getHours()) + ":" 
-					+ addZero(lastWorkTimePure.getMinutes());
-
-
-				const lastWork = employee.working 
-					? "IENĀCA: " + lastWorkTime
-					: "IZGĀJA: " + lastWorkTime
-
+			employees.map((employee) => {
 				return({
-					employee: employee,
 					id: employee.id,
-					name: (employee.name + " " + employee.surname),
+					name: employee.name + " " + employee.surname,
 					personalCode: employee.personalCode,
-					status: lastWork,
+					status: {
+						time: new Date(),
+						lastWorkStart: new Date(employee.last_work_start),
+						lastWorkEnd: new Date(employee.last_work_end),
+						working: employee.working
+					},
 					commands: employee,
 				});
 			})
@@ -137,32 +128,99 @@ class Employees extends React.Component {
 		});
 	}
 
+	onToggleArchive = () => {
+		this.setState({ showArchive: !this.state.showArchive });
+	}
+
+	onToggleInactive = () => {
+		this.setState({ showInactive: !this.state.showInactive });
+	}
+
+	onToggleFilters = () => {
+		this.setState({ showFilters: !this.state.showFilters });
+	}
+
+	onChangeNameFilter = (e) => {
+		this.setState({ nameFilter: e.target.value });
+	}
+
+	exportExcel = () => {
+		exportServerEmployees().then((response) => {
+			const content = response.headers["content-type"];
+           	download(response.data, "Varpas 1.xlsx", content);
+		});
+	}
+
 	render() {
 		const nameFormatter = (cell, row) => {
 			return (
 				<div>
-					<Image src={user} width="20" height="20" className="mr-2"/>
-					<Button variant="link" onClick={() => this.showWorkLog(row.employee.id)}>{cell}</Button>
+					<nobr>
+						<FiUser/>
+						<Button variant="link" onClick={() => this.showWorkLog(row.id)}>{cell}</Button>
+					</nobr>
 				</div>
 			);
 		};
 
 		const statusFormatter = (cell, row) => {
+			const workTime = millisecondConverter(
+				new Date(
+					(cell.working
+					? new Date()
+					: cell.lastWorkEnd) - cell.lastWorkStart
+				)
+			);
+
+
+			const workTimeStartFormatted =
+				  addZero(cell.lastWorkStart.getHours()) + ":" 
+				+ addZero(cell.lastWorkStart.getMinutes());
+			
+			const workTimeEndFormatted =
+				  addZero(cell.lastWorkEnd.getHours()) + ":" 
+				+ addZero(cell.lastWorkEnd.getMinutes());
+
+			const workTimeFormatted =
+				  workTime.hours + " st. " 
+				+ workTime.minutes + " min. ";
+
 			return (
-				<Badge 
-					style={{ fontSize: "14px" }}
-					variant={row.employee.working 
-						? "success" 
-						: "info"}
-				>
-					{cell}
-				</Badge>
+				<>
+					<nobr>
+					<Badge 
+						style={{ fontSize: "14px" }}
+						variant={ cell.working ? "success" : "info" }
+						className="mr-2"
+					>
+						Ienāca: {workTimeStartFormatted}
+					</Badge>
+					{
+						cell.working
+						? null
+						: <Badge 
+							style={{ fontSize: "14px" }}
+							variant="info"
+							className="mr-2"
+						>
+							Izgaja: {workTimeEndFormatted}
+						</Badge>
+					}
+					<Badge 
+						style={{ fontSize: "14px" }}
+						variant="dark"
+						className="mr-2"
+					>
+						{ cell.working ? "Nostrādāts: " : "Nostrādāja: " }{workTimeFormatted}
+					</Badge>
+					</nobr>
+				</>
 			);
 		};
 
 		const commandFormatter = (cell, row) => {
 			return (
-				<Commands employee={row.employee}/>
+				<Commands employee={cell}/>
 			);
 		};
 
@@ -177,12 +235,6 @@ class Employees extends React.Component {
 			sort: true,
 			classes: "align-middle",
 			formatter: nameFormatter,
-			filter: textFilter({
-				placeholder: "Vārds...",
-				caseSensitive: false,
-				delay: 1,
-			}),
-			filterRenderer: null,
 		}, {
 			dataField: 'status',
 			text: 'Status',
@@ -191,7 +243,7 @@ class Employees extends React.Component {
 			formatter: statusFormatter
 		}, {
 			dataField: 'commands',
-			text: 'Komandas',
+			text: '',
 			classes: "align-middle",
 			formatter: commandFormatter
 		}];
@@ -238,13 +290,88 @@ class Employees extends React.Component {
 					value: 100,
 				},{
 					text: "Visi",
-					value: this.props.employees.length,
+					value: this.state.tableData.length,
 				}
 			]
 		});
 
+		const rowStyle = (row, rowIndex) => {
+			if(!row.commands.active) {
+				return { backgroundColor: "rgba(255, 0, 0, 0.1)" };
+			}
+
+			if(row.commands.archived) {
+				return { backgroundColor: "rgba(255, 255, 0, 0.1)" };
+			}
+		};
+
 		return (
 			<ContainerBox header={"Darbinieku Saraksts"}>
+				<Row>
+					<Col>
+						<Button
+							variant="success"
+							onClick={this.props.showRegisterEmployee}
+							className="mr-2"
+						>
+							<FiUserPlus className="mr-2 mb-1"/>
+							Pievienot darbinieku
+						</Button>
+						<Button
+							variant="info"
+							onClick={this.exportExcel}
+						>
+							<FiClipboard className="mr-2 mb-1"/>
+							Eksportēt Excel
+						</Button>
+					</Col>
+					<Col>
+						<Button 
+							variant="link" 
+							onClick={this.onToggleFilters}
+							className="float-right"
+						>
+							{
+								this.state.showFilters
+								? <FiMinimize2 className="mr-2 mb-1"/>
+								: <FiMaximize2 className="mr-2 mb-1"/>
+							}
+							Filtri
+						</Button>
+					</Col>
+				</Row>
+
+				<Collapse in={this.state.showFilters} className="w-75">
+					<Form className="mt-2">
+						<Form.Group>
+							<Form.Check 
+								type="checkbox" 
+								label="Rādīt arhīvā esošos darbiniekus"
+								checked={this.state.showArchive}
+								onChange={this.onToggleArchive}
+							/>
+						</Form.Group>
+						<Form.Group>
+							<Form.Check 
+								type="checkbox" 
+								label="Rādīt deaktivizētus darbiniekus"
+								checked={this.state.showInactive}
+								onChange={this.onToggleInactive}
+							/>
+						</Form.Group>
+						<Form.Group>
+							<Form.Control
+								placeholder="Vārds..."
+								onChange={this.onChangeNameFilter}
+								value={this.state.nameFilter}
+							/>
+							<Form.Text>
+								Meklēt darbinieku pēc vārda
+							</Form.Text>
+						</Form.Group>
+					</Form>
+				</Collapse>
+
 				<BootstrapTable 
 					bootstrap4={ true }
 					keyField='id' 
@@ -252,12 +379,13 @@ class Employees extends React.Component {
 					columns={ columns } 
 					bordered={ false }
 					hover={ true }
-					filter={ filterFactory() }
 					defaultSorted={ defaultSorted }
 					remote={ { filter: true } }
 					onTableChange={ this.onTableChange }
 					pagination={ pagination }
+					rowStyle={ rowStyle }
 				/>
+
 				<ViewEmployee 
 					showWorkLogModal={this.state.showWorkLogModal} 
 					handleWorkLogClose={this.handleWorkLogClose}
@@ -277,6 +405,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
 	return {
 		updateEmployees: (employees) => dispatch(updateEmployees(employees)),
+		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
 	};
 }
 

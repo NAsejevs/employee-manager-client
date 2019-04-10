@@ -4,7 +4,7 @@ import { Modal, Button } from "react-bootstrap";
 
 import { showDeleteEmployee, hideDeleteEmployee } from "../actions/employeeActions";
 
-import { deleteServerEmployee, getEmployees } from "../utils/utils";
+import { deleteServerEmployee, getEmployees } from "../utils/employeeUtils";
 
 class DeleteEmployee extends React.Component {
 	render() {
