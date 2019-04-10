@@ -37,8 +37,8 @@ class LogIn extends React.Component {
 		this.setState({ rememberMe: !this.state.rememberMe });
 	}
 
-	logIn = () => {
-		//e.preventDefault();
+	logIn = (e) => {
+		e.preventDefault();
 		authenticate(this.state.username, this.state.password, this.state.rememberMe).then((res) => {
 			if(res.data) {
 				window.location.reload();
