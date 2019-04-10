@@ -42,7 +42,7 @@ class commandButton extends React.Component {
 
 const Commands = (props) => {
 	return (
-		<Dropdown>
+		<Dropdown alignRight>
 			<Dropdown.Toggle as={commandButton} id="dropdown-custom-components"/>
 			<Dropdown.Menu>
 				<Dropdown.Item eventKey="1">

@@ -6,9 +6,12 @@ import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import download from "downloadjs";
 
-import { updateEmployees, showRegisterEmployee } from "../actions/employeeActions";
+import { 
+	updateEmployees, 
+	showRegisterEmployee
+} from "../actions/employeeActions";
 
-import { getEmployees, exportServerEmployees } from "../utils/employeeUtils";
+import { getEmployees, exportServerEmployees, getServerEmployeeWorkLogFromTo } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
 
 import "../styles/main.css";
@@ -94,8 +97,14 @@ class Employees extends React.Component {
 			return true;
 		});
 
-		this.setState({ tableData: 
-			employees.map((employee) => {
+		const workLogFrom = new Date();
+		workLogFrom.setHours(0, 0, 0);
+
+		const workLogTo = new Date();
+		workLogTo.setHours(23, 59, 59);
+
+		const promise = employees.map((employee) => {
+			return getServerEmployeeWorkLogFromTo(employee.id, workLogFrom, workLogTo).then((res) => {
 				return({
 					id: employee.id,
 					name: employee.name + " " + employee.surname,
@@ -104,13 +113,19 @@ class Employees extends React.Component {
 						time: new Date(),
 						lastWorkStart: new Date(employee.last_work_start),
 						lastWorkEnd: new Date(employee.last_work_end),
-						working: employee.working
+						working: employee.working,
+						workLogs: res.data
 					},
 					commands: employee,
 				});
-			})
-		}, () => {
-			callback();
+			});
+		});
+
+		Promise.all(promise).then((res) => {
+			this.setState({ tableData: res,
+			}, () => {
+				callback();
+			});
 		});
 	}
 
@@ -164,58 +179,72 @@ class Employees extends React.Component {
 		};
 
 		const statusFormatter = (cell, row) => {
-			const workTime = millisecondConverter(
-				new Date(
-					(cell.working
-					? new Date()
-					: cell.lastWorkEnd) - cell.lastWorkStart
-				)
-			);
+			let badges = [];
+			let totalWorkTime = 0;
+			let totalWorkTimeFormatted = {
+				hours: 0,
+				minutes: 0,
+				seconds: 0
+			};
 
+			cell.workLogs.forEach((workLog, index) => {
+				if(workLog.end_time === null) {
+					workLog.end_time = new Date();
+				}
 
-			const workTimeStartFormatted =
-				  addZero(cell.lastWorkStart.getHours()) + ":" 
-				+ addZero(cell.lastWorkStart.getMinutes());
-			
-			const workTimeEndFormatted =
-				  addZero(cell.lastWorkEnd.getHours()) + ":" 
-				+ addZero(cell.lastWorkEnd.getMinutes());
+				totalWorkTime += new Date(workLog.end_time) - new Date(workLog.start_time);
+				totalWorkTimeFormatted = millisecondConverter(totalWorkTime);
 
-			const workTimeFormatted =
-				  workTime.hours + " st. " 
-				+ workTime.minutes + " min. ";
+				const workTimeStartFormatted =
+					  addZero(new Date(workLog.start_time).getHours()) + ":" 
+					+ addZero(new Date(workLog.start_time).getMinutes());
+				
+				const workTimeEndFormatted =
+					  addZero(new Date(workLog.end_time).getHours()) + ":" 
+					+ addZero(new Date(workLog.end_time).getMinutes());
+	
+				const workTimeFormatted =
+					  totalWorkTimeFormatted.hours + " st. " 
+					+ totalWorkTimeFormatted.minutes + " min. ";
 
-			return (
-				<>
-					<nobr>
-					<Badge 
-						style={{ fontSize: "14px" }}
-						variant={ cell.working ? "success" : "info" }
-						className="mr-2"
-					>
-						Ienāca: {workTimeStartFormatted}
-					</Badge>
-					{
-						cell.working
-						? null
-						: <Badge 
+				badges.push(
+					<div key={index}>
+						<Badge 
 							style={{ fontSize: "14px" }}
-							variant="info"
+							variant={ cell.working && index === cell.workLogs.length - 1 ? "success" : "info" }
 							className="mr-2"
 						>
-							Izgaja: {workTimeEndFormatted}
+							Ienāca: {workTimeStartFormatted}
 						</Badge>
-					}
-					<Badge 
-						style={{ fontSize: "14px" }}
-						variant="dark"
-						className="mr-2"
-					>
-						{ cell.working ? "Nostrādāts: " : "Nostrādāja: " }{workTimeFormatted}
-					</Badge>
-					</nobr>
-				</>
-			);
+						{
+							cell.working && index === cell.workLogs.length - 1
+							? null
+							: <Badge 
+								style={{ fontSize: "14px" }}
+								variant={ "info" }
+								className="mr-2"
+							>
+								Izgāja: {workTimeEndFormatted}
+							</Badge>
+						}
+						<br/>
+						{
+							index === cell.workLogs.length - 1
+							&& totalWorkTimeFormatted !== null
+							? <Badge 
+								style={{ fontSize: "14px" }}
+								variant={ "dark" }
+								className="mr-2"
+							>
+								Kopā nostrādāts: {workTimeFormatted}
+							</Badge>
+							: null
+						}
+					</div>
+				);
+			});
+
+			return (badges);
 		};
 
 		const commandFormatter = (cell, row) => {
@@ -237,7 +266,7 @@ class Employees extends React.Component {
 			formatter: nameFormatter,
 		}, {
 			dataField: 'status',
-			text: 'Status',
+			text: 'Šodien',
 			sort: true,
 			classes: "align-middle",
 			formatter: statusFormatter
@@ -308,7 +337,7 @@ class Employees extends React.Component {
 		return (
 			<ContainerBox header={"Darbinieku Saraksts"}>
 				<Row>
-					<Col>
+					<Col xs={8}>
 						<Button
 							variant="success"
 							onClick={this.props.showRegisterEmployee}
@@ -325,7 +354,7 @@ class Employees extends React.Component {
 							Eksportēt Excel
 						</Button>
 					</Col>
-					<Col>
+					<Col xs={4}>
 						<Button 
 							variant="link" 
 							onClick={this.onToggleFilters}

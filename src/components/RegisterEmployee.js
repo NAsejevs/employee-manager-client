@@ -12,7 +12,7 @@ const REGISTER_STATE = {
 	COMPLETE: 2,
 }
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 class RegisterEmployee extends React.Component {
 	constructor(props) {

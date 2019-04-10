@@ -14,15 +14,15 @@ class LogIn extends React.Component {
 		const cookies = new Cookies();
 
 		this.state = {
-			username: "nils.asejevs",
-			password: "EvoNils112",
-			rememberMe: false,
+			username: "",
+			password: "",
+			rememberMe: true,
 			authenticationError: false,
 		}
 	}
 
 	componentDidMount() {
-		this.logIn();
+		//this.logIn();
 	}
 
 	onUsernameChange = (event) => {

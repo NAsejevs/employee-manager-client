@@ -19,6 +19,14 @@ export const getServerEmployeeWorkLog = (id) => {
 	});
 }
 
+export const getServerEmployeeWorkLogFromTo = (id, from, to) => {
+	return request.post("/getEmployeeWorkLogFromTo", { 
+		id,
+		from,
+		to
+	});
+}
+
 export const addServerEmployee = (employee) => {
 	return request.post("/addEmployee", employee);
 }
