@@ -4,10 +4,11 @@ export const checkSession = () => {
 	return request.post("/checkSession");
 }
 
-export const authenticate = (username, password) => {
+export const authenticate = (username, password, rememberMe) => {
 	return request.post("/authenticate", {
 		username,
-		password
+		password,
+		rememberMe
 	});
 }
 

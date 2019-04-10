@@ -55,6 +55,12 @@ export const editServerEmployee = (employee) => {
 		employee
 	});
 }
+
+export const exportServerEmployees = () => {
+	return request.get("/export", {
+		responseType: "blob"
+	});
+}
 // ---------------------------------------
 
 export const getEmployees = () => {
@@ -69,11 +75,4 @@ export const setEmployeeWorking = (id, working, callback) => {
 			callback(res);
 		});
 	});
-}
-
-export const addZero = (i) => {
-	if (i < 10) {
-		i = "0" + i;
-	}
-	return i;
 }

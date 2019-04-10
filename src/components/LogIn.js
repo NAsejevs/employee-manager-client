@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
+import Cookies from "universal-cookie";
 
 import logo from "../images/logo.png";
 
@@ -10,12 +11,18 @@ class LogIn extends React.Component {
 	constructor() {
 		super();
 
+		const cookies = new Cookies();
+
 		this.state = {
 			username: "nils.asejevs",
 			password: "EvoNils112",
 			rememberMe: false,
 			authenticationError: false,
 		}
+	}
+
+	componentDidMount() {
+		this.logIn();
 	}
 
 	onUsernameChange = (event) => {
@@ -30,9 +37,9 @@ class LogIn extends React.Component {
 		this.setState({ rememberMe: !this.state.rememberMe });
 	}
 
-	logIn = (e) => {
-		e.preventDefault();
-		authenticate(this.state.username, this.state.password).then((res) => {
+	logIn = () => {
+		//e.preventDefault();
+		authenticate(this.state.username, this.state.password, this.state.rememberMe).then((res) => {
 			if(res.data) {
 				window.location.reload();
 			} else {

@@ -12,8 +12,6 @@ import DeleteEmployee from "./DeleteEmployee";
 import EditEmployee from "./EditEmployee";
 import LogIn from "./LogIn";
 
-import { showRegisterEmployee } from "../actions/employeeActions";
-
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 
 import "../styles/main.css";
@@ -88,14 +86,14 @@ class App extends React.Component {
 												<LinkContainer exact={true} to="/">
 													<Nav.Link>Darbinieki</Nav.Link>
 												</LinkContainer>
-												<Nav.Link onClick={this.props.showRegisterEmployee}>Reģistrācija</Nav.Link>
+												{/* <Nav.Link onClick={this.props.showRegisterEmployee}>Reģistrācija</Nav.Link> */}
 											</Nav>
 											<Nav>
 												{/* <Navbar.Text>
 													<DateTime/>
 												</Navbar.Text> */}
 												<Navbar.Text className="ml-md-4">
-													{this.state.user.username}
+													<u>{this.state.user.username}</u>
 												</Navbar.Text>
 												<Nav.Link className="ml-md-2" onClick={this.logOut}>
 													Iziet
@@ -142,7 +140,6 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
-		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
 	};
 }
 
