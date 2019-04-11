@@ -5,7 +5,9 @@ import {
 	SHOW_EDIT_EMPLOYEE, 
 	HIDE_EDIT_EMPLOYEE,
 	SHOW_REGISTER_EMPLOYEE,
-	HIDE_REGISTER_EMPLOYEE
+	HIDE_REGISTER_EMPLOYEE,
+	SHOW_EXPORT_EXCEL,
+	HIDE_EXPORT_EXCEL
 } from "./actionTypes";
 
 export const updateEmployees = (employees) => {
@@ -50,5 +52,17 @@ export const showRegisterEmployee = () => {
 export const hideRegisterEmployee = () => {
 	return {
 		type: HIDE_REGISTER_EMPLOYEE,
+	}
+}
+
+export const showExportExcel = () => {
+	return {
+		type: SHOW_EXPORT_EXCEL,
+	}
+}
+
+export const hideExportExcel = () => {
+	return {
+		type: HIDE_EXPORT_EXCEL,
 	}
 }

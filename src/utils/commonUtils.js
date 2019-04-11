@@ -19,3 +19,22 @@ export const millisecondConverter = (ms) => {
 		hours
 	}
 }
+
+export const getMonthName = (month) => {
+	const months = [
+		"Janvāris",
+		"Februāris",
+		"Marts",
+		"Aprīlis",
+		"Maijs",
+		"Jūnijs",
+		"Jūlijs",
+		"Augusts",
+		"Septembris",
+		"Oktobris",
+		"Novembris",
+		"Decembris"
+	];
+
+	return months[month];
+}

@@ -9,7 +9,10 @@ const initialState = {
 		employee: {},
 	},
 	registerEmployee: {
-		show: false
+		show: false,
+	},
+	exportExcel: {
+		show: false,
 	}
 };
 

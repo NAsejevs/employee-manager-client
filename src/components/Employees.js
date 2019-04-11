@@ -4,14 +4,18 @@ import React from "react";
 import { Badge, Form, Button, Collapse, Row, Col } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
-import download from "downloadjs";
 
 import { 
 	updateEmployees, 
-	showRegisterEmployee
+	showRegisterEmployee,
+	showExportExcel
 } from "../actions/employeeActions";
 
-import { getEmployees, exportServerEmployees, getServerEmployeeWorkLogFromTo, cardScanned } from "../utils/employeeUtils";
+import { 
+	getEmployees, 
+	exportServerEmployees, 
+	getServerEmployeeWorkLogFromTo
+} from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
 
 import "../styles/main.css";
@@ -108,8 +112,7 @@ class Employees extends React.Component {
 				return({
 					id: employee.id,
 					name: employee.name + " " + employee.surname,
-					personalCode: employee.personalCode,
-					status: {
+					today: {
 						time: new Date(),
 						lastWorkStart: new Date(employee.last_work_start),
 						lastWorkEnd: new Date(employee.last_work_end),
@@ -159,26 +162,24 @@ class Employees extends React.Component {
 		this.setState({ nameFilter: e.target.value });
 	}
 
-	exportExcel = () => {
-		exportServerEmployees().then((response) => {
-			const content = response.headers["content-type"];
-           	download(response.data, "Varpas 1.xlsx", content);
-		});
-	}
-
 	render() {
 		const nameFormatter = (cell, row) => {
 			return (
 				<div>
 					<nobr>
-						<FiUser/>
+						<Badge 
+							style={{ fontSize: "14px" }}
+							variant={ row.today.working ? "success" : "info" }
+						>
+							<FiUser/>
+						</Badge>
 						<Button variant="link" onClick={() => this.showWorkLog(row.id)}>{cell}</Button>
 					</nobr>
 				</div>
 			);
 		};
 
-		const statusFormatter = (cell, row) => {
+		const todayFormatter = (cell, row) => {
 			let badges = [];
 			let totalWorkTime = 0;
 			let totalWorkTimeFormatted = {
@@ -214,7 +215,7 @@ class Employees extends React.Component {
 							variant={ cell.working && index === cell.workLogs.length - 1 ? "success" : "info" }
 							className="mr-2"
 						>
-							Ienāca: {workTimeStartFormatted}
+							IENĀCA: {workTimeStartFormatted}
 						</Badge>
 						{
 							cell.working && index === cell.workLogs.length - 1
@@ -224,20 +225,20 @@ class Employees extends React.Component {
 								variant={ "info" }
 								className="mr-2"
 							>
-								Izgāja: {workTimeEndFormatted}
+								IZGĀJA: {workTimeEndFormatted}
 							</Badge>
 						}
 						<br/>
 						{
 							index === cell.workLogs.length - 1
 							&& totalWorkTimeFormatted !== null
-							? <Badge 
+							? <div className="text-center"><Badge 
 								style={{ fontSize: "14px" }}
 								variant={ "dark" }
 								className="mr-2"
 							>
-								Kopā nostrādāts: {workTimeFormatted}
-							</Badge>
+								{workTimeFormatted}
+							</Badge></div>
 							: null
 						}
 					</div>
@@ -265,11 +266,10 @@ class Employees extends React.Component {
 			classes: "align-middle",
 			formatter: nameFormatter,
 		}, {
-			dataField: 'status',
+			dataField: 'today',
 			text: 'Šodien',
-			sort: true,
 			classes: "align-middle",
-			formatter: statusFormatter
+			formatter: todayFormatter
 		}, {
 			dataField: 'commands',
 			text: '',
@@ -348,7 +348,7 @@ class Employees extends React.Component {
 						</Button>
 						<Button
 							variant="info"
-							onClick={this.exportExcel}
+							onClick={this.props.showExportExcel}
 						>
 							<FiClipboard className="mr-2 mb-1"/>
 							Eksportēt Excel
@@ -367,13 +367,6 @@ class Employees extends React.Component {
 							}
 							Filtri
 						</Button>
-						{/* <Button onClick={
-							()=> cardScanned("52523523").then((res) => {
-								console.log(res.data);
-							})
-						}>
-							Test!
-						</Button> */}
 					</Col>
 				</Row>
 
@@ -442,6 +435,7 @@ function mapDispatchToProps(dispatch) {
 	return {
 		updateEmployees: (employees) => dispatch(updateEmployees(employees)),
 		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
+		showExportExcel: () => dispatch(showExportExcel()),
 	};
 }
 

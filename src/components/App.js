@@ -10,6 +10,7 @@ import RegisterEmployee from "./RegisterEmployee";
 import NotFound from "./NotFound";
 import DeleteEmployee from "./DeleteEmployee";
 import EditEmployee from "./EditEmployee";
+import ExportExcel from "./ExportExcel";
 import LogIn from "./LogIn";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
@@ -113,6 +114,7 @@ class App extends React.Component {
 									<RegisterEmployee/>
 									<DeleteEmployee/>
 									<EditEmployee/>
+									<ExportExcel/>
 								</Col>
 							</Row>
 							<Row>

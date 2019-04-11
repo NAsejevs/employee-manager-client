@@ -7,7 +7,9 @@ import {
 	SHOW_EDIT_EMPLOYEE, 
 	HIDE_EDIT_EMPLOYEE,
 	SHOW_REGISTER_EMPLOYEE,
-	HIDE_REGISTER_EMPLOYEE
+	HIDE_REGISTER_EMPLOYEE,
+	SHOW_EXPORT_EXCEL,
+	HIDE_EXPORT_EXCEL
 } from '../actions/actionTypes';
 
 export const employees = (state = initialState, action) => {
@@ -66,6 +68,22 @@ export const employees = (state = initialState, action) => {
 				...state,
 				registerEmployee: {
 					...state.registerEmployee,
+					show: false,
+				},
+			}
+		case SHOW_EXPORT_EXCEL:
+			return {
+				...state,
+				exportExcel: {
+					...state.exportExcel,
+					show: true,
+				},
+			}
+		case HIDE_EXPORT_EXCEL:
+			return {
+				...state,
+				exportExcel: {
+					...state.exportExcel,
 					show: false,
 				},
 			}
