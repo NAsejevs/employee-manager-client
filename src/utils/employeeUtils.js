@@ -69,6 +69,10 @@ export const exportServerEmployees = () => {
 		responseType: "blob"
 	});
 }
+
+export const cardScanned = (uid) => {
+	return request.post("/cardScanned", { uid: uid });
+}
 // ---------------------------------------
 
 export const getEmployees = () => {

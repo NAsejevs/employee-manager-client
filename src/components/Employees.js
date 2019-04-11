@@ -11,7 +11,7 @@ import {
 	showRegisterEmployee
 } from "../actions/employeeActions";
 
-import { getEmployees, exportServerEmployees, getServerEmployeeWorkLogFromTo } from "../utils/employeeUtils";
+import { getEmployees, exportServerEmployees, getServerEmployeeWorkLogFromTo, cardScanned } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
 
 import "../styles/main.css";
@@ -367,6 +367,13 @@ class Employees extends React.Component {
 							}
 							Filtri
 						</Button>
+						{/* <Button onClick={
+							()=> cardScanned("52523523").then((res) => {
+								console.log(res.data);
+							})
+						}>
+							Test!
+						</Button> */}
 					</Col>
 				</Row>
 
