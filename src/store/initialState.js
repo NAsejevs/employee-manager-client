@@ -13,6 +13,9 @@ const initialState = {
 	},
 	exportExcel: {
 		show: false,
+	},
+	checkCard: {
+		show: false,
 	}
 };
 

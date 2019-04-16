@@ -152,11 +152,11 @@ class RegisterEmployee extends React.Component {
 					</Form.Group>
 
 					<Alert variant={"primary"} show={this.state.registrationState === REGISTER_STATE.RFID_WAIT} onClose={() => null}>
-						Noskenējiet vēlamo RFID kartiņu!
+						Noskenējiet vēlamo RFID kartiņu.
 					</Alert>
 
 					<Alert variant={"success"} show={this.state.registrationState === REGISTER_STATE.COMPLETE} onClose={() => null}>
-						Darbinieks veiksmīgi pievienots darbinieku sarakstam!
+						Darbinieks veiksmīgi pievienots darbinieku sarakstam.
 					</Alert>
 
 				</Modal.Body>

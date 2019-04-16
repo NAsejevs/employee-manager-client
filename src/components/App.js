@@ -12,8 +12,10 @@ import DeleteEmployee from "./DeleteEmployee";
 import EditEmployee from "./EditEmployee";
 import ExportExcel from "./ExportExcel";
 import LogIn from "./LogIn";
+import CheckCard from "./CheckCard";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
+import { pingServer } from "../utils/commonUtils";
 
 import "../styles/main.css";
 
@@ -25,6 +27,9 @@ class App extends React.Component {
 		super();
 
 		this.state = {
+			pingInterval: null,
+			serverConnectionEstablished: false,
+			scannerConnectionEstablished: false,
 			loading: true,
 			authenticated: false,
 			user: {
@@ -35,17 +40,39 @@ class App extends React.Component {
 
 	componentDidMount() {
 		// Check user session before displaying anything
-		checkSession().then((res) => {
+
+		this.establishConnection();
+		this.setState({ 
+			pingInterval: setInterval(() => {
+				this.establishConnection();
+			}, 1000)
+		});
+	}
+
+	establishConnection = () => {
+		pingServer().then((res) => {
 			this.setState({
-				loading: false,
-				authenticated: res.data,
-			});
-		}).then(() => {
-			getUserByKey().then((res) => {
-				this.setState({
-					user: res.data,
+				serverConnectionEstablished: res.data.server,
+				scannerConnectionEstablished: res.data.scanner,
+			}, () => {
+				checkSession().then((res) => {
+					if(this.state.serverConnectionEstablished === true && this.state.scannerConnectionEstablished === true) {
+						clearInterval(this.state.pingInterval);
+						this.setState({
+							loading: false,
+							authenticated: res.data,
+						}, () => {
+							if(this.state.authenticated) {
+								getUserByKey().then((res) => {
+									this.setState({
+										user: res.data,
+									});
+								});
+							}
+						});
+					}
 				});
-			})
+			});
 		});
 	}
 
@@ -60,6 +87,11 @@ class App extends React.Component {
 			return (
 				<div className="text-center">
 					<Spinner animation="border"/>
+					{
+						(this.state.serverConnectionEstablished && this.state.scannerConnectionEstablished)
+						? null
+						: <div>Veido savienojumu ar serveri...</div>
+					}
 				</div>
 			);
 		} else {
@@ -115,6 +147,7 @@ class App extends React.Component {
 									<DeleteEmployee/>
 									<EditEmployee/>
 									<ExportExcel/>
+									<CheckCard/>
 								</Col>
 							</Row>
 							<Row>

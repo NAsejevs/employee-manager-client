@@ -1,3 +1,9 @@
+import { request } from "./config";
+
+export const pingServer = () => {
+	return request.post("/ping");
+}
+
 export const addZero = (i) => {
 	if (i < 10) {
 		i = "0" + i;

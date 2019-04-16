@@ -1,19 +1,19 @@
 import { connect } from "react-redux";
 import React from "react";
 
-import { Badge, Form, Button, Collapse, Row, Col } from "react-bootstrap";
+import { Badge, Form, Button, Collapse, Row, Col, Dropdown } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 
 import { 
 	updateEmployees, 
 	showRegisterEmployee,
-	showExportExcel
+	showExportExcel,
+	showCheckCard
 } from "../actions/employeeActions";
 
 import { 
-	getEmployees, 
-	exportServerEmployees, 
+	getEmployees,
 	getServerEmployeeWorkLogFromTo
 } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
@@ -210,35 +210,31 @@ class Employees extends React.Component {
 
 				badges.push(
 					<div key={index}>
-						<Badge 
+						<span 
 							style={{ fontSize: "14px" }}
-							variant={ cell.working && index === cell.workLogs.length - 1 ? "success" : "info" }
 							className="mr-2"
 						>
-							IENĀCA: {workTimeStartFormatted}
-						</Badge>
+							Ienāca: {workTimeStartFormatted}
+						</span>
 						{
 							cell.working && index === cell.workLogs.length - 1
 							? null
-							: <Badge 
+							: <span 
 								style={{ fontSize: "14px" }}
-								variant={ "info" }
 								className="mr-2"
 							>
-								IZGĀJA: {workTimeEndFormatted}
-							</Badge>
+								Izgāja: {workTimeEndFormatted}
+							</span>
 						}
-						<br/>
 						{
 							index === cell.workLogs.length - 1
 							&& totalWorkTimeFormatted !== null
-							? <div className="text-center"><Badge 
+							? <div 
 								style={{ fontSize: "14px" }}
-								variant={ "dark" }
-								className="mr-2"
+								className="ml-5"
 							>
 								{workTimeFormatted}
-							</Badge></div>
+							</div>
 							: null
 						}
 					</div>
@@ -337,24 +333,7 @@ class Employees extends React.Component {
 		return (
 			<ContainerBox header={"Darbinieku Saraksts"}>
 				<Row>
-					<Col xs={8}>
-						<Button
-							variant="success"
-							onClick={this.props.showRegisterEmployee}
-							className="mr-2"
-						>
-							<FiUserPlus className="mr-2 mb-1"/>
-							Pievienot darbinieku
-						</Button>
-						<Button
-							variant="info"
-							onClick={this.props.showExportExcel}
-						>
-							<FiClipboard className="mr-2 mb-1"/>
-							Eksportēt Excel
-						</Button>
-					</Col>
-					<Col xs={4}>
+					<Col xs={12}>
 						<Button 
 							variant="link" 
 							onClick={this.onToggleFilters}
@@ -367,6 +346,17 @@ class Employees extends React.Component {
 							}
 							Filtri
 						</Button>
+						<Dropdown alignRight className="float-right">
+							<Dropdown.Toggle variant="link">
+								Opcijas
+							</Dropdown.Toggle>
+
+							<Dropdown.Menu>
+								<Dropdown.Item onClick={this.props.showRegisterEmployee}>Pievienot jaunu darbinieku</Dropdown.Item>
+								<Dropdown.Item onClick={this.props.showExportExcel}>Eksportēt darba laika atskaiti</Dropdown.Item>
+								<Dropdown.Item onClick={this.props.showCheckCard}>Pārbaudīt kartes īpašnieku</Dropdown.Item>
+							</Dropdown.Menu>
+						</Dropdown>
 					</Col>
 				</Row>
 
@@ -436,6 +426,7 @@ function mapDispatchToProps(dispatch) {
 		updateEmployees: (employees) => dispatch(updateEmployees(employees)),
 		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
 		showExportExcel: () => dispatch(showExportExcel()),
+		showCheckCard: () => dispatch(showCheckCard()),
 	};
 }
 
