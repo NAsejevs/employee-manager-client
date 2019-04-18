@@ -1,22 +1,55 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Row, Col, Alert } from "react-bootstrap";
 
 import { showEditEmployee, hideEditEmployee } from "../actions/employeeActions";
 
-import { editServerEmployee, getEmployees } from "../utils/employeeUtils";
+import { editServerEmployee, getEmployees, changeCard, deleteCard, getServerEmployee } from "../utils/employeeUtils";
+
+const CHANGE_CARD_STATE = {
+	OFF: 0,
+	RFID_WAIT: 1,
+	COMPLETE: 2,
+}
 
 class EditEmployee extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {
+		this.initialState = {
 			employee: {
 				name: "",
 				surname: "",
 				personalCode: "",
-			},
+				uid: "",
+				changeCard: {
+					status: 0,
+				}
+			}
 		}
+
+		this.state = {
+			...this.initialState
+		}
+	}
+
+	onEnter = () => {
+		this.setState({ 
+			employee: {
+				...this.state.employee,
+				name: this.props.editEmployee.employee.name,
+				surname: this.props.editEmployee.employee.surname,
+				personalCode: this.props.editEmployee.employee.personalCode,
+				uid: this.props.editEmployee.employee.uid,
+			}
+		});
+	}
+
+	onHide = () => {
+		this.props.hideEditEmployee();
+		this.setState({
+			...this.initialState
+		})
 	}
 
 	onNameChange = (event) => {
@@ -46,14 +79,50 @@ class EditEmployee extends React.Component {
 		});
 	}
 
-	onEnter = () => {
-		this.setState({ 
+	changeCard = (id) => {
+		this.setState({
 			employee: {
-				...this.props.editEmployee.employee,
-				name: this.props.editEmployee.employee.name,
-				surname: this.props.editEmployee.employee.surname,
-				personalCode: this.props.editEmployee.employee.personalCode,
+				...this.state.employee,
+				changeCard: {
+					...this.state.employee.changeCard,
+					status: CHANGE_CARD_STATE.RFID_WAIT
+				}
 			}
+		});
+		changeCard(id).then((res) => {
+			if(this.props.editEmployee.show) {
+				this.setState({
+					employee: {
+						...this.state.employee,
+						changeCard: {
+							...this.state.employee.changeCard,
+							status: CHANGE_CARD_STATE.COMPLETE
+						}
+					}
+				});
+				this.updateUID(id);
+			}
+		}).catch(() => {
+			if(this.props.editEmployee.show) {
+				this.checkCard(id);
+			}
+		});
+	}
+
+	deleteCard = (id) => {
+		deleteCard(id).then(() => {
+			this.updateUID(id);
+		});
+	}
+
+	updateUID = (id) => {
+		getServerEmployee(id).then((res) => {
+			this.setState({ 
+				employee: {
+					...this.state.employee,
+					uid: res.data.uid,
+				}
+			});
 		});
 	}
 
@@ -62,7 +131,7 @@ class EditEmployee extends React.Component {
 			<Modal 
 				centered
 				show={this.props.editEmployee.show}
-				onHide={() => this.props.hideEditEmployee()}
+				onHide={() => this.onHide()}
 				onEnter={() => this.onEnter()}
 			>
 				<Modal.Header closeButton>
@@ -84,6 +153,39 @@ class EditEmployee extends React.Component {
 						<Form.Label>Personas Kods</Form.Label>
 						<Form.Control value={this.state.employee.personalCode} onChange={this.onPersonalCodeChange}/>
 					</Form.Group>
+
+					<Form.Group as={Row}>
+						<Form.Label column xs={"auto"}>UID (NFC Karte)</Form.Label>
+						<Col>
+							<Form.Control disabled value={this.state.employee.uid ? this.state.employee.uid : "NAV"}/>
+						</Col>
+						<Col xs={"auto"}>
+							<Button variant="link" onClick={() => this.deleteCard(this.props.editEmployee.employee.id)}>Dzēst</Button>
+						</Col>
+						<Col xs={"auto"}>
+							<Button variant="link" onClick={() => this.changeCard(this.props.editEmployee.employee.id)}>Mainīt</Button>
+						</Col>
+					</Form.Group>
+
+					<Alert 
+						variant={"primary"} 
+						show={
+							this.state.employee.changeCard.status === CHANGE_CARD_STATE.RFID_WAIT
+						} 
+						onClose={() => null}
+					>
+						Noskenējiet vēlamo RFID kartiņu.
+					</Alert>
+
+					<Alert 
+						variant={"success"} 
+						show={
+							this.state.employee.changeCard.status === CHANGE_CARD_STATE.COMPLETE
+						} 
+						onClose={() => null}
+					>
+						Darbiniekam veiksmīgi nomainīta karte.
+					</Alert>
 				</Modal.Body>
 
 				<Modal.Footer>

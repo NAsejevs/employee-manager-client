@@ -71,13 +71,28 @@ export const exportServerEmployees = () => {
 }
 
 export const cardScanned = (uid) => {
-	return request.post("/cardScanned", { uid: uid });
+	return request.post("/cardScanned", { 
+		uid: uid 
+	});
 }
 
 export const checkCard = (status) => {
-	console.log("status: ", status);
-	return request.post("/checkCard", { status }, {
+	return request.post("/checkCard", { 
+		status 
+	}, {
 		timeout: 1000,
+	});
+}
+
+export const changeCard = (id) => {
+	return request.post("/changeCard", {
+		id
+	});
+}
+
+export const deleteCard = (id) => {
+	return request.post("/deleteCard", {
+		id
 	});
 }
 // ---------------------------------------

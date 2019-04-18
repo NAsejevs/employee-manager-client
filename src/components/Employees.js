@@ -14,7 +14,8 @@ import {
 
 import { 
 	getEmployees,
-	getServerEmployeeWorkLogFromTo
+	getServerEmployeeWorkLogFromTo,
+	cardScanned
 } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
 
@@ -264,6 +265,13 @@ class Employees extends React.Component {
 		}, {
 			dataField: 'today',
 			text: 'Šodien',
+			sort: true,
+			sortFunc: (a, b, order) => {
+				if (order === "asc") {
+					return (b.working ? new Date(b.lastWorkStart) : new Date(b.lastWorkEnd)) - (a.working ? new Date(a.lastWorkStart) : new Date(a.lastWorkEnd));
+				}
+				return (a.working ? new Date(a.lastWorkStart) : new Date(a.lastWorkEnd)) - (b.working ? new Date(b.lastWorkStart) : new Date(b.lastWorkEnd)); // desc
+			},
 			classes: "align-middle",
 			formatter: todayFormatter
 		}, {
@@ -334,6 +342,12 @@ class Employees extends React.Component {
 			<ContainerBox header={"Darbinieku Saraksts"}>
 				<Row>
 					<Col xs={12}>
+						<Button 
+							onClick={() => cardScanned(1)}
+							className="float-right"
+						>
+							TEST SCAN
+						</Button>
 						<Button 
 							variant="link" 
 							onClick={this.onToggleFilters}

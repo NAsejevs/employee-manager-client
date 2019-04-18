@@ -52,6 +52,9 @@ class RegisterEmployee extends React.Component {
 			personalCode: this.state.personalCode,
 		}
 
+		// Darbiniek uvar reģistrēt nesavienojot to ar RFID kartiņu.
+		// Kartiņu var pievienot pēc tam rediģējot darbinieku.
+		
 		if(this.state.registrationState === REGISTER_STATE.DATA_INPUT) {
 			addServerEmployee(employee).then((res) => {
 
