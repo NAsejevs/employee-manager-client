@@ -4,6 +4,8 @@ import { Table, Modal, Dropdown, DropdownButton, Col, Row, Form } from "react-bo
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+import { showEmployeeWorkLog, hideEmployeeWorkLog } from "../actions/employeeActions";
+
 import { getServerEmployee, getServerEmployeeWorkLog } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
 
@@ -296,12 +298,14 @@ class ViewEmployee extends React.Component {
 
 function mapStateToProps(state) {
 	return {
+		employeeWorkLog: state.employees.employeeWorkLog,
 	};
 }
 
 function mapDispatchToProps(dispatch) {
 	return {
-		
+		showEmployeeWorkLog: () => dispatch(showEmployeeWorkLog()),
+		hideEmployeeWorkLog: () => dispatch(hideEmployeeWorkLog()),
 	};
 }
 

@@ -9,13 +9,28 @@ import {
 	SHOW_EXPORT_EXCEL,
 	HIDE_EXPORT_EXCEL,
 	SHOW_CHECK_CARD,
-	HIDE_CHECK_CARD
+	HIDE_CHECK_CARD,
+	SHOW_EMPLOYEE_WORK_LOG,
+	HIDE_EMPLOYEE_WORK_LOG
 } from "./actionTypes";
 
 export const updateEmployees = (employees) => {
 	return {
 		type: UPDATE_EMPLOYEES,
 		payload: employees,
+	}
+}
+
+export const showEmployeeWorkLog = (employee) => {
+	return {
+		type: SHOW_EMPLOYEE_WORK_LOG,
+		payload: employee,
+	}
+}
+
+export const hideEmployeeWorkLog = () => {
+	return {
+		type: HIDE_EMPLOYEE_WORK_LOG,
 	}
 }
 

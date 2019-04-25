@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Modal, Button, Alert } from "react-bootstrap";
 import "react-datepicker/dist/react-datepicker.css";
 
-import { showCheckCard, hideCheckCard } from "../actions/employeeActions";
+import { showCheckCard, hideCheckCard, showWorkLog } from "../actions/employeeActions";
 
 import { checkCard } from "../utils/employeeUtils";
 
@@ -21,10 +21,8 @@ class CheckCard extends React.Component {
 		if(status) {
 			checkCard(status).then((res) => {
 				if(this.props.checkCard.show) {
-					this.setState({
-						cardScanned: true,
-						employee: res.data
-					});
+					this.hideModal();
+					this.showWorkLog(res.data.id);
 				}
 			}).catch(() => {
 				if(this.props.checkCard.show) {
@@ -96,6 +94,7 @@ function mapDispatchToProps(dispatch) {
 	return {
 		showCheckCard: () => dispatch(showCheckCard()),
 		hideCheckCard: () => dispatch(hideCheckCard()),
+		showWorkLog: () => dispatch(showWorkLog()),
 	};
 }
 

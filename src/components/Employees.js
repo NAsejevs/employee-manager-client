@@ -9,7 +9,8 @@ import {
 	updateEmployees, 
 	showRegisterEmployee,
 	showExportExcel,
-	showCheckCard
+	showCheckCard,
+	showEmployeeWorkLog
 } from "../actions/employeeActions";
 
 import { 
@@ -20,7 +21,7 @@ import {
 import { addZero, millisecondConverter } from "../utils/commonUtils";
 
 import "../styles/main.css";
-import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
 import "../styles/table.css";
 
 import ContainerBox from "./ContainerBox";
@@ -112,7 +113,11 @@ class Employees extends React.Component {
 			return getServerEmployeeWorkLogFromTo(employee.id, workLogFrom, workLogTo).then((res) => {
 				return({
 					id: employee.id,
-					name: employee.name + " " + employee.surname,
+					name: {
+						name: employee.name,
+						surname: employee.surname,
+						working: employee.working
+					},
 					today: {
 						time: new Date(),
 						lastWorkStart: new Date(employee.last_work_start),
@@ -170,11 +175,11 @@ class Employees extends React.Component {
 					<nobr>
 						<Badge 
 							style={{ fontSize: "14px" }}
-							variant={ row.today.working ? "success" : "info" }
+							variant={ cell.working ? "success" : "info" }
 						>
 							<FiUser/>
 						</Badge>
-						<Button variant="link" onClick={() => this.showWorkLog(row.id)}>{cell}</Button>
+						<Button variant="link" onClick={() => this.showWorkLog(row.id)}>{cell.name + " " + cell.surname}</Button>
 					</nobr>
 				</div>
 			);
@@ -252,38 +257,54 @@ class Employees extends React.Component {
 		};
 
 		const columns = [{
-			dataField: 'id',
-			text: '#',
+			dataField: "id",
+			text: "#",
 			sort: true,
 			classes: "align-middle",
 		}, {
-			dataField: 'name',
-			text: 'Vārds',
+			dataField: "name",
+			text: "Vārds",
 			sort: true,
+			sortFunc: (a, b, order) => {
+				if(a.name < b.name) {
+					return order === "asc" ? 1 : -1;
+				} else if(a.name > b.name) {
+					return order === "asc" ? -1 : 1;
+				}
+				return 0;
+			},
 			classes: "align-middle",
 			formatter: nameFormatter,
 		}, {
-			dataField: 'today',
-			text: 'Šodien',
+			dataField: "today",
+			text: "Šodien",
 			sort: true,
 			sortFunc: (a, b, order) => {
 				if (order === "asc") {
-					return (b.working ? new Date(b.lastWorkStart) : new Date(b.lastWorkEnd)) - (a.working ? new Date(a.lastWorkStart) : new Date(a.lastWorkEnd));
+					return (a.working 
+						? new Date(a.lastWorkStart) 
+						: new Date(a.lastWorkEnd)) - (b.working 
+							? new Date(b.lastWorkStart) 
+							: new Date(b.lastWorkEnd));
 				}
-				return (a.working ? new Date(a.lastWorkStart) : new Date(a.lastWorkEnd)) - (b.working ? new Date(b.lastWorkStart) : new Date(b.lastWorkEnd)); // desc
+				return (b.working 
+					? new Date(b.lastWorkStart) 
+					: new Date(b.lastWorkEnd)) - (a.working 
+						? new Date(a.lastWorkStart) 
+						: new Date(a.lastWorkEnd));
 			},
 			classes: "align-middle",
 			formatter: todayFormatter
 		}, {
-			dataField: 'commands',
-			text: '',
+			dataField: "commands",
+			text: "",
 			classes: "align-middle",
 			formatter: commandFormatter
 		}];
 
 		const defaultSorted = [{
-			dataField: 'id',
-			order: 'asc'
+			dataField: "id",
+			order: "asc"
 		}];
 
 		const paginationTotalRenderer = (from, to, size) => {
@@ -343,12 +364,6 @@ class Employees extends React.Component {
 				<Row>
 					<Col xs={12}>
 						<Button 
-							onClick={() => cardScanned(1)}
-							className="float-right"
-						>
-							TEST SCAN
-						</Button>
-						<Button 
 							variant="link" 
 							onClick={this.onToggleFilters}
 							className="float-right"
@@ -407,7 +422,7 @@ class Employees extends React.Component {
 
 				<BootstrapTable 
 					bootstrap4={ true }
-					keyField='id' 
+					keyField="id" 
 					data={ this.state.tableData } 
 					columns={ columns } 
 					bordered={ false }
@@ -441,6 +456,7 @@ function mapDispatchToProps(dispatch) {
 		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
 		showExportExcel: () => dispatch(showExportExcel()),
 		showCheckCard: () => dispatch(showCheckCard()),
+		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id))
 	};
 }
 
