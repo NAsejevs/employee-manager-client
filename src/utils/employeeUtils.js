@@ -84,6 +84,12 @@ export const checkCard = (status) => {
 	});
 }
 
+export const addCard = (id) => {
+	return request.post("/addCard", {
+		id
+	});
+}
+
 export const changeCard = (id) => {
 	return request.post("/changeCard", {
 		id

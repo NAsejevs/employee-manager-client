@@ -174,7 +174,7 @@ class EditEmployee extends React.Component {
 						} 
 						onClose={() => null}
 					>
-						Noskenējiet vēlamo RFID kartiņu.
+						Noskenējiet vēlamo kartiņu.
 					</Alert>
 
 					<Alert 
