@@ -45,7 +45,7 @@ class Employees extends React.Component {
 			},
 			showFilters: false,
 			showArchive: false,
-			showInactive: true,
+			showInactive: false,
 			nameFilter: ""
 		}
 	}
@@ -83,7 +83,7 @@ class Employees extends React.Component {
 
 	applyNameFilter = () => {
 		const result = this.state.tableData.filter((row) => {
-			return row.name.toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
+			return (row.name.name + " " + row.name.surname).toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
 		});
 
 		this.setState({
@@ -352,7 +352,7 @@ class Employees extends React.Component {
 						<Button 
 							variant="link" 
 							onClick={this.onToggleFilters}
-							className="float-right"
+							className="float-left"
 						>
 							{
 								this.state.showFilters
@@ -367,43 +367,47 @@ class Employees extends React.Component {
 							</Dropdown.Toggle>
 
 							<Dropdown.Menu>
-								<Dropdown.Item onClick={this.props.showRegisterEmployee}>Pievienot jaunu darbinieku</Dropdown.Item>
-								<Dropdown.Item onClick={this.props.showExportExcel}>Eksportēt darba laika atskaiti</Dropdown.Item>
-								<Dropdown.Item onClick={this.props.showCheckCard}>Pārbaudīt kartes īpašnieku</Dropdown.Item>
+								<Dropdown.Item onClick={this.props.showRegisterEmployee}>Pievienot darbinieku</Dropdown.Item>
+								<Dropdown.Item onClick={this.props.showCheckCard}>Atrast darbinieku pēc kartes</Dropdown.Item>
+								<Dropdown.Item onClick={this.props.showExportExcel}>Eksports</Dropdown.Item>
 							</Dropdown.Menu>
 						</Dropdown>
 					</Col>
 				</Row>
 
-				<Collapse in={this.state.showFilters} className="w-75">
-					<Form className="mt-2">
-						<Form.Group>
-							<Form.Check 
-								type="checkbox" 
-								label="Rādīt arhīvā esošos darbiniekus"
-								checked={this.state.showArchive}
-								onChange={this.onToggleArchive}
-							/>
-						</Form.Group>
-						<Form.Group>
-							<Form.Check 
-								type="checkbox" 
-								label="Rādīt deaktivizētus darbiniekus"
-								checked={this.state.showInactive}
-								onChange={this.onToggleInactive}
-							/>
-						</Form.Group>
-						<Form.Group>
-							<Form.Control
-								placeholder="Vārds..."
-								onChange={this.onChangeNameFilter}
-								value={this.state.nameFilter}
-							/>
-							<Form.Text>
-								Meklēt darbinieku pēc vārda
-							</Form.Text>
-						</Form.Group>
-					</Form>
+				<Collapse in={this.state.showFilters}>
+					<Row>
+						<Col>
+							<Form.Group>
+								<Form.Check 
+									type="checkbox" 
+									label="Rādīt arhīvā esošos darbiniekus"
+									checked={this.state.showArchive}
+									onChange={this.onToggleArchive}
+								/>
+							</Form.Group>
+							<Form.Group>
+								<Form.Check 
+									type="checkbox" 
+									label="Rādīt deaktivizētus darbiniekus"
+									checked={this.state.showInactive}
+									onChange={this.onToggleInactive}
+								/>
+							</Form.Group>
+						</Col>
+						<Col>
+							<Form.Group>
+								<Form.Control
+									placeholder="Vārds..."
+									onChange={this.onChangeNameFilter}
+									value={this.state.nameFilter}
+								/>
+								<Form.Text>
+									Meklēt darbinieku pēc vārda vai uzvārda
+								</Form.Text>
+							</Form.Group>
+						</Col>
+					</Row>
 				</Collapse>
 
 				<BootstrapTable 

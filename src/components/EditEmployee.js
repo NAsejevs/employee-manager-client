@@ -36,8 +36,6 @@ class EditEmployee extends React.Component {
 	}
 
 	onEnter = () => {
-		console.log(this.props.editEmployee.employee);
-
 		this.setState({ 
 			employee: {
 				...this.state.employee,
@@ -157,7 +155,6 @@ class EditEmployee extends React.Component {
 	render() {
 		return (
 			<Modal 
-				centered
 				show={this.props.editEmployee.show}
 				onHide={() => this.onHide()}
 				onEnter={() => this.onEnter()}
@@ -232,7 +229,6 @@ class EditEmployee extends React.Component {
 				</Modal.Body>
 
 				<Modal.Footer>
-					<Button variant="secondary" onClick={() => this.props.hideEditEmployee()}>Atcelt</Button>
 					<Button variant="success" onClick={() => {
 						editServerEmployee(this.state.employee).then(() => {
 							getEmployees();

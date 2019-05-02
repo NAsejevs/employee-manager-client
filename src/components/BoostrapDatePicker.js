@@ -9,6 +9,7 @@ class BoostrapDatePicker extends React.Component {
                 onChange={this.props.onChange}
                 placeholder={this.props.value} 
                 value={this.props.value}
+                className="text-center"
             />
         );
     }

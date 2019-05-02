@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Row, Col, Table, Form } from "react-bootstrap";
 import download from "downloadjs";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -12,11 +12,16 @@ import { showExportExcel, hideExportExcel } from "../actions/employeeActions";
 import { exportServerEmployees } from "../utils/employeeUtils";
 
 class ExportExcel extends React.Component {
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 
 		this.state = {
-			month: new Date()
+			month: new Date(),
+			employeeList: [],
+			checkAll: false,
+			includeNoHours: false,
+			includeInactive: false,
+			includeArchived: false
 		}
 	}
 
@@ -26,42 +31,180 @@ class ExportExcel extends React.Component {
 		});
 	}
 
+	onToggleIncludeNoHours = () => {
+		this.setState({
+			includeNoHours: !this.state.includeNoHours
+		});
+	}
+
+	onToggleIncludeInactive = () => {
+		this.setState({
+			includeInactive: !this.state.includeInactive
+		});
+	}
+
+	onToggleIncludeArchived = () => {
+		this.setState({
+			includeArchived: !this.state.includeArchived
+		});
+	}
+
+	onEmployeeCheck = (index) => {
+		const newList = this.state.employeeList;
+		newList[index].checked = !newList[index].checked;
+
+		this.setState({
+			employeeList: newList
+		});
+	}
+
+	onCheckAll = () => {
+		this.setState({
+			employeeList: this.state.employeeList.map(employee => {
+				return {
+					...employee,
+					checked: !this.state.checkAll
+				}
+			}),
+			checkAll: !this.state.checkAll
+		});
+	}
+
 	export = () => {
-		exportServerEmployees().then((response) => {
+		exportServerEmployees({
+			month: this.state.month,
+			employees: this.state.employeeList.filter(employee => {
+				return employee.checked;
+			}),
+			includeNoHours: this.state.includeNoHours,
+			includeInactive: this.state.includeInactive,
+			includeArchived: this.state.includeArchived
+		}).then((response) => {
 			const content = response.headers["content-type"];
            	download(response.data, "Varpas 1.xlsx", content);
 		});
 	}
 
+	onEnter = () => {
+		this.setState({
+			employeeList: this.props.employees.map(employee => {
+				return {
+					...employee,
+					checked: false
+				}
+			})
+		});
+	}
+
 	render() {
+		if(!this.props.exportExcel.show) return null;
+
+		const employees = this.state.employeeList.map((employee, index) => {
+			return (
+				<tbody key={index}>
+					<tr>
+						<td>
+							<Form.Check 
+								type="checkbox"
+								checked={employee.checked}
+								onChange={() => this.onEmployeeCheck(index)}
+							/>
+						</td>
+						<td>{employee.name + " " + employee.surname}</td>
+						<td>{employee.personalCode}</td>
+						<td>{employee.position}</td>
+					</tr>
+				</tbody>
+			);
+		});
+
 		return (
 			<Modal 
-				centered
+				size="lg"
 				show={this.props.exportExcel.show}
+				onEnter={() => this.onEnter()}
 				onHide={() => this.props.hideExportExcel()}
 			>
 				<Modal.Header closeButton>
-					<Modal.Title>Eksportēt darba laika atskaiti</Modal.Title>
+					<Modal.Title>Eksports</Modal.Title>
 				</Modal.Header>
 
 				<Modal.Body>
-					Nepabeigts... (work in progress)
-					<br/>
-					<br/>
-					<br/>
-
-					Mēnesis: 
-					<DatePicker
-						dateFormat="yyyy/MM"
-						customInput={<BoostrapDatePicker />}
-						selected={new Date()}
-						onChange={this.handleDateChange}
-						showMonthYearPicker
-					/>
+					<Row>
+						<Col>
+							<h5>Periods</h5>
+							<Form.Group as={Row} className="ml-1">
+								<Form.Label column xs={"3"}>Mēnesis: </Form.Label>
+								<Col>
+									<DatePicker
+										dateFormat="MM/yyyy"
+										customInput={<BoostrapDatePicker />}
+										selected={this.state.month}
+										onChange={this.handleDateChange}
+										showMonthYearPicker
+									/>
+								</Col>
+							</Form.Group>
+						</Col>
+						<Col>
+							<h5>Iekļaut</h5>
+							<Form.Group as={Row} className="ml-1">
+								<Col>
+									<Form.Check 
+										type="checkbox" 
+										label="darbiniekus bez nostrādātām stundām"
+										checked={this.state.includeNoHours}
+										onChange={this.onToggleIncludeNoHours}
+									/>
+								</Col>
+							</Form.Group>
+							<Form.Group as={Row} className="ml-1">
+								<Col>
+									<Form.Check 
+										type="checkbox" 
+										label="deaktivizētus darbiniekus"
+										checked={this.state.includeInactive}
+										onChange={this.onToggleIncludeInactive}
+									/>
+								</Col>
+							</Form.Group>
+							<Form.Group as={Row} className="ml-1">
+								<Col>
+									<Form.Check 
+										type="checkbox" 
+										label="arhivētus darbiniekus"
+										checked={this.state.includeArchived}
+										onChange={this.onToggleIncludeArchived}
+									/>
+								</Col>
+							</Form.Group>
+						</Col>
+					</Row>
+					<Row>
+						<Col>
+							<h5>Atlasīt Darbiniekus</h5>
+							<Table size="sm">
+								<thead>
+									<tr>
+										<th>
+											<Form.Check 
+												type="checkbox"
+												checked={this.state.checkAll}
+												onChange={() => this.onCheckAll()}
+											/>
+										</th>
+										<th>Vārds</th>
+										<th>Personas Kods</th>
+										<th>Amats</th>
+									</tr>
+								</thead>
+								{employees}
+							</Table>
+						</Col>
+					</Row>
 				</Modal.Body>
 
 				<Modal.Footer>
-					<Button variant="secondary" onClick={() => this.props.hideExportExcel()}>Atcelt</Button>
 					<Button variant="success" onClick={() => {
 						this.export();
 					}}>
@@ -76,6 +219,7 @@ class ExportExcel extends React.Component {
 function mapStateToProps(state) {
 	return {
 		exportExcel: state.employees.exportExcel,
+		employees: state.employees.employees
 	};
 }
 

@@ -101,7 +101,6 @@ class RegisterEmployee extends React.Component {
 					});
 				});
 			} else {
-				console.log("3");
 				addServerEmployee(employee).then((res) => {
 					if(res.data) {
 						getServerEmployees().then((res) => {
@@ -143,7 +142,6 @@ class RegisterEmployee extends React.Component {
 	render() {
 		return (
 			<Modal 
-				centered
 				show={this.props.registerEmployee.show} 
 				onHide={() => this.props.hideRegisterEmployee()}
 				onExit={this.deleteAndCancel}
@@ -252,7 +250,6 @@ function Buttons(props) {
 		case REGISTER_STATE.DATA_INPUT: {
 			return(
 				<>
-					<Button variant="secondary" onClick={() => props.hideRegisterEmployee()}>Atcelt</Button>
 					<Button variant={ props.addCard ? "primary" : "success"} type="submit">
 						{
 							props.addCard 
@@ -265,7 +262,7 @@ function Buttons(props) {
 		}
 		case REGISTER_STATE.RFID_WAIT: {
 			return(
-				<Button variant="secondary" onClick={() => props.hideRegisterEmployeeAndDelete()}>Atcelt</Button>
+				null
 			);
 		}
 		case REGISTER_STATE.COMPLETE: {

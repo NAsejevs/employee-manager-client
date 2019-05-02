@@ -57,7 +57,7 @@ class ViewEmployee extends React.Component {
 			});
 		});
 
-		getServerEmployeeWorkLog(this.props.employeeWorkLog.id).then((res) => {
+		getServerEmployeeWorkLog(this.props.employeeWorkLog.id, "DESC").then((res) => {
 			this.setState({
 				workLog: res.data
 			});
@@ -71,7 +71,7 @@ class ViewEmployee extends React.Component {
 					});
 				});
 
-				getServerEmployeeWorkLog(this.props.employeeWorkLog.id).then((res) => {
+				getServerEmployeeWorkLog(this.props.employeeWorkLog.id, "DESC").then((res) => {
 					this.setState({
 						workLog: res.data
 					});
@@ -189,7 +189,7 @@ class ViewEmployee extends React.Component {
 			}
 
 			const workRow = (
-				<tr style={stillWorking ? workingStyle : null}>
+				<tr className="text-center" style={stillWorking ? workingStyle : null}>
 					<td>{startTimeFormatted}</td>
 					<td>{endTimeFormatted}</td>
 					<td>{workTimeFormatted}</td>
@@ -295,7 +295,14 @@ class ViewEmployee extends React.Component {
 					{
 						this.state.workLog.length && filterResults
 						? (
-						<Table hover>
+						<Table size="sm">
+							<thead>
+								<tr className="text-center">
+									<th>Ienāca</th>
+									<th>Izgāja</th>
+									<th>Nostrādāja</th>
+								</tr>
+							</thead>
 							{workLog}
 						</Table>
 						) : (

@@ -55,8 +55,7 @@ class LogIn extends React.Component {
 
 	render() {
 		return (
-			<Modal 
-				//size="sm"
+			<Modal
 				centered
 				show={true}
 				onHide={() => null}

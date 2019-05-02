@@ -47,18 +47,17 @@ class CheckCard extends React.Component {
 	render() {
 		return (
 			<Modal 
-				centered
 				show={this.props.checkCard.show}
 				onHide={this.hideModal}
 				onEntered={() => this.checkCard(true)}
 			>
 				<Modal.Header closeButton>
-					<Modal.Title>Pārbaudīt kartes īpašnieku</Modal.Title>
+					<Modal.Title>Atrast darbinieku pēc kartes</Modal.Title>
 				</Modal.Header>
 
 				<Modal.Body>
 					<Alert variant={"primary"} show={!this.state.cardScanned}>
-						Noskenējiet vēlamo RFID kartiņu.
+						Noskenējiet vēlamo NFC karti.
 					</Alert>
 					{
 						this.state.cardScanned && this.state.employee !== false
@@ -75,10 +74,6 @@ class CheckCard extends React.Component {
 						: null
 					}
 				</Modal.Body>
-
-				<Modal.Footer>
-					<Button variant="secondary" onClick={this.hideModal}>Atcelt</Button>
-				</Modal.Footer>
 			</Modal>
 		);
 	}
