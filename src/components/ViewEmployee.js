@@ -41,7 +41,7 @@ class ViewEmployee extends React.Component {
 	}
 
 	componentDidUpdate(prevProps) {
-		if (this.props.userId !== prevProps.userId && this.props.userId !== null) {
+		if (this.props.employeeWorkLog.id !== prevProps.employeeWorkLog.id && this.props.employeeWorkLog.id !== null) {
 			this.fetchWorkLog();
 		}
 	}
@@ -51,33 +51,27 @@ class ViewEmployee extends React.Component {
 	}
 
 	fetchWorkLog = () => {
-		const userId = this.props.userId;
-
-		getServerEmployee(this.props.userId).then((res) => {
-			if(this.props.userId !== userId) return;
+		getServerEmployee(this.props.employeeWorkLog.id).then((res) => {
 			this.setState({
 				employee: res.data
 			});
 		});
 
-		getServerEmployeeWorkLog(this.props.userId).then((res) => {
-			if(this.props.userId !== userId) return;
+		getServerEmployeeWorkLog(this.props.employeeWorkLog.id).then((res) => {
 			this.setState({
 				workLog: res.data
 			});
 		});
 
-		this.setState({ 
+		this.setState({
 			updateInterval: setInterval(() => {
-				getServerEmployee(this.props.userId).then((res) => {
-					if(this.props.userId !== userId) return;
+				getServerEmployee(this.props.employeeWorkLog.id).then((res) => {
 					this.setState({
 						employee: res.data
 					});
 				});
 
-				getServerEmployeeWorkLog(this.props.userId).then((res) => {
-					if(this.props.userId !== userId) return;
+				getServerEmployeeWorkLog(this.props.employeeWorkLog.id).then((res) => {
 					this.setState({
 						workLog: res.data
 					});
@@ -159,6 +153,7 @@ class ViewEmployee extends React.Component {
 
 	render() {
 		let filterResults = 0;
+		let lastDate = null;
 		const workLog = this.state.workLog
 		.filter((log) => {
 			// Filter out all rows which do not match the date
@@ -177,21 +172,11 @@ class ViewEmployee extends React.Component {
 			const endTimePure = stillWorking ? new Date() : new Date(log.end_time);
 
 			const startTimeFormatted = 
-				// Date
-				  addZero(startTimePure.getDate()) + "." 
-				+ addZero(startTimePure.getMonth() + 1) + "." 
-				+ addZero(startTimePure.getFullYear()) + " "
-				// Time
-				+ addZero(startTimePure.getHours()) + ":" 
+				  addZero(startTimePure.getHours()) + ":" 
 				+ addZero(startTimePure.getMinutes());
 
 			const endTimeFormatted = stillWorking ? " - " :
-				// Date
-				  addZero(endTimePure.getDate()) + "." 
-				+ addZero(endTimePure.getMonth() + 1) + "." 
-				+ addZero(endTimePure.getFullYear()) + " "
-				// Time
-				+ addZero(endTimePure.getHours()) + ":" 
+				  addZero(endTimePure.getHours()) + ":" 
 				+ addZero(endTimePure.getMinutes());
 
 			const workTime = millisecondConverter(endTimePure - startTimePure);
@@ -203,33 +188,71 @@ class ViewEmployee extends React.Component {
 				backgroundColor: "#ffffe6",
 			}
 
-			return (
-				<tr key={index} style={stillWorking ? workingStyle : null}>
+			const workRow = (
+				<tr style={stillWorking ? workingStyle : null}>
 					<td>{startTimeFormatted}</td>
 					<td>{endTimeFormatted}</td>
 					<td>{workTimeFormatted}</td>
 				</tr>
 			);
+
+			let dateRow = null;
+
+			if(lastDate === null || lastDate !== startTimePure.getDate()) {
+				lastDate = startTimePure.getDate();
+
+				const startDateFormatted =
+					  addZero(startTimePure.getDate()) + "." 
+					+ addZero(startTimePure.getMonth() + 1) + "." 
+					+ addZero(startTimePure.getFullYear());
+
+				dateRow = (
+					<tr className="bg-dark text-light">
+						<td colSpan={3}>{startDateFormatted}</td>
+					</tr>
+				);
+			}
+
+			return (
+				<tbody key={index}>
+					{dateRow}
+					{workRow}
+				</tbody>
+			);
 		});
 
 		return (
 			<Modal 
-				show={this.props.showWorkLogModal} 
-				onHide={() => this.props.handleWorkLogClose()}
-				onExited={() => this.onModalHide()}
+				show={this.props.employeeWorkLog.show} 
+				onHide={this.props.hideEmployeeWorkLog}
+				onExited={this.onModalHide}
 				size={"lg"}
 			>
 				<Modal.Header closeButton>
-					<Modal.Title>{this.state.employee.name + " " + this.state.employee.surname}</Modal.Title>
+					<Modal.Title className="w-100">
+						<Row>
+							<Col>
+								<h4>{this.state.employee.name + " " + this.state.employee.surname} ({this.state.employee.personalCode})</h4>
+							</Col>
+						</Row>
+						<Row>
+							<Col>
+								<h5 className="text-secondary">{this.state.employee.position}</h5>
+							</Col>
+							<Col>
+								<h5 className="text-secondary float-right">Tel. {this.state.employee.number}</h5>
+							</Col>
+						</Row>
+					</Modal.Title>
 				</Modal.Header>
 
 				<Modal.Body>
 					<Form>
 						<Row>
-							<Col sm={4}>
+							<Col>
 								<Form.Group as={Row}>
-									<Form.Label column sm={2}>No</Form.Label>
-									<Col sm={10}>
+									<Form.Label column xs={2}>No</Form.Label>
+									<Col xs={10}>
 										<DatePicker
 											dateFormat="yyyy/MM/dd"
 											customInput={<BoostrapDatePicker />}
@@ -240,10 +263,10 @@ class ViewEmployee extends React.Component {
 									</Col>
 								</Form.Group>
 							</Col>
-							<Col sm={4}>
+							<Col>
 								<Form.Group as={Row}>
-									<Form.Label column sm={2}>Līdz</Form.Label>
-									<Col sm={10}>
+									<Form.Label column xs={2}>Līdz</Form.Label>
+									<Col xs={10}>
 										<DatePicker
 											dateFormat="yyyy/MM/dd"
 											customInput={<BoostrapDatePicker />}
@@ -254,11 +277,11 @@ class ViewEmployee extends React.Component {
 									</Col>
 								</Form.Group>
 							</Col>
-							<Col sm={4}>
+							<Col className="d-flex flex-column">
 								<DropdownButton
 									variant="secondary"
 									title={this.state.dropdown.currentFilter} 
-									className="text-right"
+									className="text-right mt-auto mb-3"
 								>
 								{
 									this.state.dropdown.filters.map((filter, index) => {
@@ -273,16 +296,7 @@ class ViewEmployee extends React.Component {
 						this.state.workLog.length && filterResults
 						? (
 						<Table hover>
-							<thead>
-								<tr>
-									<th>ATSKAITE SĀKTA</th>
-									<th>ATSKAITE BEIGTA</th>
-									<th>NOSTRĀDĀTS</th>
-								</tr>
-							</thead>
-							<tbody>
-								{workLog}
-							</tbody>
+							{workLog}
 						</Table>
 						) : (
 							<div className="text-center">

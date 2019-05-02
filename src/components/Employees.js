@@ -15,8 +15,7 @@ import {
 
 import { 
 	getEmployees,
-	getServerEmployeeWorkLogFromTo,
-	cardScanned
+	getServerEmployeeWorkLogFromTo
 } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
 
@@ -28,7 +27,7 @@ import ContainerBox from "./ContainerBox";
 import ViewEmployee from "./ViewEmployee";
 import Commands from "./Commands";
 
-import { FiUser, FiMinimize2, FiMaximize2, FiUserPlus, FiClipboard } from "react-icons/fi";
+import { FiUser, FiMinimize2, FiMaximize2 } from "react-icons/fi";
 
 class Employees extends React.Component {
 
@@ -114,6 +113,7 @@ class Employees extends React.Component {
 				return({
 					id: employee.id,
 					name: {
+						id: employee.id,
 						name: employee.name,
 						surname: employee.surname,
 						working: employee.working
@@ -135,20 +135,6 @@ class Employees extends React.Component {
 			}, () => {
 				callback();
 			});
-		});
-	}
-
-	showWorkLog = (userId) => {
-		this.setState({
-			workLogUserId: userId,
-			showWorkLogModal: true,
-		});
-	}
-
-	handleWorkLogClose = () => {
-		this.setState({
-			showWorkLogModal: false,
-			workLogUserId: null,
 		});
 	}
 
@@ -179,7 +165,7 @@ class Employees extends React.Component {
 						>
 							<FiUser/>
 						</Badge>
-						<Button variant="link" onClick={() => this.showWorkLog(row.id)}>{cell.name + " " + cell.surname}</Button>
+						<Button variant="link" onClick={() => this.props.showEmployeeWorkLog(cell.id)}>{cell.name + " " + cell.surname}</Button>
 					</nobr>
 				</div>
 			);
@@ -349,7 +335,7 @@ class Employees extends React.Component {
 			]
 		});
 
-		const rowStyle = (row, rowIndex) => {
+		const rowStyle = (row) => {
 			if(!row.commands.active) {
 				return { backgroundColor: "rgba(255, 0, 0, 0.1)" };
 			}
@@ -362,7 +348,7 @@ class Employees extends React.Component {
 		return (
 			<ContainerBox header={"Darbinieku Saraksts"}>
 				<Row>
-					<Col xs={12}>
+					<Col>
 						<Button 
 							variant="link" 
 							onClick={this.onToggleFilters}
@@ -434,11 +420,7 @@ class Employees extends React.Component {
 					rowStyle={ rowStyle }
 				/>
 
-				<ViewEmployee 
-					showWorkLogModal={this.state.showWorkLogModal} 
-					handleWorkLogClose={this.handleWorkLogClose}
-					userId={this.state.workLogUserId}
-				/>
+				<ViewEmployee/>
 			</ContainerBox>
 		);
 	}

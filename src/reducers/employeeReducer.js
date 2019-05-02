@@ -29,7 +29,7 @@ export const employees = (state = initialState, action) => {
 				employeeWorkLog: {
 					...state.employeeWorkLog,
 					show: true,
-					employee: action.payload,
+					id: action.payload,
 				},
 			}
 		case HIDE_EMPLOYEE_WORK_LOG:
@@ -38,7 +38,7 @@ export const employees = (state = initialState, action) => {
 				employeeWorkLog: {
 					...state.employeeWorkLog,
 					show: false,
-					employee: {},
+					id: null,
 				},
 			}
 		case SHOW_DELETE_EMPLOYEE:

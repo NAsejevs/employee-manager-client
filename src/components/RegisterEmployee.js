@@ -248,6 +248,7 @@ class RegisterEmployee extends React.Component {
 
 function Buttons(props) {
 	switch(props.registrationState) {
+		default:
 		case REGISTER_STATE.DATA_INPUT: {
 			return(
 				<>
