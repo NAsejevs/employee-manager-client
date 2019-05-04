@@ -1,8 +1,8 @@
 import { connect } from "react-redux";
 import React from "react";
-import { Form, Button, Alert, Modal } from "react-bootstrap";
+import { Form, Button, Alert, Modal, Row, Col } from "react-bootstrap";
 
-import { addServerEmployee, getServerEmployees, getServerEmployee, deleteServerEmployee } from "../utils/employeeUtils";
+import { addServerEmployee, getServerEmployees, getServerEmployee, deleteServerEmployee, addCard } from "../utils/employeeUtils";
 
 import { updateEmployees, showRegisterEmployee, hideRegisterEmployee } from "../actions/employeeActions";
 
@@ -11,8 +11,6 @@ const REGISTER_STATE = {
 	RFID_WAIT: 1,
 	COMPLETE: 2,
 }
-
-const DEBUG_MODE = false;
 
 class RegisterEmployee extends React.Component {
 	constructor(props) {
@@ -24,7 +22,10 @@ class RegisterEmployee extends React.Component {
 			newEmployee: {},
 			name: "",
 			surname: "",
+			position: "",
+			number: "",
 			personalCode: "",
+			addCard: true,
 			uid: "",
 		}
 	}
@@ -38,8 +39,20 @@ class RegisterEmployee extends React.Component {
 		this.setState({ surname: event.target.value });
 	}
 
+	onPositionChange = (event) => {
+		this.setState({ position: event.target.value });
+	}
+
+	onNumberChange = (event) => {
+		this.setState({ number: event.target.value });
+	}
+
 	onPersonalCodeChange = (event) => {
 		this.setState({ personalCode: event.target.value });
+	}
+
+	onAddCardChange = () => {
+		this.setState({ addCard: !this.state.addCard });
 	}
 
 	onFormSubmit = (event) => {
@@ -49,43 +62,57 @@ class RegisterEmployee extends React.Component {
 		const employee = {
 			name: this.state.name,
 			surname: this.state.surname,
+			position: this.state.position,
+			number: this.state.number,
 			personalCode: this.state.personalCode,
 		}
-
-		// Darbiniek uvar reģistrēt nesavienojot to ar RFID kartiņu.
-		// Kartiņu var pievienot pēc tam rediģējot darbinieku.
 		
 		if(this.state.registrationState === REGISTER_STATE.DATA_INPUT) {
-			addServerEmployee(employee).then((res) => {
+			if(this.state.addCard) {
+				addServerEmployee(employee).then((res) => {
+					const newEmployee = res.data;
+					let checkInterval = null;
 
-				const newEmployee = res.data;
-				let checkInterval = null;
-
-				if(newEmployee) {
-					this.setState({
-						newEmployee: newEmployee,
-					});
-					checkInterval = setInterval(() => {
-						getServerEmployee(newEmployee.id).then((res) => {
-							if(res.data.uid !== null || DEBUG_MODE) {
-								clearInterval(checkInterval);
-								this.setState({
-									newEmployee: newEmployee,
-									registrationState: REGISTER_STATE.COMPLETE,
-								});
-							}
+					addCard(newEmployee.id);
+	
+					if(newEmployee) {
+						this.setState({
+							newEmployee: newEmployee,
 						});
-					}, 1000);
-				}
+						checkInterval = setInterval(() => {
+							getServerEmployee(newEmployee.id).then((res) => {
+								if(res.data.uid !== null) {
+									clearInterval(checkInterval);
+									this.setState({
+										newEmployee: newEmployee,
+										registrationState: REGISTER_STATE.COMPLETE,
+									});
+								}
+							});
+						}, 1000);
+					}
+	
+					getServerEmployees().then((res) => {
+						this.props.updateEmployees(res.data);
+					});
 
-				getServerEmployees().then((res) => {
-					this.props.updateEmployees(res.data);
+					this.setState({ 
+						registrationState: REGISTER_STATE.RFID_WAIT,
+					});
 				});
-			});
-
-			this.setState({ 
-				registrationState: REGISTER_STATE.RFID_WAIT,
-			});
+			} else {
+				addServerEmployee(employee).then((res) => {
+					if(res.data) {
+						getServerEmployees().then((res) => {
+							this.props.updateEmployees(res.data);
+						});
+	
+						this.setState({ 
+							registrationState: REGISTER_STATE.COMPLETE,
+						});
+					}
+				});
+			}
 		} else if(this.state.registrationState === REGISTER_STATE.COMPLETE) {
 			this.props.hideRegisterEmployee();
 		}
@@ -105,15 +132,16 @@ class RegisterEmployee extends React.Component {
 			newEmployee: {},
 			name: "",
 			surname: "",
+			position: "",
+			number: "",
 			personalCode: "",
-			uid: ""
+			uid: "",
 		});
 	}
 
 	render() {
 		return (
 			<Modal 
-				centered
 				show={this.props.registerEmployee.show} 
 				onHide={() => this.props.hideRegisterEmployee()}
 				onExit={this.deleteAndCancel}
@@ -125,25 +153,32 @@ class RegisterEmployee extends React.Component {
 				</Modal.Header>
 				<Modal.Body>
 
-					<Form.Group>
-						<Form.Label>* Vārds</Form.Label>
-						<Form.Control 
-							required 
-							disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
-							value={this.state.name} 
-							onChange={this.onNameChange}
-						/>
-					</Form.Group>
-
-					<Form.Group>
-						<Form.Label>* Uzvārds</Form.Label>
-						<Form.Control 
-							required 
-							disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
-							value={this.state.surname} 
-							onChange={this.onSurnameChange}
-						/>
-					</Form.Group>
+					<Row>
+						<Col>
+							<Form.Group>
+								<Form.Label>* Vārds</Form.Label>
+								<Form.Control 
+									required 
+									disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
+									value={this.state.name} 
+									onChange={this.onNameChange}
+									placeholder="Vārds"
+								/>
+							</Form.Group>
+						</Col>
+						<Col>
+							<Form.Group>
+								<Form.Label>* Uzvārds</Form.Label>
+								<Form.Control 
+									required 
+									disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
+									value={this.state.surname} 
+									onChange={this.onSurnameChange}
+									placeholder="Uzvārds"
+								/>
+							</Form.Group>
+						</Col>
+					</Row>
 
 					<Form.Group>
 						<Form.Label>Personas Kods</Form.Label>
@@ -151,11 +186,43 @@ class RegisterEmployee extends React.Component {
 							disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
 							value={this.state.personalCode} 
 							onChange={this.onPersonalCodeChange}
+							placeholder="123456-12345"
 						/>
 					</Form.Group>
 
+					<Form.Group>
+						<Form.Label>Amats</Form.Label>
+						<Form.Control 
+							disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
+							value={this.state.position} 
+							onChange={this.onPositionChange}
+							placeholder="Darba Amats"
+						/>
+					</Form.Group>
+
+					<Form.Group>
+						<Form.Label>Telefona Numurs</Form.Label>
+						<Form.Control 
+							disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
+							value={this.state.number} 
+							onChange={this.onNumberChange}
+							placeholder="Telefona Numurs"
+						/>
+					</Form.Group>
+
+					<Form.Group controlId="formBasicChecbox">
+						<Form.Check 
+							type="checkbox" 
+							label="Pievienot NFC karti"
+							name="addCard"
+							checked={this.state.addCard}
+							onChange={this.onAddCardChange}/>
+					</Form.Group>
+
+					<p><em>Obligāti jānorāda lauki, kas atzīmēti ar *</em></p>
+
 					<Alert variant={"primary"} show={this.state.registrationState === REGISTER_STATE.RFID_WAIT} onClose={() => null}>
-						Noskenējiet vēlamo RFID kartiņu.
+						Noskenējiet vēlamo kartiņu.
 					</Alert>
 
 					<Alert variant={"success"} show={this.state.registrationState === REGISTER_STATE.COMPLETE} onClose={() => null}>
@@ -168,6 +235,7 @@ class RegisterEmployee extends React.Component {
 						registrationState={this.state.registrationState}
 						hideRegisterEmployee={this.props.hideRegisterEmployee}
 						hideRegisterEmployeeAndDelete={this.hideRegisterEmployeeAndDelete}
+						addCard={this.state.addCard}
 					/>
 				</Modal.Footer>
 				</Form>
@@ -178,19 +246,23 @@ class RegisterEmployee extends React.Component {
 
 function Buttons(props) {
 	switch(props.registrationState) {
+		default:
 		case REGISTER_STATE.DATA_INPUT: {
 			return(
 				<>
-					<Button variant="secondary" onClick={() => props.hideRegisterEmployee()}>Atcelt</Button>
-					<Button type="submit">
-						Tālāk
+					<Button variant={ props.addCard ? "primary" : "success"} type="submit">
+						{
+							props.addCard 
+							? "Tālāk"
+							: "Pabeigt"
+						}
 					</Button>
 				</>
 			);
 		}
 		case REGISTER_STATE.RFID_WAIT: {
 			return(
-				<Button variant="secondary" onClick={() => props.hideRegisterEmployeeAndDelete()}>Atcelt</Button>
+				null
 			);
 		}
 		case REGISTER_STATE.COMPLETE: {
@@ -198,16 +270,6 @@ function Buttons(props) {
 				<>
 					<Button variant="success" type="submit">
 						Pabeigt
-					</Button>
-				</>
-			);
-		}
-		default: {
-			return(
-				<>
-					<Button variant="secondary" onClick={() => props.hideRegisterEmployee()}>Atcelt</Button>
-					<Button type="submit">
-						Tālāk
 					</Button>
 				</>
 			);

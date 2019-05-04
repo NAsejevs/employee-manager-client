@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Modal, Button, Alert } from "react-bootstrap";
 import "react-datepicker/dist/react-datepicker.css";
 
-import { showCheckCard, hideCheckCard } from "../actions/employeeActions";
+import { showCheckCard, hideCheckCard, showEmployeeWorkLog } from "../actions/employeeActions";
 
 import { checkCard } from "../utils/employeeUtils";
 
@@ -21,10 +21,8 @@ class CheckCard extends React.Component {
 		if(status) {
 			checkCard(status).then((res) => {
 				if(this.props.checkCard.show) {
-					this.setState({
-						cardScanned: true,
-						employee: res.data
-					});
+					this.hideModal();
+					this.props.showEmployeeWorkLog(res.data.id);
 				}
 			}).catch(() => {
 				if(this.props.checkCard.show) {
@@ -49,18 +47,17 @@ class CheckCard extends React.Component {
 	render() {
 		return (
 			<Modal 
-				centered
 				show={this.props.checkCard.show}
 				onHide={this.hideModal}
 				onEntered={() => this.checkCard(true)}
 			>
 				<Modal.Header closeButton>
-					<Modal.Title>Pārbaudīt kartes īpašnieku</Modal.Title>
+					<Modal.Title>Atrast darbinieku pēc kartes</Modal.Title>
 				</Modal.Header>
 
 				<Modal.Body>
 					<Alert variant={"primary"} show={!this.state.cardScanned}>
-						Noskenējiet vēlamo RFID kartiņu.
+						Noskenējiet vēlamo NFC karti.
 					</Alert>
 					{
 						this.state.cardScanned && this.state.employee !== false
@@ -77,10 +74,6 @@ class CheckCard extends React.Component {
 						: null
 					}
 				</Modal.Body>
-
-				<Modal.Footer>
-					<Button variant="secondary" onClick={this.hideModal}>Atcelt</Button>
-				</Modal.Footer>
 			</Modal>
 		);
 	}
@@ -96,6 +89,7 @@ function mapDispatchToProps(dispatch) {
 	return {
 		showCheckCard: () => dispatch(showCheckCard()),
 		hideCheckCard: () => dispatch(hideCheckCard()),
+		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id)),
 	};
 }
 

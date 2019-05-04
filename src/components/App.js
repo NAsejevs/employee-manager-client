@@ -17,6 +17,8 @@ import CheckCard from "./CheckCard";
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
 
+import { cardScanned} from "../utils/employeeUtils";
+
 import "../styles/main.css";
 
 import logo from "../images/logo.png";
@@ -36,6 +38,8 @@ class App extends React.Component {
 				username: ""
 			}
 		}
+
+		window.scanCard = cardScanned;
 	}
 
 	componentDidMount() {

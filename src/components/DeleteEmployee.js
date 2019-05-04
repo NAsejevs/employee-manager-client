@@ -10,7 +10,6 @@ class DeleteEmployee extends React.Component {
 	render() {
 		return (
 			<Modal 
-				centered
 				show={this.props.deleteEmployee.show}
 				onHide={() => this.props.hideDeleteEmployee()}
 			>
@@ -23,7 +22,6 @@ class DeleteEmployee extends React.Component {
 				</Modal.Body>
 
 				<Modal.Footer>
-					<Button variant="secondary" onClick={() => this.props.hideDeleteEmployee()}>Atcelt</Button>
 					<Button variant="danger" onClick={() => {
 						deleteServerEmployee(this.props.deleteEmployee.employee.id).then(() => {
 							getEmployees();

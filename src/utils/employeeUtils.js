@@ -13,9 +13,10 @@ export const getServerEmployee = (id) => {
 	});
 }
 
-export const getServerEmployeeWorkLog = (id) => {
+export const getServerEmployeeWorkLog = (id, order = "ASC") => {
 	return request.post("/getEmployeeWorkLog", { 
-		id 
+		id,
+		order
 	});
 }
 
@@ -64,9 +65,13 @@ export const editServerEmployee = (employee) => {
 	});
 }
 
-export const exportServerEmployees = () => {
-	return request.get("/export", {
-		responseType: "blob"
+export const exportServerEmployees = (settings) => {
+	return request.post("/export", {
+		settings
+	}).then(() => {
+		return request.get("/export", {
+			responseType: "blob"
+		})
 	});
 }
 
@@ -81,6 +86,12 @@ export const checkCard = (status) => {
 		status 
 	}, {
 		timeout: 1000,
+	});
+}
+
+export const addCard = (id) => {
+	return request.post("/addCard", {
+		id
 	});
 }
 

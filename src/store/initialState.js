@@ -1,5 +1,9 @@
 const initialState = {
 	employees: [],
+	employeeWorkLog: {
+		show: false,
+		id: null,
+	},
 	deleteEmployee: {
 		show: false,
 		employee: {},

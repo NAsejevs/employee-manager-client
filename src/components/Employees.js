@@ -9,25 +9,25 @@ import {
 	updateEmployees, 
 	showRegisterEmployee,
 	showExportExcel,
-	showCheckCard
+	showCheckCard,
+	showEmployeeWorkLog
 } from "../actions/employeeActions";
 
 import { 
 	getEmployees,
-	getServerEmployeeWorkLogFromTo,
-	cardScanned
+	getServerEmployeeWorkLogFromTo
 } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
 
 import "../styles/main.css";
-import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
 import "../styles/table.css";
 
 import ContainerBox from "./ContainerBox";
 import ViewEmployee from "./ViewEmployee";
 import Commands from "./Commands";
 
-import { FiUser, FiMinimize2, FiMaximize2, FiUserPlus, FiClipboard } from "react-icons/fi";
+import { FiUser, FiMinimize2, FiMaximize2 } from "react-icons/fi";
 
 class Employees extends React.Component {
 
@@ -45,7 +45,7 @@ class Employees extends React.Component {
 			},
 			showFilters: false,
 			showArchive: false,
-			showInactive: true,
+			showInactive: false,
 			nameFilter: ""
 		}
 	}
@@ -83,7 +83,7 @@ class Employees extends React.Component {
 
 	applyNameFilter = () => {
 		const result = this.state.tableData.filter((row) => {
-			return row.name.toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
+			return (row.name.name + " " + row.name.surname).toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
 		});
 
 		this.setState({
@@ -112,7 +112,12 @@ class Employees extends React.Component {
 			return getServerEmployeeWorkLogFromTo(employee.id, workLogFrom, workLogTo).then((res) => {
 				return({
 					id: employee.id,
-					name: employee.name + " " + employee.surname,
+					name: {
+						id: employee.id,
+						name: employee.name,
+						surname: employee.surname,
+						working: employee.working
+					},
 					today: {
 						time: new Date(),
 						lastWorkStart: new Date(employee.last_work_start),
@@ -130,20 +135,6 @@ class Employees extends React.Component {
 			}, () => {
 				callback();
 			});
-		});
-	}
-
-	showWorkLog = (userId) => {
-		this.setState({
-			workLogUserId: userId,
-			showWorkLogModal: true,
-		});
-	}
-
-	handleWorkLogClose = () => {
-		this.setState({
-			showWorkLogModal: false,
-			workLogUserId: null,
 		});
 	}
 
@@ -170,11 +161,11 @@ class Employees extends React.Component {
 					<nobr>
 						<Badge 
 							style={{ fontSize: "14px" }}
-							variant={ row.today.working ? "success" : "info" }
+							variant={ cell.working ? "success" : "info" }
 						>
 							<FiUser/>
 						</Badge>
-						<Button variant="link" onClick={() => this.showWorkLog(row.id)}>{cell}</Button>
+						<Button variant="link" onClick={() => this.props.showEmployeeWorkLog(cell.id)}>{cell.name + " " + cell.surname}</Button>
 					</nobr>
 				</div>
 			);
@@ -252,38 +243,54 @@ class Employees extends React.Component {
 		};
 
 		const columns = [{
-			dataField: 'id',
-			text: '#',
+			dataField: "id",
+			text: "#",
 			sort: true,
 			classes: "align-middle",
 		}, {
-			dataField: 'name',
-			text: 'Vārds',
+			dataField: "name",
+			text: "Vārds",
 			sort: true,
+			sortFunc: (a, b, order) => {
+				if(a.name < b.name) {
+					return order === "asc" ? 1 : -1;
+				} else if(a.name > b.name) {
+					return order === "asc" ? -1 : 1;
+				}
+				return 0;
+			},
 			classes: "align-middle",
 			formatter: nameFormatter,
 		}, {
-			dataField: 'today',
-			text: 'Šodien',
+			dataField: "today",
+			text: "Šodien",
 			sort: true,
 			sortFunc: (a, b, order) => {
 				if (order === "asc") {
-					return (b.working ? new Date(b.lastWorkStart) : new Date(b.lastWorkEnd)) - (a.working ? new Date(a.lastWorkStart) : new Date(a.lastWorkEnd));
+					return (a.working 
+						? new Date(a.lastWorkStart) 
+						: new Date(a.lastWorkEnd)) - (b.working 
+							? new Date(b.lastWorkStart) 
+							: new Date(b.lastWorkEnd));
 				}
-				return (a.working ? new Date(a.lastWorkStart) : new Date(a.lastWorkEnd)) - (b.working ? new Date(b.lastWorkStart) : new Date(b.lastWorkEnd)); // desc
+				return (b.working 
+					? new Date(b.lastWorkStart) 
+					: new Date(b.lastWorkEnd)) - (a.working 
+						? new Date(a.lastWorkStart) 
+						: new Date(a.lastWorkEnd));
 			},
 			classes: "align-middle",
 			formatter: todayFormatter
 		}, {
-			dataField: 'commands',
-			text: '',
+			dataField: "commands",
+			text: "",
 			classes: "align-middle",
 			formatter: commandFormatter
 		}];
 
 		const defaultSorted = [{
-			dataField: 'id',
-			order: 'asc'
+			dataField: "id",
+			order: "asc"
 		}];
 
 		const paginationTotalRenderer = (from, to, size) => {
@@ -328,7 +335,7 @@ class Employees extends React.Component {
 			]
 		});
 
-		const rowStyle = (row, rowIndex) => {
+		const rowStyle = (row) => {
 			if(!row.commands.active) {
 				return { backgroundColor: "rgba(255, 0, 0, 0.1)" };
 			}
@@ -341,17 +348,11 @@ class Employees extends React.Component {
 		return (
 			<ContainerBox header={"Darbinieku Saraksts"}>
 				<Row>
-					<Col xs={12}>
-						<Button 
-							onClick={() => cardScanned(1)}
-							className="float-right"
-						>
-							TEST SCAN
-						</Button>
+					<Col>
 						<Button 
 							variant="link" 
 							onClick={this.onToggleFilters}
-							className="float-right"
+							className="float-left"
 						>
 							{
 								this.state.showFilters
@@ -366,48 +367,52 @@ class Employees extends React.Component {
 							</Dropdown.Toggle>
 
 							<Dropdown.Menu>
-								<Dropdown.Item onClick={this.props.showRegisterEmployee}>Pievienot jaunu darbinieku</Dropdown.Item>
-								<Dropdown.Item onClick={this.props.showExportExcel}>Eksportēt darba laika atskaiti</Dropdown.Item>
-								<Dropdown.Item onClick={this.props.showCheckCard}>Pārbaudīt kartes īpašnieku</Dropdown.Item>
+								<Dropdown.Item onClick={this.props.showRegisterEmployee}>Pievienot darbinieku</Dropdown.Item>
+								<Dropdown.Item onClick={this.props.showCheckCard}>Atrast darbinieku pēc kartes</Dropdown.Item>
+								<Dropdown.Item onClick={this.props.showExportExcel}>Eksports</Dropdown.Item>
 							</Dropdown.Menu>
 						</Dropdown>
 					</Col>
 				</Row>
 
-				<Collapse in={this.state.showFilters} className="w-75">
-					<Form className="mt-2">
-						<Form.Group>
-							<Form.Check 
-								type="checkbox" 
-								label="Rādīt arhīvā esošos darbiniekus"
-								checked={this.state.showArchive}
-								onChange={this.onToggleArchive}
-							/>
-						</Form.Group>
-						<Form.Group>
-							<Form.Check 
-								type="checkbox" 
-								label="Rādīt deaktivizētus darbiniekus"
-								checked={this.state.showInactive}
-								onChange={this.onToggleInactive}
-							/>
-						</Form.Group>
-						<Form.Group>
-							<Form.Control
-								placeholder="Vārds..."
-								onChange={this.onChangeNameFilter}
-								value={this.state.nameFilter}
-							/>
-							<Form.Text>
-								Meklēt darbinieku pēc vārda
-							</Form.Text>
-						</Form.Group>
-					</Form>
+				<Collapse in={this.state.showFilters}>
+					<Row>
+						<Col>
+							<Form.Group>
+								<Form.Check 
+									type="checkbox" 
+									label="Rādīt arhīvā esošos darbiniekus"
+									checked={this.state.showArchive}
+									onChange={this.onToggleArchive}
+								/>
+							</Form.Group>
+							<Form.Group>
+								<Form.Check 
+									type="checkbox" 
+									label="Rādīt deaktivizētus darbiniekus"
+									checked={this.state.showInactive}
+									onChange={this.onToggleInactive}
+								/>
+							</Form.Group>
+						</Col>
+						<Col>
+							<Form.Group>
+								<Form.Control
+									placeholder="Vārds..."
+									onChange={this.onChangeNameFilter}
+									value={this.state.nameFilter}
+								/>
+								<Form.Text>
+									Meklēt darbinieku pēc vārda vai uzvārda
+								</Form.Text>
+							</Form.Group>
+						</Col>
+					</Row>
 				</Collapse>
 
 				<BootstrapTable 
 					bootstrap4={ true }
-					keyField='id' 
+					keyField="id" 
 					data={ this.state.tableData } 
 					columns={ columns } 
 					bordered={ false }
@@ -419,11 +424,7 @@ class Employees extends React.Component {
 					rowStyle={ rowStyle }
 				/>
 
-				<ViewEmployee 
-					showWorkLogModal={this.state.showWorkLogModal} 
-					handleWorkLogClose={this.handleWorkLogClose}
-					userId={this.state.workLogUserId}
-				/>
+				<ViewEmployee/>
 			</ContainerBox>
 		);
 	}
@@ -441,6 +442,7 @@ function mapDispatchToProps(dispatch) {
 		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
 		showExportExcel: () => dispatch(showExportExcel()),
 		showCheckCard: () => dispatch(showCheckCard()),
+		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id))
 	};
 }
 

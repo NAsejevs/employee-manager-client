@@ -11,7 +11,9 @@ import {
 	SHOW_EXPORT_EXCEL,
 	HIDE_EXPORT_EXCEL,
 	SHOW_CHECK_CARD,
-	HIDE_CHECK_CARD
+	HIDE_CHECK_CARD,
+	SHOW_EMPLOYEE_WORK_LOG,
+	HIDE_EMPLOYEE_WORK_LOG
 } from '../actions/actionTypes';
 
 export const employees = (state = initialState, action) => {
@@ -20,6 +22,24 @@ export const employees = (state = initialState, action) => {
 			return {
 				...state,
 				employees: [...action.payload],
+			}
+		case SHOW_EMPLOYEE_WORK_LOG:
+			return {
+				...state,
+				employeeWorkLog: {
+					...state.employeeWorkLog,
+					show: true,
+					id: action.payload,
+				},
+			}
+		case HIDE_EMPLOYEE_WORK_LOG:
+			return {
+				...state,
+				employeeWorkLog: {
+					...state.employeeWorkLog,
+					show: false,
+					id: null,
+				},
 			}
 		case SHOW_DELETE_EMPLOYEE:
 			return {

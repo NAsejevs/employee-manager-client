@@ -21,6 +21,8 @@ class EditEmployee extends React.Component {
 				name: "",
 				surname: "",
 				personalCode: "",
+				position: "",
+				number: "",
 				uid: "",
 				changeCard: {
 					status: 0,
@@ -37,10 +39,16 @@ class EditEmployee extends React.Component {
 		this.setState({ 
 			employee: {
 				...this.state.employee,
+				id: this.props.editEmployee.employee.id,
 				name: this.props.editEmployee.employee.name,
 				surname: this.props.editEmployee.employee.surname,
 				personalCode: this.props.editEmployee.employee.personalCode,
+				position: this.props.editEmployee.employee.position,
+				number: this.props.editEmployee.employee.number,
 				uid: this.props.editEmployee.employee.uid,
+				changeCard: {
+					status: 0,
+				}
 			}
 		});
 	}
@@ -75,6 +83,24 @@ class EditEmployee extends React.Component {
 			employee: {
 				...this.state.employee,
 				personalCode: event.target.value
+			}
+		});
+	}
+
+	onPositionChange = (event) => {
+		this.setState({ 
+			employee: {
+				...this.state.employee,
+				position: event.target.value
+			}
+		});
+	}
+
+	onNumberChange = (event) => {
+		this.setState({ 
+			employee: {
+				...this.state.employee,
+				number: event.target.value
 			}
 		});
 	}
@@ -129,7 +155,6 @@ class EditEmployee extends React.Component {
 	render() {
 		return (
 			<Modal 
-				centered
 				show={this.props.editEmployee.show}
 				onHide={() => this.onHide()}
 				onEnter={() => this.onEnter()}
@@ -139,19 +164,34 @@ class EditEmployee extends React.Component {
 				</Modal.Header>
 
 				<Modal.Body>
-					<Form.Group>
-						<Form.Label>Vārds</Form.Label>
-						<Form.Control required value={this.state.employee.name} onChange={this.onNameChange}/>
-					</Form.Group>
-
-					<Form.Group>
-						<Form.Label>Uzvārds</Form.Label>
-						<Form.Control required value={this.state.employee.surname} onChange={this.onSurnameChange}/>
-					</Form.Group>
+					<Row>
+						<Col>
+							<Form.Group>
+								<Form.Label>* Vārds</Form.Label>
+								<Form.Control required value={this.state.employee.name} onChange={this.onNameChange}/>
+							</Form.Group>
+						</Col>
+						<Col>
+							<Form.Group>
+								<Form.Label>* Uzvārds</Form.Label>
+								<Form.Control required value={this.state.employee.surname} onChange={this.onSurnameChange}/>
+							</Form.Group>
+						</Col>
+					</Row>
 
 					<Form.Group>
 						<Form.Label>Personas Kods</Form.Label>
 						<Form.Control value={this.state.employee.personalCode} onChange={this.onPersonalCodeChange}/>
+					</Form.Group>
+
+					<Form.Group>
+						<Form.Label>Amats</Form.Label>
+						<Form.Control value={this.state.employee.position} onChange={this.onPositionChange}/>
+					</Form.Group>
+
+					<Form.Group>
+						<Form.Label>Telefona Numurs</Form.Label>
+						<Form.Control value={this.state.employee.number} onChange={this.onNumberChange}/>
 					</Form.Group>
 
 					<Form.Group as={Row}>
@@ -174,7 +214,7 @@ class EditEmployee extends React.Component {
 						} 
 						onClose={() => null}
 					>
-						Noskenējiet vēlamo RFID kartiņu.
+						Noskenējiet vēlamo kartiņu.
 					</Alert>
 
 					<Alert 
@@ -189,7 +229,6 @@ class EditEmployee extends React.Component {
 				</Modal.Body>
 
 				<Modal.Footer>
-					<Button variant="secondary" onClick={() => this.props.hideEditEmployee()}>Atcelt</Button>
 					<Button variant="success" onClick={() => {
 						editServerEmployee(this.state.employee).then(() => {
 							getEmployees();
