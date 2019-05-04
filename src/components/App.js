@@ -88,8 +88,10 @@ class App extends React.Component {
 				<div className="text-center">
 					<Spinner animation="border"/>
 					{
-						(this.state.serverConnectionEstablished && this.state.scannerConnectionEstablished)
-						? null
+						this.state.serverConnectionEstablished
+						? 	this.state.scannerConnectionEstablished
+							? null
+							: <div>Veido savienojumu ar NFC skeneri...</div>
 						: <div>Veido savienojumu ar serveri...</div>
 					}
 				</div>
