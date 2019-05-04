@@ -232,7 +232,13 @@ class ViewEmployee extends React.Component {
 					<Modal.Title className="w-100">
 						<Row>
 							<Col>
-								<h4>{this.state.employee.name + " " + this.state.employee.surname} ({this.state.employee.personalCode})</h4>
+								<h4>
+									{this.state.employee.name + " " + this.state.employee.surname}
+									{this.state.employee.personalCode
+										? " (" + this.state.employee.personalCode + ")"
+										: null
+									}
+								</h4>
 							</Col>
 						</Row>
 						<Row>
@@ -240,7 +246,12 @@ class ViewEmployee extends React.Component {
 								<h5 className="text-secondary">{this.state.employee.position}</h5>
 							</Col>
 							<Col>
-								<h5 className="text-secondary float-right">Tel. {this.state.employee.number}</h5>
+								<h5 className="text-secondary float-right">
+									{this.state.employee.number
+										? "Tel. " + this.state.employee.number
+										: null
+									}
+								</h5>
 							</Col>
 						</Row>
 					</Modal.Title>
