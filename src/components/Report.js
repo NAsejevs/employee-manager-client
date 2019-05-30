@@ -252,39 +252,39 @@ class Employees extends React.Component {
 
 			const displayOneDay = cell.endDate - cell.startDate < 86400000;
 
-			if(displayOneDay) {
-				cell.workLogs.forEach((workLog, index) => {
-					let workTime = 0;
-					let workTimeConverted = {
-						hours: 0,
-						minutes: 0,
-						seconds: 0
-					};
+			cell.workLogs.forEach((workLog, index) => {
+				let workTime = 0;
+				let workTimeConverted = {
+					hours: 0,
+					minutes: 0,
+					seconds: 0
+				};
 
-					if(workLog.end_time === null) {
-						workLog.end_time = new Date();
-					}
+				if(workLog.end_time === null) {
+					workLog.end_time = new Date();
+				}
 
-					// Calculate each row data
-					workTime = new Date(workLog.end_time) - new Date(workLog.start_time);
-					workTimeConverted = millisecondConverter(workTime);
+				// Calculate each row data
+				workTime = new Date(workLog.end_time) - new Date(workLog.start_time);
+				workTimeConverted = millisecondConverter(workTime);
 
-					const workTimeStartFormatted =
-						addZero(new Date(workLog.start_time).getHours()) + ":" 
-						+ addZero(new Date(workLog.start_time).getMinutes());
-					
-					const workTimeEndFormatted =
-						addZero(new Date(workLog.end_time).getHours()) + ":" 
-						+ addZero(new Date(workLog.end_time).getMinutes());
-		
-					const workTimeFormatted =
-						workTimeConverted.hours + " st. " 
-						+ workTimeConverted.minutes + " min. ";
+				const workTimeStartFormatted =
+					addZero(new Date(workLog.start_time).getHours()) + ":" 
+					+ addZero(new Date(workLog.start_time).getMinutes());
+				
+				const workTimeEndFormatted =
+					addZero(new Date(workLog.end_time).getHours()) + ":" 
+					+ addZero(new Date(workLog.end_time).getMinutes());
+	
+				const workTimeFormatted =
+					workTimeConverted.hours + " st. " 
+					+ workTimeConverted.minutes + " min. ";
 
-					// Calculate the total
-					totalWorkTime += new Date(workLog.end_time) - new Date(workLog.start_time);
-					totalWorkTimeConverted = millisecondConverter(totalWorkTime);
+				// Calculate the total
+				totalWorkTime += new Date(workLog.end_time) - new Date(workLog.start_time);
+				totalWorkTimeConverted = millisecondConverter(totalWorkTime);
 
+				if(displayOneDay) {
 					// Each work log entry formatted and applied in HTML format
 					badges.push(
 						<Row key={index} style={{ fontSize: "14px" }}>
@@ -313,11 +313,11 @@ class Employees extends React.Component {
 							</Col>
 						</Row>
 					);
-				});
-			}
+				}
+			});
 
 			//Total row formatted
-			if(badges.length || displayOneDay) {
+			if(badges.length && displayOneDay) {
 				const totalWorkTimeFormatted =
 				totalWorkTimeConverted.hours + " st. " 
 				+ totalWorkTimeConverted.minutes + " min. ";
@@ -346,11 +346,11 @@ class Employees extends React.Component {
 
 				badges.push(
 					<Row key={badges.length} style={{ fontSize: "14px" }}>
-						<Col className="text-center" style={{ borderTop: "solid 1px" }}>
+						<Col className="text-center">
 							{
 								totalWorkTimeFormatted !== null
 								? <span>
-									<b>{totalWorkTimeFormatted}</b>
+									{totalWorkTimeFormatted}
 								</span>
 								: null
 							}
@@ -365,6 +365,19 @@ class Employees extends React.Component {
 
 			return (badges);
 		};
+
+		const startDateFormatted = 
+			  addZero(this.state.startDate.getDate()) + "." 
+			+ addZero(this.state.startDate.getMonth() + 1) + "." 
+			+ addZero(this.state.startDate.getFullYear());
+
+
+		const endDateFormatted =
+			  addZero(this.state.endDate.getDate()) + "." 
+			+ addZero(this.state.endDate.getMonth() + 1) + "." 
+			+ addZero(this.state.endDate.getFullYear());
+
+		const dateRange = startDateFormatted + (startDateFormatted === endDateFormatted ? "" : " - " + endDateFormatted);
 
 		const columns = [{
 			dataField: "id",
@@ -387,7 +400,7 @@ class Employees extends React.Component {
 			formatter: nameFormatter,
 		}, {
 			dataField: "today",
-			text: "Šodien",
+			text: dateRange,
 			sort: true,
 			sortFunc: (a, b, order) => {
 				if (order === "asc") {
@@ -465,7 +478,7 @@ class Employees extends React.Component {
 		};
 
 		return (
-			<ContainerBox header={"Atskaite"}>
+			<ContainerBox header={"Atskaites"}>
 				<Form>
 					<Row>
 						<Col>
@@ -473,7 +486,7 @@ class Employees extends React.Component {
 								<Form.Label column xs={2}>No</Form.Label>
 								<Col xs={10}>
 									<DatePicker
-										dateFormat="yyyy/MM/dd"
+										dateFormat="yyyy.MM.dd"
 										customInput={<BoostrapDatePicker />}
 										selected={this.state.startDate}
 										onChange={this.handleDateChangeStart}
@@ -487,10 +500,11 @@ class Employees extends React.Component {
 								<Form.Label column xs={2}>Līdz</Form.Label>
 								<Col xs={10}>
 									<DatePicker
-										dateFormat="yyyy/MM/dd"
+										dateFormat="yyyy.MM.dd"
 										customInput={<BoostrapDatePicker />}
 										selected={this.state.endDate}
 										onChange={this.handleDateChangeEnd}
+										minDate={this.state.startDate}
 										maxDate={new Date()}
 									/>
 								</Col>
@@ -511,7 +525,7 @@ class Employees extends React.Component {
 						</Col>
 					</Row>
 				</Form>
-				<BootstrapTable 
+				<BootstrapTable
 					bootstrap4={ true }
 					keyField="id" 
 					data={ this.state.tableData } 

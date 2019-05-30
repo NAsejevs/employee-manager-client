@@ -119,6 +119,12 @@ export const getEmployeeComments = (id) => {
 		id,
 	});
 }
+
+export const deleteEmployeeComment = (commentId) => {
+	return request.post("/deleteEmployeeComment", {
+		commentId,
+	});
+}
 // ---------------------------------------
 
 export const getEmployees = () => {

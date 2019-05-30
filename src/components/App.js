@@ -127,7 +127,7 @@ class App extends React.Component {
 													<Nav.Link>Darbinieki</Nav.Link>
 												</LinkContainer>
 												<LinkContainer exact={true} to="/report">
-													<Nav.Link>Atskaite</Nav.Link>
+													<Nav.Link>Atskaites</Nav.Link>
 												</LinkContainer>
 											</Nav>
 											<Nav>

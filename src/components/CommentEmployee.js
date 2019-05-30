@@ -21,11 +21,11 @@ class CommentEmployee extends React.Component {
 		}
 	}
 
-	onHide = () => {
+	onExited = () => {
 		this.props.hideCommentEmployee();
 		this.setState({
 			...this.initialState
-		})
+		});
 	}
 
 	onCommentChange = (event) => {
@@ -39,8 +39,10 @@ class CommentEmployee extends React.Component {
 	render() {
 		return (
 			<Modal 
+				size="sm"
 				show={this.props.commentEmployee.show}
-				onHide={() => this.onHide()}
+				onExited={() => this.onExited()}
+				onHide={() => this.props.hideCommentEmployee()}
 			>
 				<Modal.Header closeButton>
 					<Modal.Title>{this.props.employee.name + " " + this.props.employee.surname}</Modal.Title>

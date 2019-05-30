@@ -17,6 +17,7 @@ import {
 	getEmployees,
 	getServerEmployeeWorkLogFromTo,
 	getEmployeeComments,
+	deleteEmployeeComment,
 } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
 
@@ -27,7 +28,7 @@ import "../styles/table.css";
 import ContainerBox from "./ContainerBox";
 import Commands from "./Commands";
 
-import { FiUser, FiMinimize2, FiMaximize2, FiMessageSquare } from "react-icons/fi";
+import { FiUser, FiMinimize2, FiMaximize2, FiMessageSquare, FiXCircle } from "react-icons/fi";
 
 class Employees extends React.Component {
 
@@ -57,7 +58,7 @@ class Employees extends React.Component {
 			updateInterval: (
 				setInterval(() => {
 					getEmployees();
-				}, 5000)
+				}, 1000)
 			),
 		});
 	}
@@ -156,12 +157,32 @@ class Employees extends React.Component {
 
 	render() {
 		const nameFormatter = (cell, row) => {
+			const commentBorderStyle = {
+				borderBottom: "solid 1px gray"
+			}
+
 			const comments = cell.comments.length 
 			? cell.comments.map((comment, index) => {
 				return (
-					<div key={index}>
-						<span>{comment.text}</span>
-					</div>
+					<Row 
+						key={index} 
+						style={index < cell.comments.length - 1 ? commentBorderStyle : null} 
+						className="ml-1 mr-1 pt-1 pb-2"
+					>
+						<Col>
+							<span>{comment.text}</span>
+						</Col>
+						<Col xs="auto">
+							<FiXCircle 
+								style={{ 
+									cursor: "pointer" 
+								}} 
+								onClick={
+									() => deleteEmployeeComment(comment.id).then(() => getEmployees())
+								}
+							/>
+						</Col>
+					</Row>
 				);
 			})
 			: null;
@@ -186,17 +207,17 @@ class Employees extends React.Component {
 							cell.comments.length
 							? 
 							<OverlayTrigger
-								trigger="hover"
+								trigger="click"
 								placement="top"
+								rootClose
+								placement="bottom"
 								overlay={
-									<Popover
-										title={"Komentāri"}
-									>
+									<Popover>
 										{comments}
 									</Popover>
 								}
 							>
-								<FiMessageSquare/>
+								<FiMessageSquare style={{ cursor: "pointer" }} className="ml-1"/>
 							</OverlayTrigger>
 							: 
 							null

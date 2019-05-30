@@ -254,7 +254,7 @@ class ViewEmployee extends React.Component {
 									<Form.Label column xs={2}>No</Form.Label>
 									<Col xs={10}>
 										<DatePicker
-											dateFormat="yyyy/MM/dd"
+											dateFormat="yyyy.MM.dd"
 											customInput={<BoostrapDatePicker />}
 											selected={this.state.startDate}
 											onChange={this.handleDateChangeStart}
@@ -268,10 +268,11 @@ class ViewEmployee extends React.Component {
 									<Form.Label column xs={2}>Līdz</Form.Label>
 									<Col xs={10}>
 										<DatePicker
-											dateFormat="yyyy/MM/dd"
+											dateFormat="yyyy.MM.dd"
 											customInput={<BoostrapDatePicker />}
 											selected={this.state.endDate}
 											onChange={this.handleDateChangeEnd}
+											minDate={this.state.startDate}
 											maxDate={new Date()}
 										/>
 									</Col>
