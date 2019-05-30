@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import React from "react";
 
-import { Badge, Form, Button, Collapse, Row, Col, Dropdown } from "react-bootstrap";
+import { Badge, Form, Button, Collapse, Row, Col, Dropdown, OverlayTrigger, Popover } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 
@@ -15,7 +15,8 @@ import {
 
 import { 
 	getEmployees,
-	getServerEmployeeWorkLogFromTo
+	getServerEmployeeWorkLogFromTo,
+	getEmployeeComments,
 } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
 
@@ -24,10 +25,9 @@ import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
 import "../styles/table.css";
 
 import ContainerBox from "./ContainerBox";
-import ViewEmployee from "./ViewEmployee";
 import Commands from "./Commands";
 
-import { FiUser, FiMinimize2, FiMaximize2 } from "react-icons/fi";
+import { FiUser, FiMinimize2, FiMaximize2, FiMessageSquare } from "react-icons/fi";
 
 class Employees extends React.Component {
 
@@ -57,7 +57,7 @@ class Employees extends React.Component {
 			updateInterval: (
 				setInterval(() => {
 					getEmployees();
-				}, 1000)
+				}, 5000)
 			),
 		});
 	}
@@ -109,23 +109,23 @@ class Employees extends React.Component {
 		workLogTo.setHours(23, 59, 59);
 
 		const promise = employees.map((employee) => {
-			return getServerEmployeeWorkLogFromTo(employee.id, workLogFrom, workLogTo).then((res) => {
-				return({
-					id: employee.id,
-					name: {
+			return getServerEmployeeWorkLogFromTo(employee.id, workLogFrom, workLogTo).then((workLogs) => {
+				return getEmployeeComments(employee.id).then((comments) => {
+					return({
 						id: employee.id,
-						name: employee.name,
-						surname: employee.surname,
-						working: employee.working
-					},
-					today: {
-						time: new Date(),
-						lastWorkStart: new Date(employee.last_work_start),
-						lastWorkEnd: new Date(employee.last_work_end),
-						working: employee.working,
-						workLogs: res.data
-					},
-					commands: employee,
+						name: {
+							id: employee.id,
+							name: employee.name,
+							surname: employee.surname,
+							working: employee.working,
+							comments: comments.data,
+						},
+						today: {
+							working: employee.working,
+							workLogs: workLogs.data,
+						},
+						commands: employee,
+					});
 				});
 			});
 		});
@@ -156,16 +156,52 @@ class Employees extends React.Component {
 
 	render() {
 		const nameFormatter = (cell, row) => {
+			console.log(cell.comments);
+			const comments = cell.comments 
+			? cell.comments.map((comment, index) => {
+				return (
+					<div key={index}>
+						<span>{comment.text}</span>
+					</div>
+				);
+			})
+			: null;
+
 			return (
 				<div>
 					<nobr>
 						<Badge 
 							style={{ fontSize: "14px" }}
-							variant={ cell.working ? "success" : "info" }
+							variant={ cell.working ? "success" : "danger" }
 						>
 							<FiUser/>
 						</Badge>
-						<Button variant="link" onClick={() => this.props.showEmployeeWorkLog(cell.id)}>{cell.name + " " + cell.surname}</Button>
+						<Button 
+							variant="link" 
+							onClick={() => this.props.showEmployeeWorkLog(cell.id)}
+							style={{ color: "#0000FF" }}
+						>
+							{cell.name + " " + cell.surname}
+						</Button>
+						{
+							cell.comments
+							? 
+							<OverlayTrigger
+								trigger="hover"
+								placement="top"
+								overlay={
+									<Popover
+										title={"Komentāri"}
+									>
+										{comments}
+									</Popover>
+								}
+							>
+								<FiMessageSquare/>
+							</OverlayTrigger>
+							: 
+							null
+						}
 					</nobr>
 				</div>
 			);
@@ -174,19 +210,27 @@ class Employees extends React.Component {
 		const todayFormatter = (cell, row) => {
 			let badges = [];
 			let totalWorkTime = 0;
-			let totalWorkTimeFormatted = {
+			let totalWorkTimeConverted = {
 				hours: 0,
 				minutes: 0,
 				seconds: 0
 			};
 
 			cell.workLogs.forEach((workLog, index) => {
+				let workTime = 0;
+				let workTimeConverted = {
+					hours: 0,
+					minutes: 0,
+					seconds: 0
+				};
+
 				if(workLog.end_time === null) {
 					workLog.end_time = new Date();
 				}
 
-				totalWorkTime += new Date(workLog.end_time) - new Date(workLog.start_time);
-				totalWorkTimeFormatted = millisecondConverter(totalWorkTime);
+				// Calculate each row data
+				workTime = new Date(workLog.end_time) - new Date(workLog.start_time);
+				workTimeConverted = millisecondConverter(workTime);
 
 				const workTimeStartFormatted =
 					  addZero(new Date(workLog.start_time).getHours()) + ":" 
@@ -197,41 +241,67 @@ class Employees extends React.Component {
 					+ addZero(new Date(workLog.end_time).getMinutes());
 	
 				const workTimeFormatted =
-					  totalWorkTimeFormatted.hours + " st. " 
-					+ totalWorkTimeFormatted.minutes + " min. ";
+					workTimeConverted.hours + " st. " 
+					+ workTimeConverted.minutes + " min. ";
 
+				// Calculate the total
+				totalWorkTime += new Date(workLog.end_time) - new Date(workLog.start_time);
+				totalWorkTimeConverted = millisecondConverter(totalWorkTime);
+
+				// Each work log entry formatted and applied in HTML format
 				badges.push(
-					<div key={index}>
-						<span 
-							style={{ fontSize: "14px" }}
-							className="mr-2"
-						>
-							Ienāca: {workTimeStartFormatted}
-						</span>
-						{
-							cell.working && index === cell.workLogs.length - 1
-							? null
-							: <span 
-								style={{ fontSize: "14px" }}
-								className="mr-2"
-							>
-								Izgāja: {workTimeEndFormatted}
+					<Row key={index} style={{ fontSize: "14px" }}>
+						<Col xs="4">
+							<span>
+								Ienāca: {workTimeStartFormatted}
 							</span>
-						}
-						{
-							index === cell.workLogs.length - 1
-							&& totalWorkTimeFormatted !== null
-							? <div 
-								style={{ fontSize: "14px" }}
-								className="ml-5"
-							>
-								{workTimeFormatted}
-							</div>
-							: null
-						}
-					</div>
+						</Col>
+						<Col xs="4">
+							{
+								cell.working && index === cell.workLogs.length - 1
+								? null
+								: <span>
+									Izgāja: {workTimeEndFormatted}
+								</span>
+							}
+						</Col>
+						<Col xs="4" className="text-center">
+							{
+								workTimeFormatted !== null
+								? <span>
+									{workTimeFormatted}
+								</span>
+								: null
+							}
+						</Col>
+					</Row>
 				);
 			});
+
+			//Total row formatted
+			if(badges.length) {
+				const totalWorkTimeFormatted =
+				totalWorkTimeConverted.hours + " st. " 
+				+ totalWorkTimeConverted.minutes + " min. ";
+
+				badges.push(
+					<Row key={badges.length} style={{ fontSize: "14px" }}>
+						<Col xs="4">
+						</Col>
+						<Col xs="4">
+						</Col>
+						<Col xs="4" className="text-center" style={{ borderTop: "solid 1px" }}>
+							{
+								totalWorkTimeFormatted !== null
+								? <span>
+									<b>{totalWorkTimeFormatted}</b>
+								</span>
+								: null
+							}
+						</Col>
+					</Row>
+				);
+			}
 
 			return (badges);
 		};
@@ -423,8 +493,6 @@ class Employees extends React.Component {
 					pagination={ pagination }
 					rowStyle={ rowStyle }
 				/>
-
-				<ViewEmployee/>
 			</ContainerBox>
 		);
 	}

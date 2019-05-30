@@ -8,11 +8,13 @@ import Employees from "./Employees";
 import RegisterEmployee from "./RegisterEmployee";
 //import DateTime from "./DateTime";
 import NotFound from "./NotFound";
+import ViewEmployee from "./ViewEmployee";
 import DeleteEmployee from "./DeleteEmployee";
 import EditEmployee from "./EditEmployee";
 import ExportExcel from "./ExportExcel";
 import LogIn from "./LogIn";
 import CheckCard from "./CheckCard";
+import CommentEmployee from "./CommentEmployee";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
@@ -147,11 +149,13 @@ class App extends React.Component {
 										<Route exact path="/" component={Employees} />
 										<Route component={NotFound} />
 									</Switch>
+									<ViewEmployee/>
 									<RegisterEmployee/>
 									<DeleteEmployee/>
 									<EditEmployee/>
 									<ExportExcel/>
 									<CheckCard/>
+									<CommentEmployee/>
 								</Col>
 							</Row>
 							<Row>
