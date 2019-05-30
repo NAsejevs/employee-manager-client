@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Button, Alert } from "react-bootstrap";
+import { Modal, Alert } from "react-bootstrap";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { showCheckCard, hideCheckCard, showEmployeeWorkLog } from "../actions/employeeActions";

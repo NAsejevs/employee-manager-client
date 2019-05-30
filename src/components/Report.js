@@ -1,15 +1,15 @@
 import { connect } from "react-redux";
 import React from "react";
 
-import { Badge, Form, Button, Collapse, Row, Col, Dropdown, OverlayTrigger, Popover } from "react-bootstrap";
+import { DropdownButton, Form, Button, Row, Col, Dropdown } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import BoostrapDatePicker from "./BoostrapDatePicker";
 
 import { 
-	updateEmployees, 
-	showRegisterEmployee,
-	showExportExcel,
-	showCheckCard,
+	updateEmployees,
 	showEmployeeWorkLog
 } from "../actions/employeeActions";
 
@@ -25,14 +25,17 @@ import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
 import "../styles/table.css";
 
 import ContainerBox from "./ContainerBox";
-import Commands from "./Commands";
-
-import { FiUser, FiMinimize2, FiMaximize2, FiMessageSquare } from "react-icons/fi";
 
 class Employees extends React.Component {
 
 	constructor() {
 		super();
+
+		const startDate = new Date();
+		startDate.setHours(0,0,0);
+
+		const endDate = new Date();
+		endDate.setHours(23,59,59);
 
 		this.state = {
 			workLogUserId: null,
@@ -46,7 +49,13 @@ class Employees extends React.Component {
 			showFilters: false,
 			showArchive: false,
 			showInactive: false,
-			nameFilter: ""
+			nameFilter: "",
+			startDate: startDate,
+			endDate: endDate,
+			dropdown: {
+				currentFilter: "Šodiena",
+				filters: ["Šodiena", "Vakardiena", "Pēdējās 7 dienas", "Pēdējās 30 dienas"]
+			}
 		}
 	}
 
@@ -70,9 +79,70 @@ class Employees extends React.Component {
 		if(prevProps.employees !== this.props.employees
 			|| prevState.showArchive !== this.state.showArchive
 			|| prevState.showInactive !== this.state.showInactive
-			|| prevState.nameFilter !== this.state.nameFilter) {
+			|| prevState.nameFilter !== this.state.nameFilter
+			|| prevState.startDate !== this.state.startDate
+			|| prevState.endDate !== this.state.endDate) {
 			this.onTableChange();
 		}
+	}
+
+	handleDateChangeStart = (date) => {
+		const startOfDay = new Date(date);
+		startOfDay.setHours(0,0,0);
+		this.setState({
+			startDate: startOfDay,
+		});
+	}
+
+	handleDateChangeEnd = (date) => {
+		const endOfDay = new Date(date);
+		endOfDay.setHours(23,59,59);
+		this.setState({
+			endDate: endOfDay,
+		});
+	}
+
+	onClickFilter = (index) => {
+		switch(index) {
+			case 0: {
+				this.handleDateChangeStart(new Date());
+				this.handleDateChangeEnd(new Date());
+				break;
+			}
+			case 1: {
+				const yesterday = new Date();
+				yesterday.setDate(yesterday.getDate() - 1);
+				this.handleDateChangeStart(yesterday);
+				this.handleDateChangeEnd(yesterday);
+				break;
+			}
+			case 2: {
+				const last7Days = new Date();
+				last7Days.setDate(last7Days.getDate() - 7);
+				this.handleDateChangeStart(last7Days);
+				this.handleDateChangeEnd(new Date());
+				break;
+			}
+			case 3: {
+				const last30Days = new Date();
+				last30Days.setDate(last30Days.getDate() - 30);
+				this.handleDateChangeStart(last30Days);
+				this.handleDateChangeEnd(new Date());
+				break;
+			}
+			default: {
+				this.handleDateChangeStart(new Date());
+				this.handleDateChangeEnd(new Date());
+				break;
+			}
+		}
+
+		this.setState({
+			dropdown: {
+				...this.state.dropdown,
+				currentFilter: this.state.dropdown.filters[index],
+			}			
+		})
 	}
 
 	onTableChange = () => {
@@ -102,11 +172,9 @@ class Employees extends React.Component {
 			return true;
 		});
 
-		const workLogFrom = new Date();
-		workLogFrom.setHours(0, 0, 0);
+		const workLogFrom = new Date(this.state.startDate);
 
-		const workLogTo = new Date();
-		workLogTo.setHours(23, 59, 59);
+		const workLogTo = new Date(this.state.endDate);
 
 		const promise = employees.map((employee) => {
 			return getServerEmployeeWorkLogFromTo(employee.id, workLogFrom, workLogTo).then((workLogs) => {
@@ -123,6 +191,8 @@ class Employees extends React.Component {
 						today: {
 							working: employee.working,
 							workLogs: workLogs.data,
+							startDate: this.state.startDate,
+							endDate: this.state.endDate,
 						},
 						commands: employee,
 					});
@@ -156,25 +226,9 @@ class Employees extends React.Component {
 
 	render() {
 		const nameFormatter = (cell, row) => {
-			const comments = cell.comments.length 
-			? cell.comments.map((comment, index) => {
-				return (
-					<div key={index}>
-						<span>{comment.text}</span>
-					</div>
-				);
-			})
-			: null;
-
 			return (
 				<div>
 					<nobr>
-						<Badge 
-							style={{ fontSize: "14px" }}
-							variant={ cell.working ? "success" : "danger" }
-						>
-							<FiUser/>
-						</Badge>
 						<Button 
 							variant="link" 
 							onClick={() => this.props.showEmployeeWorkLog(cell.id)}
@@ -182,25 +236,6 @@ class Employees extends React.Component {
 						>
 							{cell.name + " " + cell.surname}
 						</Button>
-						{
-							cell.comments.length
-							? 
-							<OverlayTrigger
-								trigger="hover"
-								placement="top"
-								overlay={
-									<Popover
-										title={"Komentāri"}
-									>
-										{comments}
-									</Popover>
-								}
-							>
-								<FiMessageSquare/>
-							</OverlayTrigger>
-							: 
-							null
-						}
 					</nobr>
 				</div>
 			);
@@ -215,70 +250,74 @@ class Employees extends React.Component {
 				seconds: 0
 			};
 
-			cell.workLogs.forEach((workLog, index) => {
-				let workTime = 0;
-				let workTimeConverted = {
-					hours: 0,
-					minutes: 0,
-					seconds: 0
-				};
+			const displayOneDay = cell.endDate - cell.startDate < 86400000;
 
-				if(workLog.end_time === null) {
-					workLog.end_time = new Date();
-				}
+			if(displayOneDay) {
+				cell.workLogs.forEach((workLog, index) => {
+					let workTime = 0;
+					let workTimeConverted = {
+						hours: 0,
+						minutes: 0,
+						seconds: 0
+					};
 
-				// Calculate each row data
-				workTime = new Date(workLog.end_time) - new Date(workLog.start_time);
-				workTimeConverted = millisecondConverter(workTime);
+					if(workLog.end_time === null) {
+						workLog.end_time = new Date();
+					}
 
-				const workTimeStartFormatted =
-					  addZero(new Date(workLog.start_time).getHours()) + ":" 
-					+ addZero(new Date(workLog.start_time).getMinutes());
-				
-				const workTimeEndFormatted =
-					  addZero(new Date(workLog.end_time).getHours()) + ":" 
-					+ addZero(new Date(workLog.end_time).getMinutes());
-	
-				const workTimeFormatted =
-					workTimeConverted.hours + " st. " 
-					+ workTimeConverted.minutes + " min. ";
+					// Calculate each row data
+					workTime = new Date(workLog.end_time) - new Date(workLog.start_time);
+					workTimeConverted = millisecondConverter(workTime);
 
-				// Calculate the total
-				totalWorkTime += new Date(workLog.end_time) - new Date(workLog.start_time);
-				totalWorkTimeConverted = millisecondConverter(totalWorkTime);
+					const workTimeStartFormatted =
+						addZero(new Date(workLog.start_time).getHours()) + ":" 
+						+ addZero(new Date(workLog.start_time).getMinutes());
+					
+					const workTimeEndFormatted =
+						addZero(new Date(workLog.end_time).getHours()) + ":" 
+						+ addZero(new Date(workLog.end_time).getMinutes());
+		
+					const workTimeFormatted =
+						workTimeConverted.hours + " st. " 
+						+ workTimeConverted.minutes + " min. ";
 
-				// Each work log entry formatted and applied in HTML format
-				badges.push(
-					<Row key={index} style={{ fontSize: "14px" }}>
-						<Col xs="4">
-							<span>
-								Ienāca: {workTimeStartFormatted}
-							</span>
-						</Col>
-						<Col xs="4">
-							{
-								cell.working && index === cell.workLogs.length - 1
-								? null
-								: <span>
-									Izgāja: {workTimeEndFormatted}
+					// Calculate the total
+					totalWorkTime += new Date(workLog.end_time) - new Date(workLog.start_time);
+					totalWorkTimeConverted = millisecondConverter(totalWorkTime);
+
+					// Each work log entry formatted and applied in HTML format
+					badges.push(
+						<Row key={index} style={{ fontSize: "14px" }}>
+							<Col xs="4">
+								<span>
+									Ienāca: {workTimeStartFormatted}
 								</span>
-							}
-						</Col>
-						<Col xs="4" className="text-center">
-							{
-								workTimeFormatted !== null
-								? <span>
-									{workTimeFormatted}
-								</span>
-								: null
-							}
-						</Col>
-					</Row>
-				);
-			});
+							</Col>
+							<Col xs="4">
+								{
+									cell.working && index === cell.workLogs.length - 1
+									? null
+									: <span>
+										Izgāja: {workTimeEndFormatted}
+									</span>
+								}
+							</Col>
+							<Col xs="4" className="text-center">
+								{
+									workTimeFormatted !== null
+									? <span>
+										{workTimeFormatted}
+									</span>
+									: null
+								}
+							</Col>
+						</Row>
+					);
+				});
+			}
 
 			//Total row formatted
-			if(badges.length) {
+			if(badges.length || displayOneDay) {
 				const totalWorkTimeFormatted =
 				totalWorkTimeConverted.hours + " st. " 
 				+ totalWorkTimeConverted.minutes + " min. ";
@@ -300,15 +339,31 @@ class Employees extends React.Component {
 						</Col>
 					</Row>
 				);
+			} else if(!displayOneDay) {
+				const totalWorkTimeFormatted =
+				totalWorkTimeConverted.hours + " st. " 
+				+ totalWorkTimeConverted.minutes + " min. ";
+
+				badges.push(
+					<Row key={badges.length} style={{ fontSize: "14px" }}>
+						<Col className="text-center" style={{ borderTop: "solid 1px" }}>
+							{
+								totalWorkTimeFormatted !== null
+								? <span>
+									<b>{totalWorkTimeFormatted}</b>
+								</span>
+								: null
+							}
+						</Col>
+						<Col xs="4">
+						</Col>
+						<Col xs="4">
+						</Col>
+					</Row>
+				);
 			}
 
 			return (badges);
-		};
-
-		const commandFormatter = (cell, row) => {
-			return (
-				<Commands employee={cell}/>
-			);
 		};
 
 		const columns = [{
@@ -350,11 +405,6 @@ class Employees extends React.Component {
 			},
 			classes: "align-middle",
 			formatter: todayFormatter
-		}, {
-			dataField: "commands",
-			text: "",
-			classes: "align-middle",
-			formatter: commandFormatter
 		}];
 
 		const defaultSorted = [{
@@ -415,70 +465,52 @@ class Employees extends React.Component {
 		};
 
 		return (
-			<ContainerBox header={"Darbinieki"}>
-				<Row>
-					<Col>
-						<Button 
-							variant="link" 
-							onClick={this.onToggleFilters}
-							className="float-left"
-						>
-							{
-								this.state.showFilters
-								? <FiMinimize2 className="mr-2 mb-1"/>
-								: <FiMaximize2 className="mr-2 mb-1"/>
-							}
-							Filtri
-						</Button>
-						<Dropdown alignRight className="float-right">
-							<Dropdown.Toggle variant="link">
-								Opcijas
-							</Dropdown.Toggle>
-
-							<Dropdown.Menu>
-								<Dropdown.Item onClick={this.props.showRegisterEmployee}>Pievienot darbinieku</Dropdown.Item>
-								<Dropdown.Item onClick={this.props.showCheckCard}>Atrast darbinieku pēc kartes</Dropdown.Item>
-								<Dropdown.Item onClick={this.props.showExportExcel}>Eksports</Dropdown.Item>
-							</Dropdown.Menu>
-						</Dropdown>
-					</Col>
-				</Row>
-
-				<Collapse in={this.state.showFilters}>
+			<ContainerBox header={"Atskaite"}>
+				<Form>
 					<Row>
 						<Col>
-							<Form.Group>
-								<Form.Check 
-									type="checkbox" 
-									label="Rādīt arhīvā esošos darbiniekus"
-									checked={this.state.showArchive}
-									onChange={this.onToggleArchive}
-								/>
-							</Form.Group>
-							<Form.Group>
-								<Form.Check 
-									type="checkbox" 
-									label="Rādīt deaktivizētus darbiniekus"
-									checked={this.state.showInactive}
-									onChange={this.onToggleInactive}
-								/>
+							<Form.Group as={Row}>
+								<Form.Label column xs={2}>No</Form.Label>
+								<Col xs={10}>
+									<DatePicker
+										dateFormat="yyyy/MM/dd"
+										customInput={<BoostrapDatePicker />}
+										selected={this.state.startDate}
+										onChange={this.handleDateChangeStart}
+										maxDate={new Date()}
+									/>
+								</Col>
 							</Form.Group>
 						</Col>
 						<Col>
-							<Form.Group>
-								<Form.Control
-									placeholder="Vārds..."
-									onChange={this.onChangeNameFilter}
-									value={this.state.nameFilter}
-								/>
-								<Form.Text>
-									Meklēt darbinieku pēc vārda vai uzvārda
-								</Form.Text>
+							<Form.Group as={Row}>
+								<Form.Label column xs={2}>Līdz</Form.Label>
+								<Col xs={10}>
+									<DatePicker
+										dateFormat="yyyy/MM/dd"
+										customInput={<BoostrapDatePicker />}
+										selected={this.state.endDate}
+										onChange={this.handleDateChangeEnd}
+										maxDate={new Date()}
+									/>
+								</Col>
 							</Form.Group>
 						</Col>
+						<Col className="d-flex flex-column">
+							<DropdownButton
+								variant="secondary"
+								title={this.state.dropdown.currentFilter} 
+								className="text-right mt-auto mb-3"
+							>
+							{
+								this.state.dropdown.filters.map((filter, index) => {
+									return <Dropdown.Item key={index} onClick={() => this.onClickFilter(index)}>{filter}</Dropdown.Item>
+								})
+							}
+							</DropdownButton>
+						</Col>
 					</Row>
-				</Collapse>
-
+				</Form>
 				<BootstrapTable 
 					bootstrap4={ true }
 					keyField="id" 
@@ -506,9 +538,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
 	return {
 		updateEmployees: (employees) => dispatch(updateEmployees(employees)),
-		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
-		showExportExcel: () => dispatch(showExportExcel()),
-		showCheckCard: () => dispatch(showCheckCard()),
 		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id))
 	};
 }
