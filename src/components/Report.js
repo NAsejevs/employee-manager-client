@@ -50,6 +50,7 @@ class Employees extends React.Component {
 			showArchive: false,
 			showInactive: false,
 			nameFilter: "",
+			positionFilter: "",
 			startDate: startDate,
 			endDate: endDate,
 			dropdown: {
@@ -80,6 +81,7 @@ class Employees extends React.Component {
 			|| prevState.showArchive !== this.state.showArchive
 			|| prevState.showInactive !== this.state.showInactive
 			|| prevState.nameFilter !== this.state.nameFilter
+			|| prevState.positionFilter !== this.state.positionFilter
 			|| prevState.startDate !== this.state.startDate
 			|| prevState.endDate !== this.state.endDate) {
 			this.onTableChange();
@@ -147,18 +149,30 @@ class Employees extends React.Component {
 
 	onTableChange = () => {
 		this.formatTable(() => {
-			this.applyNameFilter();
+			this.applyNameFilter(() => {
+				this.applyPositionFilter();
+			});
 		});
 	}
 
-	applyNameFilter = () => {
+	applyNameFilter = (callback = () => null) => {
 		const result = this.state.tableData.filter((row) => {
 			return (row.name.name + " " + row.name.surname).toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
 		});
 
 		this.setState({
 			tableData: result
+		}, callback);
+	}
+
+	applyPositionFilter = (callback = () => null) => {
+		const result = this.state.tableData.filter((row) => {
+			return (row.position).toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
 		});
+
+		this.setState({
+			tableData: result
+		}, callback);
 	}
 
 	formatTable = (callback = () => null) => {
@@ -181,6 +195,7 @@ class Employees extends React.Component {
 				return getEmployeeComments(employee.id).then((comments) => {
 					return({
 						id: employee.id,
+						position: employee.position.toString(),
 						name: {
 							id: employee.id,
 							name: employee.name,
@@ -224,7 +239,38 @@ class Employees extends React.Component {
 		this.setState({ nameFilter: e.target.value });
 	}
 
+	onChangePositionFilter = (e) => {
+		this.setState({ positionFilter: e.target.value });
+	}
+
+	clearAllFilters = () => {
+		const startDate = new Date();
+		startDate.setHours(0,0,0);
+
+		const endDate = new Date();
+		endDate.setHours(23,59,59);
+
+		this.setState({
+			nameFilter: "",
+			positionFilter: "",
+			showArchive: false,
+			showInactive: false,
+			startDate: startDate,
+			endDate: endDate,
+			dropdown: {
+				currentFilter: "Šodiena",
+				filters: ["Šodiena", "Vakardiena", "Pēdējās 7 dienas", "Pēdējās 30 dienas"]
+			}
+		});
+	}
+
 	render() {
+		const positionFormatter = (cell, row) => {
+			return (
+				<span>{cell}</span>
+			);
+		};
+
 		const nameFormatter = (cell, row) => {
 			return (
 				<div>
@@ -381,9 +427,21 @@ class Employees extends React.Component {
 
 		const columns = [{
 			dataField: "id",
-			text: "#",
+			hidden: true,
+		}, {
+			dataField: "position",
+			text: "Amats",
 			sort: true,
+			sortFunc: (a, b, order) => {
+				if(a < b) {
+					return order === "asc" ? 1 : -1;
+				} else if(a > b) {
+					return order === "asc" ? -1 : 1;
+				}
+				return 0;
+			},
 			classes: "align-middle",
+			formatter: positionFormatter,
 		}, {
 			dataField: "name",
 			text: "Vārds",
@@ -403,18 +461,20 @@ class Employees extends React.Component {
 			text: dateRange,
 			sort: true,
 			sortFunc: (a, b, order) => {
-				if (order === "asc") {
-					return (a.working 
-						? new Date(a.lastWorkStart) 
-						: new Date(a.lastWorkEnd)) - (b.working 
-							? new Date(b.lastWorkStart) 
-							: new Date(b.lastWorkEnd));
+				const aData = a.working
+				? new Date(a.workLogs[a.workLogs.length - 1].start_time)
+				: new Date(a.workLogs[a.workLogs.length - 1].end_time);
+
+				const bData = b.working
+				? new Date(b.workLogs[b.workLogs.length - 1].start_time)
+				: new Date(b.workLogs[b.workLogs.length - 1].end_time);
+
+				if(aData > bData) {
+					return order === "asc" ? 1 : -1;
+				} else if(aData < bData) {
+					return order === "asc" ? -1 : 1;
 				}
-				return (b.working 
-					? new Date(b.lastWorkStart) 
-					: new Date(b.lastWorkEnd)) - (a.working 
-						? new Date(a.lastWorkStart) 
-						: new Date(a.lastWorkEnd));
+				return 0;
 			},
 			classes: "align-middle",
 			formatter: todayFormatter
@@ -482,9 +542,51 @@ class Employees extends React.Component {
 				<Form>
 					<Row>
 						<Col>
+							<Form.Group>
+								<Form.Check 
+									type="checkbox" 
+									label="Rādīt arhīvā esošos darbiniekus"
+									checked={this.state.showArchive}
+									onChange={this.onToggleArchive}
+								/>
+							</Form.Group>
+							<Form.Group>
+								<Form.Check 
+									type="checkbox" 
+									label="Rādīt deaktivizētus darbiniekus"
+									checked={this.state.showInactive}
+									onChange={this.onToggleInactive}
+								/>
+							</Form.Group>
+						</Col>
+						<Col>
+							<Form.Group>
+								<Form.Control
+									placeholder="Vārds..."
+									onChange={this.onChangeNameFilter}
+									value={this.state.nameFilter}
+								/>
+								<Form.Text>
+									Meklēt darbinieku pēc vārda vai uzvārda
+								</Form.Text>
+							</Form.Group>
+							<Form.Group>
+								<Form.Control
+									placeholder="Amats..."
+									onChange={this.onChangePositionFilter}
+									value={this.state.positionFilter}
+								/>
+								<Form.Text>
+									Meklēt darbinieku pēc amata
+								</Form.Text>
+							</Form.Group>
+						</Col>
+					</Row>
+					<Row className="mt-4">
+						<Col xs={"auto"}>
 							<Form.Group as={Row}>
-								<Form.Label column xs={2}>No</Form.Label>
-								<Col xs={10}>
+								<Form.Label column xs={"auto"}>Dati no</Form.Label>
+								<Col>
 									<DatePicker
 										dateFormat="yyyy.MM.dd"
 										customInput={<BoostrapDatePicker />}
@@ -495,10 +597,10 @@ class Employees extends React.Component {
 								</Col>
 							</Form.Group>
 						</Col>
-						<Col>
+						<Col xs={"auto"}>
 							<Form.Group as={Row}>
-								<Form.Label column xs={2}>Līdz</Form.Label>
-								<Col xs={10}>
+								<Form.Label column xs={"auto"}>līdz</Form.Label>
+								<Col>
 									<DatePicker
 										dateFormat="yyyy.MM.dd"
 										customInput={<BoostrapDatePicker />}
@@ -510,11 +612,18 @@ class Employees extends React.Component {
 								</Col>
 							</Form.Group>
 						</Col>
-						<Col className="d-flex flex-column">
+						<Col>
+							<Button 
+								className="ml-2 float-right"
+								variant="danger"
+								onClick={this.clearAllFilters}
+							>
+								Notīrīt visus filtrus
+							</Button>
 							<DropdownButton
 								variant="secondary"
 								title={this.state.dropdown.currentFilter} 
-								className="text-right mt-auto mb-3"
+								className="float-right"
 							>
 							{
 								this.state.dropdown.filters.map((filter, index) => {

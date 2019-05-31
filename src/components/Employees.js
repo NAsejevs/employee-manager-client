@@ -47,7 +47,8 @@ class Employees extends React.Component {
 			showFilters: false,
 			showArchive: false,
 			showInactive: false,
-			nameFilter: ""
+			nameFilter: "",
+			positionFilter: ""
 		}
 	}
 
@@ -71,25 +72,38 @@ class Employees extends React.Component {
 		if(prevProps.employees !== this.props.employees
 			|| prevState.showArchive !== this.state.showArchive
 			|| prevState.showInactive !== this.state.showInactive
-			|| prevState.nameFilter !== this.state.nameFilter) {
+			|| prevState.nameFilter !== this.state.nameFilter
+			|| prevState.positionFilter !== this.state.positionFilter) {
 			this.onTableChange();
 		}
 	}
 
 	onTableChange = () => {
 		this.formatTable(() => {
-			this.applyNameFilter();
+			this.applyNameFilter(() => {
+				this.applyPositionFilter();
+			});
 		});
 	}
 
-	applyNameFilter = () => {
+	applyNameFilter = (callback = () => null) => {
 		const result = this.state.tableData.filter((row) => {
 			return (row.name.name + " " + row.name.surname).toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
 		});
 
 		this.setState({
 			tableData: result
+		}, callback);
+	}
+
+	applyPositionFilter = (callback = () => null) => {
+		const result = this.state.tableData.filter((row) => {
+			return (row.position).toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
 		});
+
+		this.setState({
+			tableData: result
+		}, callback);
 	}
 
 	formatTable = (callback = () => null) => {
@@ -114,6 +128,7 @@ class Employees extends React.Component {
 				return getEmployeeComments(employee.id).then((comments) => {
 					return({
 						id: employee.id,
+						position: employee.position.toString(),
 						name: {
 							id: employee.id,
 							name: employee.name,
@@ -155,7 +170,34 @@ class Employees extends React.Component {
 		this.setState({ nameFilter: e.target.value });
 	}
 
+	onChangePositionFilter = (e) => {
+		this.setState({ positionFilter: e.target.value });
+	}
+
+	clearAllFilters = () => {
+		const startDate = new Date();
+		startDate.setHours(0,0,0);
+
+		const endDate = new Date();
+		endDate.setHours(23,59,59);
+
+		this.setState({
+			nameFilter: "",
+			positionFilter: "",
+			showArchive: false,
+			showInactive: false,
+			startDate: startDate,
+			endDate: endDate,
+		});
+	}
+
 	render() {
+		const positionFormatter = (cell, row) => {
+			return (
+				<span>{cell}</span>
+			);
+		};
+		
 		const nameFormatter = (cell, row) => {
 			const commentBorderStyle = {
 				borderBottom: "solid 1px gray"
@@ -208,7 +250,6 @@ class Employees extends React.Component {
 							? 
 							<OverlayTrigger
 								trigger="click"
-								placement="top"
 								rootClose
 								placement="bottom"
 								overlay={
@@ -334,9 +375,21 @@ class Employees extends React.Component {
 
 		const columns = [{
 			dataField: "id",
-			text: "#",
+			hidden: true,
+		}, {
+			dataField: "position",
+			text: "Amats",
 			sort: true,
+			sortFunc: (a, b, order) => {
+				if(a < b) {
+					return order === "asc" ? 1 : -1;
+				} else if(a > b) {
+					return order === "asc" ? -1 : 1;
+				}
+				return 0;
+			},
 			classes: "align-middle",
+			formatter: positionFormatter,
 		}, {
 			dataField: "name",
 			text: "Vārds",
@@ -356,18 +409,20 @@ class Employees extends React.Component {
 			text: "Šodien",
 			sort: true,
 			sortFunc: (a, b, order) => {
-				if (order === "asc") {
-					return (a.working 
-						? new Date(a.lastWorkStart) 
-						: new Date(a.lastWorkEnd)) - (b.working 
-							? new Date(b.lastWorkStart) 
-							: new Date(b.lastWorkEnd));
+				const aData = a.working
+				? new Date(a.workLogs[a.workLogs.length - 1].start_time)
+				: new Date(a.workLogs[a.workLogs.length - 1].end_time);
+
+				const bData = b.working
+				? new Date(b.workLogs[b.workLogs.length - 1].start_time)
+				: new Date(b.workLogs[b.workLogs.length - 1].end_time);
+
+				if(aData > bData) {
+					return order === "asc" ? 1 : -1;
+				} else if(aData < bData) {
+					return order === "asc" ? -1 : 1;
 				}
-				return (b.working 
-					? new Date(b.lastWorkStart) 
-					: new Date(b.lastWorkEnd)) - (a.working 
-						? new Date(a.lastWorkStart) 
-						: new Date(a.lastWorkEnd));
+				return 0;
 			},
 			classes: "align-middle",
 			formatter: todayFormatter
@@ -379,7 +434,7 @@ class Employees extends React.Component {
 		}];
 
 		const defaultSorted = [{
-			dataField: "id",
+			dataField: "name",
 			order: "asc"
 		}];
 
@@ -496,13 +551,30 @@ class Employees extends React.Component {
 									Meklēt darbinieku pēc vārda vai uzvārda
 								</Form.Text>
 							</Form.Group>
+							<Form.Group>
+								<Form.Control
+									placeholder="Amats..."
+									onChange={this.onChangePositionFilter}
+									value={this.state.positionFilter}
+								/>
+								<Form.Text>
+									Meklēt darbinieku pēc amata
+								</Form.Text>
+							</Form.Group>
+							<Button 
+								className="ml-2 float-right"
+								variant="danger"
+								onClick={this.clearAllFilters}
+							>
+								Notīrīt visus filtrus
+							</Button>
 						</Col>
 					</Row>
 				</Collapse>
 
 				<BootstrapTable 
 					bootstrap4={ true }
-					keyField="id" 
+					keyField="id"
 					data={ this.state.tableData } 
 					columns={ columns } 
 					bordered={ false }

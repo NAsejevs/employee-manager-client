@@ -1,6 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Row, Col } from "react-bootstrap";
+import DatePicker from "react-datepicker";
+import BoostrapDatePicker from "./BoostrapDatePicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import { showCommentEmployee, hideCommentEmployee } from "../actions/employeeActions";
 
@@ -12,7 +15,9 @@ class CommentEmployee extends React.Component {
 
 		this.initialState = {
 			comment: {
-				text: ""
+				text: "",
+				expires: new Date(),
+				manualDelete: false,
 			}
 		}
 
@@ -31,15 +36,34 @@ class CommentEmployee extends React.Component {
 	onCommentChange = (event) => {
 		this.setState({ 
 			comment: {
+				...this.state.comment,
 				text: event.target.value
+			}
+		});
+	}
+
+	onExpiryDateChange = (date) => {
+		console.log(date);
+		this.setState({
+			comment: {
+				...this.state.comment,
+				expires: date
+			}
+		});
+	}
+
+	onManualDeleteChange = () => {
+		this.setState({ 
+			comment: {
+				...this.state.comment,
+				manualDelete: !this.state.comment.manualDelete
 			}
 		});
 	}
 
 	render() {
 		return (
-			<Modal 
-				size="sm"
+			<Modal
 				show={this.props.commentEmployee.show}
 				onExited={() => this.onExited()}
 				onHide={() => this.props.hideCommentEmployee()}
@@ -49,17 +73,40 @@ class CommentEmployee extends React.Component {
 				</Modal.Header>
 
 				<Modal.Body>
-					<Form>
-						<Form.Group>
-							<Form.Label>Komentārs</Form.Label>
+					<Form.Group as={Row}>
+						<Form.Label column xs={2}>Komentārs</Form.Label>
+						<Col xs={10}>
 							<Form.Control 
 								as="textarea"
 								rows="3"
 								value={this.state.comment.text}
 								onChange={this.onCommentChange}
 							/>
-						</Form.Group>
-					</Form>
+						</Col>
+					</Form.Group>
+					<Form.Group as={Row}>
+						<Form.Label column xs={2}>Dzēst</Form.Label>
+						<Col xs={10}>
+							<DatePicker
+								disabled={this.state.comment.manualDelete}
+								dateFormat="yyyy.MM.dd HH:mm"
+								customInput={<BoostrapDatePicker />}
+								selected={this.state.comment.expires}
+								onChange={this.onExpiryDateChange}
+								maxDate={new Date()}
+								showTimeSelect
+								timeFormat="HH:mm"
+							/>
+						</Col>
+					</Form.Group>
+					<Form.Group>
+						<Form.Check 
+							type="checkbox" 
+							label="Tikai manuāli dzēšams"
+							name="manualDelete"
+							checked={this.state.comment.manualDelete}
+							onChange={this.onManualDeleteChange}/>
+					</Form.Group>
 				</Modal.Body>
 
 				<Modal.Footer>
