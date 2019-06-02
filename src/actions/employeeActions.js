@@ -11,7 +11,9 @@ import {
 	SHOW_CHECK_CARD,
 	HIDE_CHECK_CARD,
 	SHOW_EMPLOYEE_WORK_LOG,
-	HIDE_EMPLOYEE_WORK_LOG
+	HIDE_EMPLOYEE_WORK_LOG,
+	SHOW_COMMENT_EMPLOYEE,
+	HIDE_COMMENT_EMPLOYEE,
 } from "./actionTypes";
 
 export const updateEmployees = (employees) => {
@@ -93,5 +95,18 @@ export const showCheckCard = () => {
 export const hideCheckCard = () => {
 	return {
 		type: HIDE_CHECK_CARD,
+	}
+}
+
+export const showCommentEmployee = (employee) => {
+	return {
+		type: SHOW_COMMENT_EMPLOYEE,
+		payload: employee,
+	}
+}
+
+export const hideCommentEmployee = () => {
+	return {
+		type: HIDE_COMMENT_EMPLOYEE,
 	}
 }

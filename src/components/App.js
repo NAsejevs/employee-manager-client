@@ -5,14 +5,17 @@ import { Container, Row, Col, Navbar, Nav, Spinner } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 
 import Employees from "./Employees";
+import Report from "./Report";
 import RegisterEmployee from "./RegisterEmployee";
 //import DateTime from "./DateTime";
 import NotFound from "./NotFound";
+import ViewEmployee from "./ViewEmployee";
 import DeleteEmployee from "./DeleteEmployee";
 import EditEmployee from "./EditEmployee";
 import ExportExcel from "./ExportExcel";
 import LogIn from "./LogIn";
 import CheckCard from "./CheckCard";
+import CommentEmployee from "./CommentEmployee";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
@@ -125,12 +128,11 @@ class App extends React.Component {
 												<LinkContainer exact={true} to="/">
 													<Nav.Link>Darbinieki</Nav.Link>
 												</LinkContainer>
-												{/* <Nav.Link onClick={this.props.showRegisterEmployee}>Reģistrācija</Nav.Link> */}
+												<LinkContainer exact={true} to="/report">
+													<Nav.Link>Atskaites</Nav.Link>
+												</LinkContainer>
 											</Nav>
 											<Nav>
-												{/* <Navbar.Text>
-													<DateTime/>
-												</Navbar.Text> */}
 												<Navbar.Text className="ml-md-4">
 													<u>{this.state.user.username}</u>
 												</Navbar.Text>
@@ -147,13 +149,16 @@ class App extends React.Component {
 								<Col>
 									<Switch>
 										<Route exact path="/" component={Employees} />
+										<Route exact path="/report" component={Report} />
 										<Route component={NotFound} />
 									</Switch>
+									<ViewEmployee/>
 									<RegisterEmployee/>
 									<DeleteEmployee/>
 									<EditEmployee/>
 									<ExportExcel/>
 									<CheckCard/>
+									<CommentEmployee/>
 								</Col>
 							</Row>
 							<Row>

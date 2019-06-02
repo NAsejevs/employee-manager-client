@@ -106,6 +106,25 @@ export const deleteCard = (id) => {
 		id
 	});
 }
+
+export const addEmployeeComment = (employee, comment) => {
+	return request.post("/addEmployeeComment", {
+		employee,
+		comment,
+	});
+}
+
+export const getEmployeeComments = (id) => {
+	return request.post("/getEmployeeComments", {
+		id,
+	});
+}
+
+export const deleteEmployeeComment = (commentId) => {
+	return request.post("/deleteEmployeeComment", {
+		commentId,
+	});
+}
 // ---------------------------------------
 
 export const getEmployees = () => {

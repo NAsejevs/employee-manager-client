@@ -13,7 +13,9 @@ import {
 	SHOW_CHECK_CARD,
 	HIDE_CHECK_CARD,
 	SHOW_EMPLOYEE_WORK_LOG,
-	HIDE_EMPLOYEE_WORK_LOG
+	HIDE_EMPLOYEE_WORK_LOG,
+	SHOW_COMMENT_EMPLOYEE,
+	HIDE_COMMENT_EMPLOYEE,
 } from '../actions/actionTypes';
 
 export const employees = (state = initialState, action) => {
@@ -123,6 +125,24 @@ export const employees = (state = initialState, action) => {
 				checkCard: {
 					...state.checkCard,
 					show: false,
+				},
+			}
+		case SHOW_COMMENT_EMPLOYEE:
+			return {
+				...state,
+				commentEmployee: {
+					...state.commentEmployee,
+					show: true,
+					employee: action.payload,
+				},
+			}
+		case HIDE_COMMENT_EMPLOYEE:
+			return {
+				...state,
+				commentEmployee: {
+					...state.commentEmployee,
+					show: false,
+					employee: {},
 				},
 			}
 		default:

@@ -20,7 +20,11 @@ const initialState = {
 	},
 	checkCard: {
 		show: false,
-	}
+	},
+	commentEmployee: {
+		show: false,
+		employee: {},
+	},
 };
 
 export default initialState;
