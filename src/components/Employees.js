@@ -98,7 +98,9 @@ class Employees extends React.Component {
 
 	applyPositionFilter = (callback = () => null) => {
 		const result = this.state.tableData.filter((row) => {
-			return (row.position).toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
+			const position = row.position ? row.position : "";
+
+			return (position).toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
 		});
 
 		this.setState({
@@ -375,21 +377,9 @@ class Employees extends React.Component {
 
 		const columns = [{
 			dataField: "id",
-			hidden: true,
-		}, {
-			dataField: "position",
-			text: "Amats",
+			text: "#",
 			sort: true,
-			sortFunc: (a, b, order) => {
-				if(a < b) {
-					return order === "asc" ? 1 : -1;
-				} else if(a > b) {
-					return order === "asc" ? -1 : 1;
-				}
-				return 0;
-			},
-			classes: "align-middle",
-			formatter: positionFormatter,
+			// hidden: true,
 		}, {
 			dataField: "name",
 			text: "Vārds",
@@ -404,7 +394,23 @@ class Employees extends React.Component {
 			},
 			classes: "align-middle",
 			formatter: nameFormatter,
-		}, {
+		},
+		// {
+		// 	dataField: "position",
+		// 	text: "Amats",
+		// 	sort: true,
+		// 	sortFunc: (a, b, order) => {
+		// 		if(a < b) {
+		// 			return order === "asc" ? 1 : -1;
+		// 		} else if(a > b) {
+		// 			return order === "asc" ? -1 : 1;
+		// 		}
+		// 		return 0;
+		// 	},
+		// 	classes: "align-middle",
+		// 	formatter: positionFormatter,
+		// },
+		{
 			dataField: "today",
 			text: "Šodien",
 			sort: true,

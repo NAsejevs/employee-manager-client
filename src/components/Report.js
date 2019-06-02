@@ -7,6 +7,7 @@ import paginationFactory from "react-bootstrap-table2-paginator";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import BoostrapDatePicker from "./BoostrapDatePicker";
+import en from 'date-fns/locale/en-GB';
 
 import { 
 	updateEmployees,
@@ -167,7 +168,9 @@ class Employees extends React.Component {
 
 	applyPositionFilter = (callback = () => null) => {
 		const result = this.state.tableData.filter((row) => {
-			return (row.position).toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
+			const position = row.position ? row.position : "";
+
+			return (position).toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
 		});
 
 		this.setState({
@@ -427,22 +430,26 @@ class Employees extends React.Component {
 
 		const columns = [{
 			dataField: "id",
-			hidden: true,
-		}, {
-			dataField: "position",
-			text: "Amats",
+			text: "#",
 			sort: true,
-			sortFunc: (a, b, order) => {
-				if(a < b) {
-					return order === "asc" ? 1 : -1;
-				} else if(a > b) {
-					return order === "asc" ? -1 : 1;
-				}
-				return 0;
-			},
-			classes: "align-middle",
-			formatter: positionFormatter,
-		}, {
+			// hidden: true,
+		},
+		// {
+		// 	dataField: "position",
+		// 	text: "Amats",
+		// 	sort: true,
+		// 	sortFunc: (a, b, order) => {
+		// 		if(a < b) {
+		// 			return order === "asc" ? 1 : -1;
+		// 		} else if(a > b) {
+		// 			return order === "asc" ? -1 : 1;
+		// 		}
+		// 		return 0;
+		// 	},
+		// 	classes: "align-middle",
+		// 	formatter: positionFormatter,
+		// },
+		{
 			dataField: "name",
 			text: "Vārds",
 			sort: true,
@@ -588,11 +595,12 @@ class Employees extends React.Component {
 								<Form.Label column xs={"auto"}>Dati no</Form.Label>
 								<Col>
 									<DatePicker
-										dateFormat="yyyy.MM.dd"
+										dateFormat="dd.MM.yyyy."
 										customInput={<BoostrapDatePicker />}
 										selected={this.state.startDate}
 										onChange={this.handleDateChangeStart}
 										maxDate={new Date()}
+										locale={en}
 									/>
 								</Col>
 							</Form.Group>
@@ -602,12 +610,13 @@ class Employees extends React.Component {
 								<Form.Label column xs={"auto"}>līdz</Form.Label>
 								<Col>
 									<DatePicker
-										dateFormat="yyyy.MM.dd"
+										dateFormat="dd.MM.yyyy."
 										customInput={<BoostrapDatePicker />}
 										selected={this.state.endDate}
 										onChange={this.handleDateChangeEnd}
 										minDate={this.state.startDate}
 										maxDate={new Date()}
+										locale={en}
 									/>
 								</Col>
 							</Form.Group>

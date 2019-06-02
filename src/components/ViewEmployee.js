@@ -3,6 +3,7 @@ import React from "react";
 import { Table, Modal, Dropdown, DropdownButton, Col, Row, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import en from 'date-fns/locale/en-GB';
 
 import { showEmployeeWorkLog, hideEmployeeWorkLog } from "../actions/employeeActions";
 
@@ -265,11 +266,12 @@ class ViewEmployee extends React.Component {
 									<Form.Label column xs={2}>No</Form.Label>
 									<Col xs={10}>
 										<DatePicker
-											dateFormat="yyyy.MM.dd"
+											dateFormat="dd.MM.yyyy."
 											customInput={<BoostrapDatePicker />}
 											selected={this.state.startDate}
 											onChange={this.handleDateChangeStart}
 											maxDate={new Date()}
+											locale={en}
 										/>
 									</Col>
 								</Form.Group>
@@ -279,12 +281,13 @@ class ViewEmployee extends React.Component {
 									<Form.Label column xs={2}>Līdz</Form.Label>
 									<Col xs={10}>
 										<DatePicker
-											dateFormat="yyyy.MM.dd"
+											dateFormat="dd.MM.yyyy."
 											customInput={<BoostrapDatePicker />}
 											selected={this.state.endDate}
 											onChange={this.handleDateChangeEnd}
 											minDate={this.state.startDate}
 											maxDate={new Date()}
+											locale={en}
 										/>
 									</Col>
 								</Form.Group>
