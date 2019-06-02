@@ -128,7 +128,7 @@ class Employees extends React.Component {
 				return getEmployeeComments(employee.id).then((comments) => {
 					return({
 						id: employee.id,
-						position: employee.position.toString(),
+						position: employee.position ? employee.position.toString() : null,
 						name: {
 							id: employee.id,
 							name: employee.name,
