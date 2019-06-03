@@ -4,28 +4,20 @@ import React from "react";
 import { DropdownButton, Form, Button, Row, Col, Dropdown } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import BoostrapDatePicker from "./BoostrapDatePicker";
-import en from 'date-fns/locale/en-GB';
+
+import ContainerBox from "./ContainerBox";
 
 import { 
 	updateEmployees,
 	showEmployeeWorkLog
 } from "../actions/employeeActions";
 
-import { 
-	getEmployees,
+import {
 	getServerEmployeeWorkLogFromTo,
 	getEmployeeComments,
 } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
-
-import "../styles/main.css";
-import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
-import "../styles/table.css";
-
-import ContainerBox from "./ContainerBox";
 
 class Employees extends React.Component {
 
@@ -62,12 +54,12 @@ class Employees extends React.Component {
 	}
 
 	componentDidMount() {
-		getEmployees();
+		//getEmployees();
 
 		this.setState({
 			updateInterval: (
 				setInterval(() => {
-					getEmployees();
+					//getEmployees();
 				}, 5000)
 			),
 		});
@@ -268,12 +260,6 @@ class Employees extends React.Component {
 	}
 
 	render() {
-		const positionFormatter = (cell, row) => {
-			return (
-				<span>{cell}</span>
-			);
-		};
-
 		const nameFormatter = (cell, row) => {
 			return (
 				<div>
@@ -433,23 +419,7 @@ class Employees extends React.Component {
 			text: "#",
 			sort: true,
 			// hidden: true,
-		},
-		// {
-		// 	dataField: "position",
-		// 	text: "Amats",
-		// 	sort: true,
-		// 	sortFunc: (a, b, order) => {
-		// 		if(a < b) {
-		// 			return order === "asc" ? 1 : -1;
-		// 		} else if(a > b) {
-		// 			return order === "asc" ? -1 : 1;
-		// 		}
-		// 		return 0;
-		// 	},
-		// 	classes: "align-middle",
-		// 	formatter: positionFormatter,
-		// },
-		{
+		}, {
 			dataField: "name",
 			text: "Vārds",
 			sort: true,
@@ -594,13 +564,11 @@ class Employees extends React.Component {
 							<Form.Group as={Row}>
 								<Form.Label column xs={"auto"}>Dati no</Form.Label>
 								<Col>
-									<DatePicker
+									<BoostrapDatePicker
 										dateFormat="dd.MM.yyyy."
-										customInput={<BoostrapDatePicker />}
 										selected={this.state.startDate}
 										onChange={this.handleDateChangeStart}
 										maxDate={new Date()}
-										locale={en}
 									/>
 								</Col>
 							</Form.Group>
@@ -609,14 +577,12 @@ class Employees extends React.Component {
 							<Form.Group as={Row}>
 								<Form.Label column xs={"auto"}>līdz</Form.Label>
 								<Col>
-									<DatePicker
+									<BoostrapDatePicker
 										dateFormat="dd.MM.yyyy."
-										customInput={<BoostrapDatePicker />}
 										selected={this.state.endDate}
 										onChange={this.handleDateChangeEnd}
 										minDate={this.state.startDate}
 										maxDate={new Date()}
-										locale={en}
 									/>
 								</Col>
 							</Form.Group>

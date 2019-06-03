@@ -1,19 +1,19 @@
 import React from "react";
 import { Form } from "react-bootstrap";
+import DatePicker from "react-datepicker";
+import en from 'date-fns/locale/en-GB';
 
-class BoostrapDatePicker extends React.Component {
-    render() {
-        return (
-            <Form.Control
-                disabled={this.props.disabled}
-                onClick={this.props.onClick}
-                onChange={this.props.onChange}
-                placeholder={this.props.value} 
-                value={this.props.value}
-                className="text-center"
-            />
-        );
-    }
+import "react-datepicker/dist/react-datepicker.css"
+
+const BoostrapDatePicker = (props) => {
+    return (
+        <DatePicker
+            {...props}
+            className="text-center"
+            customInput={<Form.Control/>}
+            locale={en}
+        />
+    );
 }
 
 export default BoostrapDatePicker;

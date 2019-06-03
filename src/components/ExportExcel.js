@@ -1,11 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Modal, Button, Row, Col, Table, Form } from "react-bootstrap";
-import download from "downloadjs";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-
 import BoostrapDatePicker from "./BoostrapDatePicker";
+import download from "downloadjs";
 
 import { showExportExcel, hideExportExcel } from "../actions/employeeActions";
 
@@ -136,9 +133,8 @@ class ExportExcel extends React.Component {
 							<Form.Group as={Row} className="ml-1">
 								<Form.Label column xs={"3"}>Mēnesis: </Form.Label>
 								<Col>
-									<DatePicker
-										dateFormat="MM/yyyy"
-										customInput={<BoostrapDatePicker />}
+									<BoostrapDatePicker
+										dateFormat="MM.yyyy."
 										selected={this.state.month}
 										onChange={this.handleDateChange}
 										showMonthYearPicker

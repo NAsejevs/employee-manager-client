@@ -4,7 +4,7 @@ import { Modal, Button } from "react-bootstrap";
 
 import { showDeleteEmployee, hideDeleteEmployee } from "../actions/employeeActions";
 
-import { deleteServerEmployee, getEmployees } from "../utils/employeeUtils";
+import { deleteServerEmployee } from "../utils/employeeUtils";
 
 class DeleteEmployee extends React.Component {
 	render() {
@@ -23,9 +23,7 @@ class DeleteEmployee extends React.Component {
 
 				<Modal.Footer>
 					<Button variant="danger" onClick={() => {
-						deleteServerEmployee(this.props.deleteEmployee.employee.id).then(() => {
-							getEmployees();
-						});
+						deleteServerEmployee(this.props.deleteEmployee.employee.id);
 						this.props.hideDeleteEmployee();
 					}}>
 						Dzēst

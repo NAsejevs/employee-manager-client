@@ -1,6 +1,22 @@
-import store from "../store/store";
 import { request } from "./config";
+import store from "../store/store";
 import { updateEmployees } from "../actions/employeeActions";
+
+// Axios middleware
+request.interceptors.response.use((response) => {
+	getServerEmployees().then((res) => {
+		store.dispatch(updateEmployees(res.data));
+		console.log("hello")
+	});
+    return response;
+  }, (error) => {
+    return Promise.reject(error);
+});
+
+getServerEmployees().then((res) => {
+	// 		store.dispatch(updateEmployees(res.data));
+	// 		console.log("hello")
+	// 	});
 
 // ------------ Server requests ------------
 export const getServerEmployees = () => {
@@ -126,12 +142,6 @@ export const deleteEmployeeComment = (commentId) => {
 	});
 }
 // ---------------------------------------
-
-export const getEmployees = () => {
-	getServerEmployees().then((res) => {
-		store.dispatch(updateEmployees(res.data));
-	});
-}
 
 export const setEmployeeWorking = (id, working, callback) => {
 	setServerEmployeeWorking(id, working).then(() => {

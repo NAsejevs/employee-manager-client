@@ -2,9 +2,9 @@ import React from "react";
 import { connect } from "react-redux";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 
-import logo from "../images/logo.png";
-
 import { authenticate } from "../utils/userUtils";
+
+import logo from "../images/logo.png";
 
 const DEBUG = false;
 

@@ -5,6 +5,9 @@ import { Badge, Form, Button, Collapse, Row, Col, Dropdown, OverlayTrigger, Popo
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 
+import ContainerBox from "./ContainerBox";
+import Commands from "./Commands";
+
 import { 
 	updateEmployees, 
 	showRegisterEmployee,
@@ -13,20 +16,12 @@ import {
 	showEmployeeWorkLog
 } from "../actions/employeeActions";
 
-import { 
-	getEmployees,
+import {
 	getServerEmployeeWorkLogFromTo,
 	getEmployeeComments,
 	deleteEmployeeComment,
 } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
-
-import "../styles/main.css";
-import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
-import "../styles/table.css";
-
-import ContainerBox from "./ContainerBox";
-import Commands from "./Commands";
 
 import { FiUser, FiMinimize2, FiMaximize2, FiMessageSquare, FiXCircle } from "react-icons/fi";
 
@@ -53,12 +48,12 @@ class Employees extends React.Component {
 	}
 
 	componentDidMount() {
-		getEmployees();
+		//getEmployees();
 
 		this.setState({
 			updateInterval: (
 				setInterval(() => {
-					getEmployees();
+					//getEmployees();
 				}, 1000)
 			),
 		});
@@ -194,12 +189,6 @@ class Employees extends React.Component {
 	}
 
 	render() {
-		const positionFormatter = (cell, row) => {
-			return (
-				<span>{cell}</span>
-			);
-		};
-		
 		const nameFormatter = (cell, row) => {
 			const commentBorderStyle = {
 				borderBottom: "solid 1px gray"
@@ -221,9 +210,7 @@ class Employees extends React.Component {
 								style={{ 
 									cursor: "pointer" 
 								}} 
-								onClick={
-									() => deleteEmployeeComment(comment.id).then(() => getEmployees())
-								}
+								onClick={() => deleteEmployeeComment(comment.id)}
 							/>
 						</Col>
 					</Row>
@@ -394,39 +381,25 @@ class Employees extends React.Component {
 			},
 			classes: "align-middle",
 			formatter: nameFormatter,
-		},
-		// {
-		// 	dataField: "position",
-		// 	text: "Amats",
-		// 	sort: true,
-		// 	sortFunc: (a, b, order) => {
-		// 		if(a < b) {
-		// 			return order === "asc" ? 1 : -1;
-		// 		} else if(a > b) {
-		// 			return order === "asc" ? -1 : 1;
-		// 		}
-		// 		return 0;
-		// 	},
-		// 	classes: "align-middle",
-		// 	formatter: positionFormatter,
-		// },
-		{
+		}, {
 			dataField: "today",
 			text: "Šodien",
 			sort: true,
 			sortFunc: (a, b, order) => {
-				const aData = a.working
-				? new Date(a.workLogs[a.workLogs.length - 1].start_time)
-				: new Date(a.workLogs[a.workLogs.length - 1].end_time);
+				if(a.workLogs.length && b.workLogs.length) {
+					const aData = a.working
+					? new Date(a.workLogs[a.workLogs.length - 1].start_time)
+					: new Date(a.workLogs[a.workLogs.length - 1].end_time);
 
-				const bData = b.working
-				? new Date(b.workLogs[b.workLogs.length - 1].start_time)
-				: new Date(b.workLogs[b.workLogs.length - 1].end_time);
+					const bData = b.working
+					? new Date(b.workLogs[b.workLogs.length - 1].start_time)
+					: new Date(b.workLogs[b.workLogs.length - 1].end_time);
 
-				if(aData > bData) {
-					return order === "asc" ? 1 : -1;
-				} else if(aData < bData) {
-					return order === "asc" ? -1 : 1;
+					if(aData > bData) {
+						return order === "asc" ? 1 : -1;
+					} else if(aData < bData) {
+						return order === "asc" ? -1 : 1;
+					}
 				}
 				return 0;
 			},

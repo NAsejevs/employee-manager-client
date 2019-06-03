@@ -2,9 +2,9 @@ import { connect } from "react-redux";
 import React from "react";
 import { Form, Button, Alert, Modal, Row, Col } from "react-bootstrap";
 
-import { addServerEmployee, getServerEmployees, getServerEmployee, deleteServerEmployee, addCard } from "../utils/employeeUtils";
-
 import { updateEmployees, showRegisterEmployee, hideRegisterEmployee } from "../actions/employeeActions";
+
+import { addServerEmployee, getServerEmployees, getServerEmployee, deleteServerEmployee, addCard } from "../utils/employeeUtils";
 
 const REGISTER_STATE = {
 	DATA_INPUT: 0,

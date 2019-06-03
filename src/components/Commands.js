@@ -1,20 +1,6 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { connect } from "react-redux";
-import { 
-	Button, 
-	Dropdown,
-	Row,
-	Col,
-	Tooltip,
-	OverlayTrigger,
-} from "react-bootstrap";
-
-import { 
-	setServerEmployeeWorking, 
-	setServerEmployeeArchived, 
-	setServerEmployeeActive, 
-	getEmployees 
-} from "../utils/employeeUtils";
+import { Button, Dropdown, Row, Col, Tooltip, OverlayTrigger} from "react-bootstrap";
 
 import { 
 	showDeleteEmployee,
@@ -23,30 +9,25 @@ import {
 } from "../actions/employeeActions";
 
 import { 
-	FiMoreHorizontal, 
-	FiTrash, 
-	FiEdit,
-	FiArchive, 
-	FiX,
-	FiCheck
-} from "react-icons/fi";
+	setServerEmployeeWorking, 
+	setServerEmployeeArchived, 
+	setServerEmployeeActive
+} from "../utils/employeeUtils";
 
-class commandButton extends React.Component {
-	render() {
-		return (
-			<Button variant="link" onClick={this.props.onClick}>
-				<FiMoreHorizontal/>
-			</Button>
-		);
-	}
-}
+import { FiMoreHorizontal, FiTrash, FiEdit,FiArchive, FiX,FiCheck } from "react-icons/fi";
+
+const CommandButton = forwardRef((props, ref) => {
+	return <Button ref={ref} variant="link" onClick={props.onClick}>
+		<FiMoreHorizontal/>
+	</Button>
+});
 
 const Commands = (props) => {
 	return (
 		<Row className="float-right">
 			<Col xs="6">
 				<Dropdown>
-					<Dropdown.Toggle as={commandButton} id="dropdown-custom-components"/>
+					<Dropdown.Toggle as={CommandButton} id="dropdown-custom-components"/>
 					<Dropdown.Menu>
 						<Dropdown.Item 
 							eventKey="1"
@@ -57,18 +38,14 @@ const Commands = (props) => {
 						</Dropdown.Item>
 						<Dropdown.Item 
 							eventKey="2"
-							onClick={() => setServerEmployeeArchived(props.employee.id, !props.employee.archived).then(() => {
-								getEmployees();
-							})}
+							onClick={() => setServerEmployeeArchived(props.employee.id, !props.employee.archived)}
 						>
 							<FiArchive height="100%" width="auto" className="mr-2 mb-1"/>
 							{ props.employee.archived ? "Izņemt no arhīva" : "Arhivēt" }
 						</Dropdown.Item>
 						<Dropdown.Item 
 							eventKey="3"
-							onClick={() => setServerEmployeeActive(props.employee.id, !props.employee.active).then(() => {
-								getEmployees();
-							})}
+							onClick={() => setServerEmployeeActive(props.employee.id, !props.employee.active)}
 						>
 							{ 
 								props.employee.active 
@@ -108,9 +85,7 @@ const Commands = (props) => {
 					}
 				>
 					<Button
-						onClick={() => setServerEmployeeWorking(props.employee.id, !props.employee.working).then(() => {
-							getEmployees();
-						})}
+						onClick={() => setServerEmployeeWorking(props.employee.id, !props.employee.working)}
 						variant={props.employee.working ? "danger" : "success"}
 					>
 
@@ -126,10 +101,8 @@ const Commands = (props) => {
 	);
 };
 
-function mapStateToProps(state) {
-	return {
-		deleteEmployee: state.employees.deleteEmployee,
-	};
+function mapStateToProps() {
+	return {};
 }
 
 function mapDispatchToProps(dispatch) {

@@ -1,13 +1,12 @@
 import { connect } from "react-redux";
 import React from "react";
 import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
-import { Container, Row, Col, Navbar, Nav, Spinner } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
+import { Container, Row, Col, Navbar, Nav, Spinner } from "react-bootstrap";
 
 import Employees from "./Employees";
 import Report from "./Report";
 import RegisterEmployee from "./RegisterEmployee";
-//import DateTime from "./DateTime";
 import NotFound from "./NotFound";
 import ViewEmployee from "./ViewEmployee";
 import DeleteEmployee from "./DeleteEmployee";
@@ -19,10 +18,10 @@ import CommentEmployee from "./CommentEmployee";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
-
 import { cardScanned} from "../utils/employeeUtils";
 
-import "../styles/main.css";
+import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
+import "../styles/table.css";
 
 import logo from "../images/logo.png";
 import { FiLogOut } from "react-icons/fi";
@@ -108,7 +107,7 @@ class App extends React.Component {
 				// User interface
 				return (
 					<Router>
-						<Container className="container">
+						<Container>
 							<Row>
 								<Col>
 									<Navbar bg="dark" variant="dark" fixed="top" expand="md">

@@ -1,19 +1,16 @@
-.container {
-	min-width: 700px;
-}
-
-.modalContainer {
-	max-width: 100%;
-	margin: 0;
-}
-
-.table {
-	margin-bottom: 0;
-}
-
 body {
-	background-color:#ececec;
+    min-width: 767px;
+    margin-top: 56px;
+    background-color:#ececec;
 	margin-bottom: 100px;
+}
+
+.navbar {
+    border: 0;
+    border-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: #edc744;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .container-box {
@@ -35,16 +32,8 @@ body {
 	height: 40px;
 }
 
-.filterForm {
-	margin-bottom: 20px;
-}
-
 .footer {
 	text-align: center;
 	padding-top: 10px;
 	color: #b1b1b1;
-}
-
-.datePicker {
-
 }

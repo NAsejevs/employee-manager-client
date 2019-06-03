@@ -1,18 +1,12 @@
 import { connect } from "react-redux";
 import React from "react";
 import { Table, Modal, Dropdown, DropdownButton, Col, Row, Form } from "react-bootstrap";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import en from 'date-fns/locale/en-GB';
+import BoostrapDatePicker from "./BoostrapDatePicker";
 
 import { showEmployeeWorkLog, hideEmployeeWorkLog } from "../actions/employeeActions";
 
 import { getServerEmployee, getServerEmployeeWorkLog } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
-
-import BoostrapDatePicker from "./BoostrapDatePicker";
-
-import "../styles/main.css";
 
 class ViewEmployee extends React.Component {
 	constructor(props) {
@@ -265,13 +259,11 @@ class ViewEmployee extends React.Component {
 								<Form.Group as={Row}>
 									<Form.Label column xs={2}>No</Form.Label>
 									<Col xs={10}>
-										<DatePicker
+										<BoostrapDatePicker
 											dateFormat="dd.MM.yyyy."
-											customInput={<BoostrapDatePicker />}
 											selected={this.state.startDate}
 											onChange={this.handleDateChangeStart}
 											maxDate={new Date()}
-											locale={en}
 										/>
 									</Col>
 								</Form.Group>
@@ -280,14 +272,12 @@ class ViewEmployee extends React.Component {
 								<Form.Group as={Row}>
 									<Form.Label column xs={2}>Līdz</Form.Label>
 									<Col xs={10}>
-										<DatePicker
+										<BoostrapDatePicker
 											dateFormat="dd.MM.yyyy."
-											customInput={<BoostrapDatePicker />}
 											selected={this.state.endDate}
 											onChange={this.handleDateChangeEnd}
 											minDate={this.state.startDate}
 											maxDate={new Date()}
-											locale={en}
 										/>
 									</Col>
 								</Form.Group>

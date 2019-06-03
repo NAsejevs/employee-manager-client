@@ -4,7 +4,7 @@ import { Modal, Button, Form, Row, Col, Alert } from "react-bootstrap";
 
 import { showEditEmployee, hideEditEmployee } from "../actions/employeeActions";
 
-import { editServerEmployee, getEmployees, changeCard, deleteCard, getServerEmployee } from "../utils/employeeUtils";
+import { editServerEmployee, changeCard, deleteCard, getServerEmployee } from "../utils/employeeUtils";
 
 const CHANGE_CARD_STATE = {
 	OFF: 0,
@@ -230,9 +230,7 @@ class EditEmployee extends React.Component {
 
 				<Modal.Footer>
 					<Button variant="success" onClick={() => {
-						editServerEmployee(this.state.employee).then(() => {
-							getEmployees();
-						});
+						editServerEmployee(this.state.employee);
 						this.props.hideEditEmployee();
 					}}>
 						Rediģēt

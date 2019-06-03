@@ -1,13 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
-import DatePicker from "react-datepicker";
 import BoostrapDatePicker from "./BoostrapDatePicker";
-import "react-datepicker/dist/react-datepicker.css";
 
 import { showCommentEmployee, hideCommentEmployee } from "../actions/employeeActions";
 
-import { addEmployeeComment, getEmployees } from "../utils/employeeUtils";
+import { addEmployeeComment } from "../utils/employeeUtils";
 
 class CommentEmployee extends React.Component {
 	constructor(props) {
@@ -43,7 +41,6 @@ class CommentEmployee extends React.Component {
 	}
 
 	onExpiryDateChange = (date) => {
-		console.log(date);
 		this.setState({
 			comment: {
 				...this.state.comment,
@@ -87,10 +84,9 @@ class CommentEmployee extends React.Component {
 					<Form.Group as={Row}>
 						<Form.Label column xs={2}>Dzēst</Form.Label>
 						<Col xs={10}>
-							<DatePicker
+							<BoostrapDatePicker
 								disabled={this.state.comment.manualDelete}
-								dateFormat="yyyy.MM.dd HH:mm"
-								customInput={<BoostrapDatePicker />}
+								dateFormat="dd.MM.yyyy. HH:mm"
 								selected={this.state.comment.expires}
 								onChange={this.onExpiryDateChange}
 								maxDate={new Date()}
@@ -113,7 +109,6 @@ class CommentEmployee extends React.Component {
 					<Button variant="success" onClick={() => {
 						addEmployeeComment(this.props.employee, this.state.comment);
 						this.props.hideCommentEmployee();
-						getEmployees();
 					}}>
 						Pievienot
 					</Button>
