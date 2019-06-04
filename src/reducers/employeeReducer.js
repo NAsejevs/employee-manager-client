@@ -2,6 +2,7 @@ import initialState from "../store/initialState";
 
 import { 
 	UPDATE_EMPLOYEES,
+	UPDATE_EMPLOYEE,
 	SHOW_DELETE_EMPLOYEE, 
 	HIDE_DELETE_EMPLOYEE, 
 	SHOW_EDIT_EMPLOYEE, 
@@ -25,6 +26,27 @@ export const employees = (state = initialState, action) => {
 				...state,
 				employees: [...action.payload],
 			}
+		case UPDATE_EMPLOYEE: {
+			console.log("old state", state);
+
+			const newState = { ...state };
+			newState.employees.forEach((employee, index) => {
+				console.log("old employee: ", employee);
+				console.log("new employee: ", action.payload);
+				if(employee.id === action.payload.id) {
+					console.log("assigning");
+					newState.employees[index] = {
+						...action.payload
+					}
+				}
+			});
+
+			console.log("new state", newState);
+
+			return {
+				...newState
+			}
+		}
 		case SHOW_EMPLOYEE_WORK_LOG:
 			return {
 				...state,

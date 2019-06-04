@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import React from "react";
 import { Form, Button, Alert, Modal, Row, Col } from "react-bootstrap";
 
-import { updateEmployees, showRegisterEmployee, hideRegisterEmployee } from "../actions/employeeActions";
+import { showRegisterEmployee, hideRegisterEmployee } from "../actions/employeeActions";
 
 import { addServerEmployee, getServerEmployees, getServerEmployee, deleteServerEmployee, addCard } from "../utils/employeeUtils";
 
@@ -91,10 +91,6 @@ class RegisterEmployee extends React.Component {
 							});
 						}, 1000);
 					}
-	
-					getServerEmployees().then((res) => {
-						this.props.updateEmployees(res.data);
-					});
 
 					this.setState({ 
 						registrationState: REGISTER_STATE.RFID_WAIT,
@@ -103,10 +99,6 @@ class RegisterEmployee extends React.Component {
 			} else {
 				addServerEmployee(employee).then((res) => {
 					if(res.data) {
-						getServerEmployees().then((res) => {
-							this.props.updateEmployees(res.data);
-						});
-	
 						this.setState({ 
 							registrationState: REGISTER_STATE.COMPLETE,
 						});
@@ -286,7 +278,6 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
-		updateEmployees: (employees) => dispatch(updateEmployees(employees)),
 		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
 		hideRegisterEmployee: () => dispatch(hideRegisterEmployee()),
 	};

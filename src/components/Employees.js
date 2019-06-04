@@ -8,8 +8,7 @@ import paginationFactory from "react-bootstrap-table2-paginator";
 import ContainerBox from "./ContainerBox";
 import Commands from "./Commands";
 
-import { 
-	updateEmployees, 
+import {
 	showRegisterEmployee,
 	showExportExcel,
 	showCheckCard,
@@ -577,7 +576,6 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
-		updateEmployees: (employees) => dispatch(updateEmployees(employees)),
 		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
 		showExportExcel: () => dispatch(showExportExcel()),
 		showCheckCard: () => dispatch(showCheckCard()),

@@ -16,9 +16,11 @@ import LogIn from "./LogIn";
 import CheckCard from "./CheckCard";
 import CommentEmployee from "./CommentEmployee";
 
+import { updateEmployees } from "../actions/employeeActions";
+
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
-import { cardScanned} from "../utils/employeeUtils";
+import { storeUpdateEmployees, cardScanned, getServerEmployees } from "../utils/employeeUtils";
 
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
 import "../styles/table.css";
@@ -46,7 +48,6 @@ class App extends React.Component {
 
 	componentDidMount() {
 		// Check user session before displaying anything
-
 		this.establishConnection();
 		this.setState({ 
 			pingInterval: setInterval(() => {
@@ -69,6 +70,7 @@ class App extends React.Component {
 							authenticated: res.data,
 						}, () => {
 							if(this.state.authenticated) {
+								this.onAuthentification();
 								getUserByKey().then((res) => {
 									this.setState({
 										user: res.data,
@@ -80,6 +82,13 @@ class App extends React.Component {
 				});
 			});
 		});
+	}
+	
+	onAuthentification = () => {
+		storeUpdateEmployees();
+		setInterval(() => {
+			storeUpdateEmployees();
+		}, 5000);
 	}
 
 	logOut = () => {

@@ -1,22 +1,18 @@
 import { request } from "./config";
 import store from "../store/store";
-import { updateEmployees } from "../actions/employeeActions";
+import { updateEmployees, updateEmployee } from "../actions/employeeActions";
 
-// Axios middleware
-request.interceptors.response.use((response) => {
+export const storeUpdateEmployees = () => {
 	getServerEmployees().then((res) => {
 		store.dispatch(updateEmployees(res.data));
-		console.log("hello")
 	});
-    return response;
-  }, (error) => {
-    return Promise.reject(error);
-});
+}
 
-getServerEmployees().then((res) => {
-	// 		store.dispatch(updateEmployees(res.data));
-	// 		console.log("hello")
-	// 	});
+export const storeUpdateEmployee = (id) => {
+	getServerEmployee(id).then((res) => {
+		store.dispatch(updateEmployee(res.data));
+	});
+}
 
 // ------------ Server requests ------------
 export const getServerEmployees = () => {
@@ -29,7 +25,7 @@ export const getServerEmployee = (id) => {
 	});
 }
 
-export const getServerEmployeeWorkLog = (id, order = "ASC") => {
+export const getServerEmployeeWorkLog = (id, order = "DESC") => {
 	return request.post("/getEmployeeWorkLog", { 
 		id,
 		order
@@ -45,7 +41,9 @@ export const getServerEmployeeWorkLogFromTo = (id, from, to) => {
 }
 
 export const addServerEmployee = (employee) => {
-	return request.post("/addEmployee", employee);
+	return request.post("/addEmployee", {
+		employee
+	});
 }
 
 export const setServerEmployeeWorking = (id, working) => {

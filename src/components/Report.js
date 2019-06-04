@@ -8,8 +8,7 @@ import BoostrapDatePicker from "./BoostrapDatePicker";
 
 import ContainerBox from "./ContainerBox";
 
-import { 
-	updateEmployees,
+import {
 	showEmployeeWorkLog
 } from "../actions/employeeActions";
 
@@ -635,7 +634,6 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
-		updateEmployees: (employees) => dispatch(updateEmployees(employees)),
 		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id))
 	};
 }

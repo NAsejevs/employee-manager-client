@@ -1,5 +1,6 @@
 import { 
 	UPDATE_EMPLOYEES,
+	UPDATE_EMPLOYEE,
 	SHOW_DELETE_EMPLOYEE, 
 	HIDE_DELETE_EMPLOYEE, 
 	SHOW_EDIT_EMPLOYEE, 
@@ -20,6 +21,14 @@ export const updateEmployees = (employees) => {
 	return {
 		type: UPDATE_EMPLOYEES,
 		payload: employees,
+	}
+}
+
+export const updateEmployee = (employee) => {
+	console.log("updateEmployee");
+	return {
+		type: UPDATE_EMPLOYEE,
+		payload: employee,
 	}
 }
 

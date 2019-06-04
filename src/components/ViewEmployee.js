@@ -3,7 +3,7 @@ import React from "react";
 import { Table, Modal, Dropdown, DropdownButton, Col, Row, Form } from "react-bootstrap";
 import BoostrapDatePicker from "./BoostrapDatePicker";
 
-import { showEmployeeWorkLog, hideEmployeeWorkLog } from "../actions/employeeActions";
+import { hideEmployeeWorkLog } from "../actions/employeeActions";
 
 import { getServerEmployee, getServerEmployeeWorkLog } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
@@ -330,7 +330,6 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
-		showEmployeeWorkLog: () => dispatch(showEmployeeWorkLog()),
 		hideEmployeeWorkLog: () => dispatch(hideEmployeeWorkLog()),
 	};
 }
