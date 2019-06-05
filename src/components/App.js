@@ -4,6 +4,8 @@ import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
 import { Container, Row, Col, Navbar, Nav, Spinner } from "react-bootstrap";
 
+import { employeeUpdateInterval } from "../utils/config";
+
 import Employees from "./Employees";
 import Report from "./Report";
 import RegisterEmployee from "./RegisterEmployee";
@@ -15,8 +17,6 @@ import ExportExcel from "./ExportExcel";
 import LogIn from "./LogIn";
 import CheckCard from "./CheckCard";
 import CommentEmployee from "./CommentEmployee";
-
-import { updateEmployees } from "../actions/employeeActions";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
@@ -88,7 +88,7 @@ class App extends React.Component {
 		storeUpdateEmployees();
 		setInterval(() => {
 			storeUpdateEmployees();
-		}, 5000);
+		}, employeeUpdateInterval);
 	}
 
 	logOut = () => {

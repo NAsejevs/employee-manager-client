@@ -4,7 +4,7 @@ import { Modal, Alert } from "react-bootstrap";
 
 import { showCheckCard, hideCheckCard, showEmployeeWorkLog } from "../actions/employeeActions";
 
-import { checkCard } from "../utils/employeeUtils";
+//import { checkCard } from "../utils/employeeUtils";
 
 class CheckCard extends React.Component {
 	constructor() {
@@ -18,18 +18,18 @@ class CheckCard extends React.Component {
 
 	checkCard = (status) => {
 		if(status) {
-			checkCard(status).then((res) => {
-				if(this.props.checkCard.show) {
-					this.hideModal();
-					this.props.showEmployeeWorkLog(res.data.id);
-				}
-			}).catch(() => {
-				if(this.props.checkCard.show) {
-					this.checkCard(status);
-				}
-			});
+			// checkCard(status).then((res) => {
+			// 	if(this.props.checkCard.show) {
+			// 		this.hideModal();
+			// 		this.props.showEmployeeWorkLog(res.data.id);
+			// 	}
+			// }).catch(() => {
+			// 	if(this.props.checkCard.show) {
+			// 		this.checkCard(status);
+			// 	}
+			// });
 		} else {
-			checkCard(status);
+			//checkCard(status);
 		}
 	}
 

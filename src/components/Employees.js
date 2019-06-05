@@ -16,6 +16,7 @@ import {
 } from "../actions/employeeActions";
 
 import {
+	storeUpdateEmployee,
 	getServerEmployeeWorkLogFromTo,
 	getEmployeeComments,
 	deleteEmployeeComment,
@@ -32,7 +33,6 @@ class Employees extends React.Component {
 		this.state = {
 			workLogUserId: null,
 			showWorkLogModal: false,
-			updateInterval: null,
 			tableData: [],
 			filter: {
 				type: "",
@@ -47,19 +47,7 @@ class Employees extends React.Component {
 	}
 
 	componentDidMount() {
-		//getEmployees();
-
-		this.setState({
-			updateInterval: (
-				setInterval(() => {
-					//getEmployees();
-				}, 1000)
-			),
-		});
-	}
-
-	componentWillUnmount() {
-		clearInterval(this.state.updateInterval);
+		this.onTableChange();
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -209,7 +197,9 @@ class Employees extends React.Component {
 								style={{ 
 									cursor: "pointer" 
 								}} 
-								onClick={() => deleteEmployeeComment(comment.id)}
+								onClick={() => deleteEmployeeComment(comment.id).then(() => {
+									storeUpdateEmployee(cell.id);
+								})}
 							/>
 						</Col>
 					</Row>

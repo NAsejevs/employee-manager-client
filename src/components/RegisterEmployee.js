@@ -4,7 +4,7 @@ import { Form, Button, Alert, Modal, Row, Col } from "react-bootstrap";
 
 import { showRegisterEmployee, hideRegisterEmployee } from "../actions/employeeActions";
 
-import { addServerEmployee, getServerEmployees, getServerEmployee, deleteServerEmployee, addCard } from "../utils/employeeUtils";
+import { storeUpdateEmployees, addServerEmployee, getServerEmployee, deleteServerEmployee, addCard } from "../utils/employeeUtils";
 
 const REGISTER_STATE = {
 	DATA_INPUT: 0,
@@ -70,10 +70,11 @@ class RegisterEmployee extends React.Component {
 		if(this.state.registrationState === REGISTER_STATE.DATA_INPUT) {
 			if(this.state.addCard) {
 				addServerEmployee(employee).then((res) => {
+					storeUpdateEmployees();
 					const newEmployee = res.data;
 					let checkInterval = null;
 
-					addCard(newEmployee.id);
+					//addCard(newEmployee.id);
 	
 					if(newEmployee) {
 						this.setState({
@@ -98,6 +99,7 @@ class RegisterEmployee extends React.Component {
 				});
 			} else {
 				addServerEmployee(employee).then((res) => {
+					storeUpdateEmployees();
 					if(res.data) {
 						this.setState({ 
 							registrationState: REGISTER_STATE.COMPLETE,
@@ -210,8 +212,6 @@ class RegisterEmployee extends React.Component {
 							checked={this.state.addCard}
 							onChange={this.onAddCardChange}/>
 					</Form.Group>
-
-					<p><em>Obligāti jānorāda lauki, kas atzīmēti ar *</em></p>
 
 					<Alert variant={"primary"} show={this.state.registrationState === REGISTER_STATE.RFID_WAIT} onClose={() => null}>
 						Noskenējiet vēlamo kartiņu.

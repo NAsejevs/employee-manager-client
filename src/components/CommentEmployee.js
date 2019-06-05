@@ -5,7 +5,7 @@ import BoostrapDatePicker from "./BoostrapDatePicker";
 
 import { showCommentEmployee, hideCommentEmployee } from "../actions/employeeActions";
 
-import { addEmployeeComment } from "../utils/employeeUtils";
+import { storeUpdateEmployee, addEmployeeComment } from "../utils/employeeUtils";
 
 class CommentEmployee extends React.Component {
 	constructor(props) {
@@ -107,7 +107,10 @@ class CommentEmployee extends React.Component {
 
 				<Modal.Footer>
 					<Button variant="success" onClick={() => {
-						addEmployeeComment(this.props.employee, this.state.comment);
+						const employeeId = this.props.employee.id;
+						addEmployeeComment(this.props.employee, this.state.comment).then(() => {
+							storeUpdateEmployee(employeeId);
+						});
 						this.props.hideCommentEmployee();
 					}}>
 						Pievienot

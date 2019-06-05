@@ -3,13 +3,13 @@ import store from "../store/store";
 import { updateEmployees, updateEmployee } from "../actions/employeeActions";
 
 export const storeUpdateEmployees = () => {
-	getServerEmployees().then((res) => {
+	return getServerEmployees().then((res) => {
 		store.dispatch(updateEmployees(res.data));
 	});
 }
 
 export const storeUpdateEmployee = (id) => {
-	getServerEmployee(id).then((res) => {
+	return getServerEmployee(id).then((res) => {
 		store.dispatch(updateEmployee(res.data));
 	});
 }
@@ -89,38 +89,6 @@ export const exportServerEmployees = (settings) => {
 	});
 }
 
-export const cardScanned = (uid) => {
-	return request.post("/cardScanned", { 
-		uid: uid 
-	});
-}
-
-export const checkCard = (status) => {
-	return request.post("/checkCard", { 
-		status 
-	}, {
-		timeout: 1000,
-	});
-}
-
-export const addCard = (id) => {
-	return request.post("/addCard", {
-		id
-	});
-}
-
-export const changeCard = (id) => {
-	return request.post("/changeCard", {
-		id
-	});
-}
-
-export const deleteCard = (id) => {
-	return request.post("/deleteCard", {
-		id
-	});
-}
-
 export const addEmployeeComment = (employee, comment) => {
 	return request.post("/addEmployeeComment", {
 		employee,
@@ -139,12 +107,29 @@ export const deleteEmployeeComment = (commentId) => {
 		commentId,
 	});
 }
-// ---------------------------------------
 
-export const setEmployeeWorking = (id, working, callback) => {
-	setServerEmployeeWorking(id, working).then(() => {
-		getServerEmployees().then((res) => {
-			callback(res);
-		});
+// ------------ Card manipulation ------------
+
+export const cardScanned = (uid) => {
+	return request.post("/cardScanned", { 
+		uid: uid,
+		admin: 1,
 	});
+}
+
+export const setEmployeeUID = (uid, id) => {
+	return request.post("/setEmployeeUID", {
+		uid,
+		id
+	});
+}
+
+export const removeEmployeeUID = (id) => {
+	return request.post("/removeEmployeeUID", {
+		id
+	});
+}
+
+export const awaitCard = () => {
+	return request.post("/awaitCard");
 }

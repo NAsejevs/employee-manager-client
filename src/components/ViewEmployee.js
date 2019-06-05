@@ -3,6 +3,8 @@ import React from "react";
 import { Table, Modal, Dropdown, DropdownButton, Col, Row, Form } from "react-bootstrap";
 import BoostrapDatePicker from "./BoostrapDatePicker";
 
+import { workLogUpdateInterval } from "../utils/config";
+
 import { hideEmployeeWorkLog } from "../actions/employeeActions";
 
 import { getServerEmployee, getServerEmployeeWorkLog } from "../utils/employeeUtils";
@@ -62,7 +64,7 @@ class ViewEmployee extends React.Component {
 			updateInterval: setInterval(() => {
 				getServerEmployee(this.props.employeeWorkLog.id).then((res) => {
 					this.setState({
-						employee: res.data
+						employee: res.data 
 					});
 				});
 
@@ -71,7 +73,7 @@ class ViewEmployee extends React.Component {
 						workLog: res.data
 					});
 				});
-			}, 5000)
+			}, workLogUpdateInterval)
 		});
 	}
 

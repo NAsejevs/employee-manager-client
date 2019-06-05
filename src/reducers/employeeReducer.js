@@ -27,24 +27,13 @@ export const employees = (state = initialState, action) => {
 				employees: [...action.payload],
 			}
 		case UPDATE_EMPLOYEE: {
-			console.log("old state", state);
-
-			const newState = { ...state };
-			newState.employees.forEach((employee, index) => {
-				console.log("old employee: ", employee);
-				console.log("new employee: ", action.payload);
-				if(employee.id === action.payload.id) {
-					console.log("assigning");
-					newState.employees[index] = {
-						...action.payload
-					}
-				}
-			});
-
-			console.log("new state", newState);
-
 			return {
-				...newState
+				...state,
+				employees: state.employees.map((employee) => {
+					return employee.id === action.payload.id
+					? action.payload
+					: employee
+				})
 			}
 		}
 		case SHOW_EMPLOYEE_WORK_LOG:

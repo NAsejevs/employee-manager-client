@@ -4,12 +4,23 @@ import { Modal, Button, Form, Row, Col, Alert } from "react-bootstrap";
 
 import { showEditEmployee, hideEditEmployee } from "../actions/employeeActions";
 
-import { storeUpdateEmployees, editServerEmployee, changeCard, deleteCard, getServerEmployee } from "../utils/employeeUtils";
+import {
+	setEmployeeUID,
+	removeEmployeeUID,
+	awaitCard,
+	storeUpdateEmployee,
+	editServerEmployee,
+} from "../utils/employeeUtils";
+
+import {
+	addZero
+} from "../utils/commonUtils";
 
 const CHANGE_CARD_STATE = {
 	OFF: 0,
 	RFID_WAIT: 1,
 	COMPLETE: 2,
+	DELETED: 3,
 }
 
 class EditEmployee extends React.Component {
@@ -23,10 +34,10 @@ class EditEmployee extends React.Component {
 				personalCode: "",
 				position: "",
 				number: "",
-				uid: "",
-				changeCard: {
-					status: 0,
-				}
+				uid: ""
+			},
+			changeCard: {
+				status: 0,
 			}
 		}
 
@@ -36,19 +47,10 @@ class EditEmployee extends React.Component {
 	}
 
 	onEnter = () => {
-		this.setState({ 
+		this.setState({
 			employee: {
 				...this.state.employee,
-				id: this.props.editEmployee.employee.id,
-				name: this.props.editEmployee.employee.name,
-				surname: this.props.editEmployee.employee.surname,
-				personalCode: this.props.editEmployee.employee.personalCode,
-				position: this.props.editEmployee.employee.position,
-				number: this.props.editEmployee.employee.number,
-				uid: this.props.editEmployee.employee.uid,
-				changeCard: {
-					status: 0,
-				}
+				...this.props.editEmployee.employee,
 			}
 		});
 	}
@@ -107,52 +109,54 @@ class EditEmployee extends React.Component {
 
 	changeCard = (id) => {
 		this.setState({
-			employee: {
-				...this.state.employee,
-				changeCard: {
-					...this.state.employee.changeCard,
-					status: CHANGE_CARD_STATE.RFID_WAIT
-				}
+			changeCard: {
+				status: CHANGE_CARD_STATE.RFID_WAIT
 			}
 		});
-		changeCard(id).then((res) => {
-			if(this.props.editEmployee.show) {
+
+		awaitCard().then((res) => {
+			setEmployeeUID(res.data.uid, id).then(() => {
+				storeUpdateEmployee(id);
+
 				this.setState({
 					employee: {
 						...this.state.employee,
-						changeCard: {
-							...this.state.employee.changeCard,
-							status: CHANGE_CARD_STATE.COMPLETE
-						}
+						uid: res.data.uid,
+						uid_added: new Date(),
+					},
+					changeCard: {
+						status: CHANGE_CARD_STATE.COMPLETE
 					}
 				});
-				this.updateUID(id);
-			}
-		}).catch(() => {
-			if(this.props.editEmployee.show) {
-				this.checkCard(id);
-			}
+
+			});
 		});
 	}
 
 	deleteCard = (id) => {
-		deleteCard(id).then(() => {
-			this.updateUID(id);
-		});
-	}
+		removeEmployeeUID(id).then(() => {
+			storeUpdateEmployee(id);
 
-	updateUID = (id) => {
-		getServerEmployee(id).then((res) => {
-			this.setState({ 
+			this.setState({
 				employee: {
 					...this.state.employee,
-					uid: res.data.uid,
+					uid: "NAV",
+					uid_added: null,
+				},
+				changeCard: {
+					status: CHANGE_CARD_STATE.DELETED
 				}
 			});
 		});
 	}
 
 	render() {
+		const uidAddedDate = new Date(this.state.employee.uid_added);
+		const uidAdded = 
+			addZero(uidAddedDate.getDate()) + "." 
+			+ addZero(uidAddedDate.getMonth() + 1) + "." 
+			+ addZero(uidAddedDate.getFullYear());
+
 		return (
 			<Modal 
 				show={this.props.editEmployee.show}
@@ -207,10 +211,18 @@ class EditEmployee extends React.Component {
 						</Col>
 					</Form.Group>
 
+					{
+						this.state.employee.uid_added
+						? <Form.Group as={Row}>
+							<Form.Label column>Karte reģistrēta: { uidAdded }</Form.Label>
+						</Form.Group>
+						: null
+					}
+
 					<Alert 
 						variant={"primary"} 
 						show={
-							this.state.employee.changeCard.status === CHANGE_CARD_STATE.RFID_WAIT
+							this.state.changeCard.status === CHANGE_CARD_STATE.RFID_WAIT
 						} 
 						onClose={() => null}
 					>
@@ -220,18 +232,29 @@ class EditEmployee extends React.Component {
 					<Alert 
 						variant={"success"} 
 						show={
-							this.state.employee.changeCard.status === CHANGE_CARD_STATE.COMPLETE
+							this.state.changeCard.status === CHANGE_CARD_STATE.COMPLETE
 						} 
 						onClose={() => null}
 					>
-						Darbiniekam veiksmīgi nomainīta karte.
+						Darbiniekam karte nomainīta.
+					</Alert>
+
+					<Alert 
+						variant={"danger"} 
+						show={
+							this.state.changeCard.status === CHANGE_CARD_STATE.DELETED
+						} 
+						onClose={() => null}
+					>
+						Darbinieka karte dzēsta.
 					</Alert>
 				</Modal.Body>
 
 				<Modal.Footer>
 					<Button variant="success" onClick={() => {
+						const employeeId = this.state.employee.id;
 						editServerEmployee(this.state.employee).then(() => {
-							storeUpdateEmployees();
+							storeUpdateEmployee(employeeId);
 						});
 						this.props.hideEditEmployee();
 					}}>

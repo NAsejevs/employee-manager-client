@@ -11,7 +11,8 @@ import {
 import { 
 	setServerEmployeeWorking, 
 	setServerEmployeeArchived, 
-	setServerEmployeeActive
+	setServerEmployeeActive,
+	storeUpdateEmployee
 } from "../utils/employeeUtils";
 
 import { FiMoreHorizontal, FiTrash, FiEdit,FiArchive, FiX,FiCheck } from "react-icons/fi";
@@ -38,14 +39,18 @@ const Commands = (props) => {
 						</Dropdown.Item>
 						<Dropdown.Item 
 							eventKey="2"
-							onClick={() => setServerEmployeeArchived(props.employee.id, !props.employee.archived)}
+							onClick={() => setServerEmployeeArchived(props.employee.id, !props.employee.archived).then(() => {
+								storeUpdateEmployee(props.employee.id);
+							})}
 						>
 							<FiArchive height="100%" width="auto" className="mr-2 mb-1"/>
 							{ props.employee.archived ? "Izņemt no arhīva" : "Arhivēt" }
 						</Dropdown.Item>
 						<Dropdown.Item 
 							eventKey="3"
-							onClick={() => setServerEmployeeActive(props.employee.id, !props.employee.active)}
+							onClick={() => setServerEmployeeActive(props.employee.id, !props.employee.active).then(() => {
+								storeUpdateEmployee(props.employee.id);
+							})}
 						>
 							{ 
 								props.employee.active 
@@ -85,7 +90,9 @@ const Commands = (props) => {
 					}
 				>
 					<Button
-						onClick={() => setServerEmployeeWorking(props.employee.id, !props.employee.working)}
+						onClick={() => setServerEmployeeWorking(props.employee.id, !props.employee.working).then(() => {
+							storeUpdateEmployee(props.employee.id);
+						})}
 						variant={props.employee.working ? "danger" : "success"}
 					>
 

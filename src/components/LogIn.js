@@ -6,7 +6,7 @@ import { authenticate } from "../utils/userUtils";
 
 import logo from "../images/logo.png";
 
-const DEBUG = false;
+const DEBUG = true;
 
 class LogIn extends React.Component {
 	constructor() {

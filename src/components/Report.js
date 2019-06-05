@@ -32,7 +32,6 @@ class Employees extends React.Component {
 		this.state = {
 			workLogUserId: null,
 			showWorkLogModal: false,
-			updateInterval: null,
 			tableData: [],
 			filter: {
 				type: "",
@@ -53,19 +52,7 @@ class Employees extends React.Component {
 	}
 
 	componentDidMount() {
-		//getEmployees();
-
-		this.setState({
-			updateInterval: (
-				setInterval(() => {
-					//getEmployees();
-				}, 5000)
-			),
-		});
-	}
-
-	componentWillUnmount() {
-		clearInterval(this.state.updateInterval);
+		this.onTableChange();
 	}
 
 	componentDidUpdate(prevProps, prevState) {

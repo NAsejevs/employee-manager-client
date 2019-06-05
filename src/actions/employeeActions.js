@@ -25,7 +25,6 @@ export const updateEmployees = (employees) => {
 }
 
 export const updateEmployee = (employee) => {
-	console.log("updateEmployee");
 	return {
 		type: UPDATE_EMPLOYEE,
 		payload: employee,
