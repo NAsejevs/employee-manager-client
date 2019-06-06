@@ -150,7 +150,9 @@ class ViewEmployee extends React.Component {
 
 	render() {
 		let filterResults = 0;
-		let lastDate = null;
+		let lastStartDate = null;
+		let totalDayWorkTime = 0;
+		let totalWorkTile = 0;
 		const workLog = this.state.workLog
 		.filter((log) => {
 			// Filter out all rows which do not match the date
@@ -177,6 +179,7 @@ class ViewEmployee extends React.Component {
 				+ addZero(endTimePure.getMinutes());
 
 			const workTime = millisecondConverter(endTimePure - startTimePure);
+			totalDayWorkTime += (endTimePure - startTimePure);
 			const workTimeFormatted =
 				+ workTime.hours + " st. "
 				+ workTime.minutes + " min. ";
@@ -187,6 +190,7 @@ class ViewEmployee extends React.Component {
 
 			const workRow = (
 				<tr className="text-center" style={stillWorking ? workingStyle : null}>
+					<td></td>
 					<td>{startTimeFormatted}</td>
 					<td>{endTimeFormatted}</td>
 					<td>{workTimeFormatted}</td>
@@ -194,9 +198,10 @@ class ViewEmployee extends React.Component {
 			);
 
 			let dateRow = null;
+			let totalRow = null;
 
-			if(lastDate === null || lastDate !== startTimePure.getDate()) {
-				lastDate = startTimePure.getDate();
+			if(lastStartDate === null || lastStartDate !== startTimePure.getDate()) {
+				lastStartDate = startTimePure.getDate();
 
 				const startDateFormatted =
 					  addZero(startTimePure.getDate()) + "." 
@@ -205,15 +210,44 @@ class ViewEmployee extends React.Component {
 
 				dateRow = (
 					<tr className="bg-dark text-light">
-						<td colSpan={3}>{startDateFormatted}</td>
+						<td style={{ width: "100px" }}><b>{startDateFormatted}</b></td>
+						<td></td>
+						<td></td>
+						<td></td>
 					</tr>
 				);
+			}
+
+			let nextStartDate = null;
+
+			if(this.state.workLog[index + 1]) {
+				nextStartDate = new Date(this.state.workLog[index + 1].start_time).getDate();
+			}
+
+			if(nextStartDate !== startTimePure.getDate()) {
+				const totalDayWorkTimeConverted = millisecondConverter(totalDayWorkTime);
+
+				const totalDayWorkTimeFormatted =
+				+ totalDayWorkTimeConverted.hours + " st. "
+				+ totalDayWorkTimeConverted.minutes + " min. ";
+
+				totalRow = (
+					<tr className="bg-light text-dark">
+						<td><b>KOPĀ</b></td>
+						<td></td>
+						<td></td>
+						<td className="text-center"><b>{totalDayWorkTimeFormatted}</b></td>
+					</tr>
+				);
+
+				totalDayWorkTime = 0;
 			}
 
 			return (
 				<tbody key={index}>
 					{dateRow}
 					{workRow}
+					{totalRow}
 				</tbody>
 			);
 		});
@@ -240,10 +274,15 @@ class ViewEmployee extends React.Component {
 						</Row>
 						<Row>
 							<Col>
+								<h5 className="text-secondary">{this.state.employee.company}</h5>
+							</Col>
+						</Row>
+						<Row>
+							<Col>
 								<h5 className="text-secondary">{this.state.employee.position}</h5>
 							</Col>
-							<Col>
-								<h5 className="text-secondary float-right">
+							<Col className="text-right">
+								<h5 className="text-secondary">
 									{this.state.employee.number
 										? "Tel. " + this.state.employee.number
 										: null
@@ -305,6 +344,7 @@ class ViewEmployee extends React.Component {
 						<Table size="sm">
 							<thead>
 								<tr className="text-center">
+									<th></th>
 									<th>Ienāca</th>
 									<th>Izgāja</th>
 									<th>Nostrādāja</th>

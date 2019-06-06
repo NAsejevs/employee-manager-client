@@ -113,7 +113,7 @@ export const deleteEmployeeComment = (commentId) => {
 export const cardScanned = (uid) => {
 	return request.post("/cardScanned", { 
 		uid: uid,
-		admin: 1,
+		admin: 0,
 	});
 }
 

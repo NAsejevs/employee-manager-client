@@ -116,7 +116,7 @@ class App extends React.Component {
 				// User interface
 				return (
 					<Router>
-						<Container>
+						<Container fluid={true}>
 							<Row>
 								<Col>
 									<Navbar bg="dark" variant="dark" fixed="top" expand="md">

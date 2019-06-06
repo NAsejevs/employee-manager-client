@@ -25,11 +25,11 @@ const CommandButton = forwardRef((props, ref) => {
 
 const Commands = (props) => {
 	return (
-		<Row className="float-right">
-			<Col xs="6">
+		<Row className="justify-content-end">
+			<Col xs="auto" className="d-inline-block">
 				<Dropdown>
-					<Dropdown.Toggle as={CommandButton} id="dropdown-custom-components"/>
-					<Dropdown.Menu>
+					<Dropdown.Toggle as={CommandButton}/>
+					<Dropdown.Menu flip={true} alignRight={true}>
 						<Dropdown.Item 
 							eventKey="1"
 							onClick={() => props.showEditEmployee(props.employee)}
@@ -80,7 +80,7 @@ const Commands = (props) => {
 					</Dropdown.Menu>
 				</Dropdown>
 			</Col>
-			<Col xs="6">
+			<Col xs="auto" className="d-inline-block">
 				<OverlayTrigger
 					placement={"top"}
 					overlay={

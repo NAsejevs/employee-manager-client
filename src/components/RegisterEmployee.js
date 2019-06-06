@@ -16,17 +16,22 @@ class RegisterEmployee extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {
+		this.initialState = {
 			registrationState: REGISTER_STATE.DATA_INPUT,
 			checkInterval: null,
 			newEmployee: {},
 			name: "",
 			surname: "",
+			company: 'SIA "Vārpas 1"',
 			position: "",
 			number: "",
 			personalCode: "",
 			addCard: true,
-			uid: "",
+			uid: ""
+		}
+
+		this.state = {
+			...this.initialState
 		}
 	}
 
@@ -37,6 +42,10 @@ class RegisterEmployee extends React.Component {
 
 	onSurnameChange = (event) => {
 		this.setState({ surname: event.target.value });
+	}
+
+	onCompanyChange = (event) => {
+		this.setState({ company: event.target.value });
 	}
 
 	onPositionChange = (event) => {
@@ -62,6 +71,7 @@ class RegisterEmployee extends React.Component {
 		const employee = {
 			name: this.state.name,
 			surname: this.state.surname,
+			company: this.state.company,
 			position: this.state.position,
 			number: this.state.number,
 			personalCode: this.state.personalCode,
@@ -121,15 +131,7 @@ class RegisterEmployee extends React.Component {
 
 	onExited = () => {
 		this.setState({
-			registrationState: REGISTER_STATE.DATA_INPUT,
-			checkInterval: null,
-			newEmployee: {},
-			name: "",
-			surname: "",
-			position: "",
-			number: "",
-			personalCode: "",
-			uid: "",
+			...this.initialState
 		});
 	}
 
@@ -174,14 +176,42 @@ class RegisterEmployee extends React.Component {
 						</Col>
 					</Row>
 
+					<Row>
+						<Col>
+							<Form.Group>
+								<Form.Label>Personas Kods</Form.Label>
+								<Form.Control 
+									disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
+									value={this.state.personalCode} 
+									onChange={this.onPersonalCodeChange}
+									placeholder="Personas Kods"
+								/>
+							</Form.Group>
+						</Col>
+						<Col>
+							<Form.Group>
+								<Form.Label>Telefona Numurs</Form.Label>
+								<Form.Control 
+									disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
+									value={this.state.number} 
+									onChange={this.onNumberChange}
+									placeholder="Telefona Numurs"
+								/>
+							</Form.Group>
+						</Col>
+					</Row>
+
 					<Form.Group>
-						<Form.Label>Personas Kods</Form.Label>
+						<Form.Label>Uzņēmums</Form.Label>
 						<Form.Control 
-							disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
-							value={this.state.personalCode} 
-							onChange={this.onPersonalCodeChange}
-							placeholder="123456-12345"
-						/>
+							as="select"
+							disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT}  
+							onChange={this.onCompanyChange}
+						>
+							<option>SIA "Vārpas 1"</option>
+							<option>SIA "Adeptus Renewable Energy"</option>
+							<option>SIA "Valkas koks"</option>
+						</Form.Control>
 					</Form.Group>
 
 					<Form.Group>
@@ -194,20 +224,10 @@ class RegisterEmployee extends React.Component {
 						/>
 					</Form.Group>
 
-					<Form.Group>
-						<Form.Label>Telefona Numurs</Form.Label>
-						<Form.Control 
-							disabled={this.state.registrationState !== REGISTER_STATE.DATA_INPUT} 
-							value={this.state.number} 
-							onChange={this.onNumberChange}
-							placeholder="Telefona Numurs"
-						/>
-					</Form.Group>
-
 					<Form.Group controlId="formBasicChecbox">
 						<Form.Check 
 							type="checkbox" 
-							label="Pievienot NFC karti"
+							label="Turpināt reģistrāciju pievienojot NFC karti"
 							name="addCard"
 							checked={this.state.addCard}
 							onChange={this.onAddCardChange}/>

@@ -42,7 +42,8 @@ class Employees extends React.Component {
 			showArchive: false,
 			showInactive: false,
 			nameFilter: "",
-			positionFilter: ""
+			positionFilter: "",
+			companyFilter: ""
 		}
 	}
 
@@ -55,7 +56,8 @@ class Employees extends React.Component {
 			|| prevState.showArchive !== this.state.showArchive
 			|| prevState.showInactive !== this.state.showInactive
 			|| prevState.nameFilter !== this.state.nameFilter
-			|| prevState.positionFilter !== this.state.positionFilter) {
+			|| prevState.positionFilter !== this.state.positionFilter
+			|| prevState.companyFilter !== this.state.companyFilter) {
 			this.onTableChange();
 		}
 	}
@@ -63,7 +65,9 @@ class Employees extends React.Component {
 	onTableChange = () => {
 		this.formatTable(() => {
 			this.applyNameFilter(() => {
-				this.applyPositionFilter();
+				this.applyPositionFilter(() => {
+					this.applyCompanyFilter();
+				});
 			});
 		});
 	}
@@ -71,6 +75,20 @@ class Employees extends React.Component {
 	applyNameFilter = (callback = () => null) => {
 		const result = this.state.tableData.filter((row) => {
 			return (row.name.name + " " + row.name.surname).toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
+		});
+
+		this.setState({
+			tableData: result
+		}, callback);
+	}
+
+	applyCompanyFilter = (callback = () => null) => {
+		const result = this.state.tableData.filter((row) => {
+
+			console.log(row.company);
+			const company = row.company ? row.company : "";
+
+			return (company).toString().toLowerCase().indexOf(this.state.companyFilter.toLowerCase()) > -1;
 		});
 
 		this.setState({
@@ -113,6 +131,7 @@ class Employees extends React.Component {
 					return({
 						id: employee.id,
 						position: employee.position ? employee.position.toString() : null,
+						company: employee.company ? employee.company.toString() : null,
 						name: {
 							id: employee.id,
 							name: employee.name,
@@ -158,6 +177,10 @@ class Employees extends React.Component {
 		this.setState({ positionFilter: e.target.value });
 	}
 
+	onChangeCompanyFilter = (e) => {
+		this.setState({ companyFilter: e.target.value });
+	}
+
 	clearAllFilters = () => {
 		const startDate = new Date();
 		startDate.setHours(0,0,0);
@@ -168,6 +191,7 @@ class Employees extends React.Component {
 		this.setState({
 			nameFilter: "",
 			positionFilter: "",
+			companyFilter: "",
 			showArchive: false,
 			showInactive: false,
 			startDate: startDate,
@@ -246,6 +270,14 @@ class Employees extends React.Component {
 			);
 		};
 
+		const companyFormatter = (cell, row) => {
+			return (
+				<span className="d-none d-md-inline-block text-truncate" style={{ maxWidth: "125px" }}>
+					{cell}
+				</span>
+			);
+		}
+
 		const todayFormatter = (cell, row) => {
 			let badges = [];
 			let totalWorkTime = 0;
@@ -290,21 +322,21 @@ class Employees extends React.Component {
 				// Each work log entry formatted and applied in HTML format
 				badges.push(
 					<Row key={index} style={{ fontSize: "14px" }}>
-						<Col xs="4">
-							<span>
-								Ienāca: {workTimeStartFormatted}
-							</span>
-						</Col>
-						<Col xs="4">
-							{
-								cell.working && index === cell.workLogs.length - 1
-								? null
-								: <span>
-									Izgāja: {workTimeEndFormatted}
+						<Col>
+							<nobr>
+								<span>
+									{workTimeStartFormatted}
 								</span>
-							}
+								{
+									cell.working && index === cell.workLogs.length - 1
+									? null
+									: <span>
+										&#8594; {workTimeEndFormatted}
+									</span>
+								}
+							</nobr>
 						</Col>
-						<Col xs="4" className="text-center">
+						<Col className="text-center">
 							{
 								workTimeFormatted !== null
 								? <span>
@@ -325,11 +357,9 @@ class Employees extends React.Component {
 
 				badges.push(
 					<Row key={badges.length} style={{ fontSize: "14px" }}>
-						<Col xs="4">
+						<Col>
 						</Col>
-						<Col xs="4">
-						</Col>
-						<Col xs="4" className="text-center" style={{ borderTop: "solid 1px" }}>
+						<Col className="text-center" style={{ borderTop: "solid 1px" }}>
 							{
 								totalWorkTimeFormatted !== null
 								? <span>
@@ -355,6 +385,8 @@ class Employees extends React.Component {
 			dataField: "id",
 			text: "#",
 			sort: true,
+			classes: "align-middle d-none d-md-table-cell",
+			headerClasses: "d-none d-md-table-cell",
 			// hidden: true,
 		}, {
 			dataField: "name",
@@ -370,6 +402,20 @@ class Employees extends React.Component {
 			},
 			classes: "align-middle",
 			formatter: nameFormatter,
+		}, {
+			dataField: "company",
+			text: "Uzņēmums",
+			sort: true,
+			classes: "align-middle d-none d-lg-table-cell",
+			headerClasses: "d-none d-lg-table-cell",
+			formatter: companyFormatter
+		}, {
+			dataField: "position",
+			text: "Amats",
+			sort: true,
+			classes: "align-middle d-none d-lg-table-cell",
+			headerClasses: "d-none d-lg-table-cell",
+			formatter: companyFormatter
 		}, {
 			dataField: "today",
 			text: "Šodien",
@@ -397,7 +443,6 @@ class Employees extends React.Component {
 		}, {
 			dataField: "commands",
 			text: "",
-			classes: "align-middle",
 			formatter: commandFormatter
 		}];
 
@@ -527,6 +572,16 @@ class Employees extends React.Component {
 								/>
 								<Form.Text>
 									Meklēt darbinieku pēc amata
+								</Form.Text>
+							</Form.Group>
+							<Form.Group>
+								<Form.Control
+									placeholder="Uzņēmums..."
+									onChange={this.onChangeCompanyFilter}
+									value={this.state.companyFilter}
+								/>
+								<Form.Text>
+									Meklēt darbinieku pēc uzņēmuma
 								</Form.Text>
 							</Form.Group>
 							<Button 

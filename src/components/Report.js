@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import React from "react";
 
-import { DropdownButton, Form, Button, Row, Col, Dropdown } from "react-bootstrap";
+import { DropdownButton, Form, Button, Row, Col, Dropdown, Collapse, Badge } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import BoostrapDatePicker from "./BoostrapDatePicker";
@@ -17,6 +17,8 @@ import {
 	getEmployeeComments,
 } from "../utils/employeeUtils";
 import { addZero, millisecondConverter } from "../utils/commonUtils";
+
+import { FiMinimize2, FiMaximize2, FiUser } from "react-icons/fi";
 
 class Employees extends React.Component {
 
@@ -42,6 +44,7 @@ class Employees extends React.Component {
 			showInactive: false,
 			nameFilter: "",
 			positionFilter: "",
+			companyFilter: "",
 			startDate: startDate,
 			endDate: endDate,
 			dropdown: {
@@ -61,6 +64,7 @@ class Employees extends React.Component {
 			|| prevState.showInactive !== this.state.showInactive
 			|| prevState.nameFilter !== this.state.nameFilter
 			|| prevState.positionFilter !== this.state.positionFilter
+			|| prevState.companyFilter !== this.state.companyFilter
 			|| prevState.startDate !== this.state.startDate
 			|| prevState.endDate !== this.state.endDate) {
 			this.onTableChange();
@@ -129,7 +133,9 @@ class Employees extends React.Component {
 	onTableChange = () => {
 		this.formatTable(() => {
 			this.applyNameFilter(() => {
-				this.applyPositionFilter();
+				this.applyPositionFilter(() => {
+					this.applyCompanyFilter();
+				});
 			});
 		});
 	}
@@ -149,6 +155,20 @@ class Employees extends React.Component {
 			const position = row.position ? row.position : "";
 
 			return (position).toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
+		});
+
+		this.setState({
+			tableData: result
+		}, callback);
+	}
+
+	applyCompanyFilter = (callback = () => null) => {
+		const result = this.state.tableData.filter((row) => {
+
+			console.log(row.company);
+			const company = row.company ? row.company : "";
+
+			return (company).toString().toLowerCase().indexOf(this.state.companyFilter.toLowerCase()) > -1;
 		});
 
 		this.setState({
@@ -177,6 +197,7 @@ class Employees extends React.Component {
 					return({
 						id: employee.id,
 						position: employee.position ? employee.position.toString() : null,
+						company: employee.company ? employee.company.toString() : null,
 						name: {
 							id: employee.id,
 							name: employee.name,
@@ -224,6 +245,10 @@ class Employees extends React.Component {
 		this.setState({ positionFilter: e.target.value });
 	}
 
+	onChangeCompanyFilter = (e) => {
+		this.setState({ companyFilter: e.target.value });
+	}
+
 	clearAllFilters = () => {
 		const startDate = new Date();
 		startDate.setHours(0,0,0);
@@ -234,6 +259,7 @@ class Employees extends React.Component {
 		this.setState({
 			nameFilter: "",
 			positionFilter: "",
+			companyFilter: "",
 			showArchive: false,
 			showInactive: false,
 			startDate: startDate,
@@ -250,6 +276,7 @@ class Employees extends React.Component {
 			return (
 				<div>
 					<nobr>
+						<FiUser/>
 						<Button 
 							variant="link" 
 							onClick={() => this.props.showEmployeeWorkLog(cell.id)}
@@ -261,6 +288,14 @@ class Employees extends React.Component {
 				</div>
 			);
 		};
+
+		const companyFormatter = (cell, row) => {
+			return (
+				<span className="d-none d-md-inline-block text-truncate" style={{ maxWidth: "125px" }}>
+					{cell}
+				</span>
+			);
+		}
 
 		const todayFormatter = (cell, row) => {
 			let badges = [];
@@ -309,21 +344,21 @@ class Employees extends React.Component {
 					// Each work log entry formatted and applied in HTML format
 					badges.push(
 						<Row key={index} style={{ fontSize: "14px" }}>
-							<Col xs="4">
-								<span>
-									Ienāca: {workTimeStartFormatted}
-								</span>
-							</Col>
-							<Col xs="4">
-								{
-									cell.working && index === cell.workLogs.length - 1
-									? null
-									: <span>
-										Izgāja: {workTimeEndFormatted}
+							<Col>
+								<nobr>
+									<span>
+										{workTimeStartFormatted}
 									</span>
-								}
+									{
+										cell.working && index === cell.workLogs.length - 1
+										? null
+										: <span>
+											&#8594; {workTimeEndFormatted}
+										</span>
+									}
+								</nobr>
 							</Col>
-							<Col xs="4" className="text-center">
+							<Col className="text-center">
 								{
 									workTimeFormatted !== null
 									? <span>
@@ -345,11 +380,9 @@ class Employees extends React.Component {
 
 				badges.push(
 					<Row key={badges.length} style={{ fontSize: "14px" }}>
-						<Col xs="4">
+						<Col>
 						</Col>
-						<Col xs="4">
-						</Col>
-						<Col xs="4" className="text-center" style={{ borderTop: "solid 1px" }}>
+						<Col className="text-center" style={{ borderTop: "solid 1px" }}>
 							{
 								totalWorkTimeFormatted !== null
 								? <span>
@@ -404,6 +437,7 @@ class Employees extends React.Component {
 			dataField: "id",
 			text: "#",
 			sort: true,
+			classes: "align-middle",
 			// hidden: true,
 		}, {
 			dataField: "name",
@@ -420,22 +454,38 @@ class Employees extends React.Component {
 			classes: "align-middle",
 			formatter: nameFormatter,
 		}, {
+			dataField: "company",
+			text: "Uzņēmums",
+			sort: true,
+			classes: "align-middle d-none d-lg-table-cell",
+			headerClasses: "d-none d-lg-table-cell",
+			formatter: companyFormatter
+		}, {
+			dataField: "position",
+			text: "Amats",
+			sort: true,
+			classes: "align-middle d-none d-lg-table-cell",
+			headerClasses: "d-none d-lg-table-cell",
+			formatter: companyFormatter
+		}, {
 			dataField: "today",
 			text: dateRange,
 			sort: true,
 			sortFunc: (a, b, order) => {
-				const aData = a.working
-				? new Date(a.workLogs[a.workLogs.length - 1].start_time)
-				: new Date(a.workLogs[a.workLogs.length - 1].end_time);
+				if(a.workLogs.length && b.workLogs.length) {
+					const aData = a.working
+					? new Date(a.workLogs[a.workLogs.length - 1].start_time)
+					: new Date(a.workLogs[a.workLogs.length - 1].end_time);
 
-				const bData = b.working
-				? new Date(b.workLogs[b.workLogs.length - 1].start_time)
-				: new Date(b.workLogs[b.workLogs.length - 1].end_time);
+					const bData = b.working
+					? new Date(b.workLogs[b.workLogs.length - 1].start_time)
+					: new Date(b.workLogs[b.workLogs.length - 1].end_time);
 
-				if(aData > bData) {
-					return order === "asc" ? 1 : -1;
-				} else if(aData < bData) {
-					return order === "asc" ? -1 : 1;
+					if(aData > bData) {
+						return order === "asc" ? 1 : -1;
+					} else if(aData < bData) {
+						return order === "asc" ? -1 : 1;
+					}
 				}
 				return 0;
 			},
@@ -502,49 +552,85 @@ class Employees extends React.Component {
 
 		return (
 			<ContainerBox header={"Atskaites"}>
+				<Row>
+					<Col>
+						<Button 
+							variant="link" 
+							onClick={this.onToggleFilters}
+							className="float-left"
+						>
+							{
+								this.state.showFilters
+								? <FiMinimize2 className="mr-2 mb-1"/>
+								: <FiMaximize2 className="mr-2 mb-1"/>
+							}
+							Filtri
+						</Button>
+					</Col>
+				</Row>
+
 				<Form>
-					<Row>
-						<Col>
-							<Form.Group>
-								<Form.Check 
-									type="checkbox" 
-									label="Rādīt arhīvā esošos darbiniekus"
-									checked={this.state.showArchive}
-									onChange={this.onToggleArchive}
-								/>
-							</Form.Group>
-							<Form.Group>
-								<Form.Check 
-									type="checkbox" 
-									label="Rādīt deaktivizētus darbiniekus"
-									checked={this.state.showInactive}
-									onChange={this.onToggleInactive}
-								/>
-							</Form.Group>
-						</Col>
-						<Col>
-							<Form.Group>
-								<Form.Control
-									placeholder="Vārds..."
-									onChange={this.onChangeNameFilter}
-									value={this.state.nameFilter}
-								/>
-								<Form.Text>
-									Meklēt darbinieku pēc vārda vai uzvārda
-								</Form.Text>
-							</Form.Group>
-							<Form.Group>
-								<Form.Control
-									placeholder="Amats..."
-									onChange={this.onChangePositionFilter}
-									value={this.state.positionFilter}
-								/>
-								<Form.Text>
-									Meklēt darbinieku pēc amata
-								</Form.Text>
-							</Form.Group>
-						</Col>
-					</Row>
+					<Collapse in={this.state.showFilters}>
+						<Row>
+							<Col>
+								<Form.Group>
+									<Form.Check 
+										type="checkbox" 
+										label="Rādīt arhīvā esošos darbiniekus"
+										checked={this.state.showArchive}
+										onChange={this.onToggleArchive}
+									/>
+								</Form.Group>
+								<Form.Group>
+									<Form.Check 
+										type="checkbox" 
+										label="Rādīt deaktivizētus darbiniekus"
+										checked={this.state.showInactive}
+										onChange={this.onToggleInactive}
+									/>
+								</Form.Group>
+							</Col>
+							<Col>
+								<Form.Group>
+									<Form.Control
+										placeholder="Vārds..."
+										onChange={this.onChangeNameFilter}
+										value={this.state.nameFilter}
+									/>
+									<Form.Text>
+										Meklēt darbinieku pēc vārda vai uzvārda
+									</Form.Text>
+								</Form.Group>
+								<Form.Group>
+									<Form.Control
+										placeholder="Amats..."
+										onChange={this.onChangePositionFilter}
+										value={this.state.positionFilter}
+									/>
+									<Form.Text>
+										Meklēt darbinieku pēc amata
+									</Form.Text>
+								</Form.Group>
+								<Form.Group>
+									<Form.Control
+										placeholder="Uzņēmums..."
+										onChange={this.onChangeCompanyFilter}
+										value={this.state.companyFilter}
+									/>
+									<Form.Text>
+										Meklēt darbinieku pēc uzņēmuma
+									</Form.Text>
+								</Form.Group>
+								<Button 
+									className="ml-2 float-right"
+									variant="danger"
+									onClick={this.clearAllFilters}
+								>
+									Notīrīt visus filtrus
+								</Button>
+							</Col>
+						</Row>
+					</Collapse>
 					<Row className="mt-4">
 						<Col xs={"auto"}>
 							<Form.Group as={Row}>
@@ -574,13 +660,6 @@ class Employees extends React.Component {
 							</Form.Group>
 						</Col>
 						<Col>
-							<Button 
-								className="ml-2 float-right"
-								variant="danger"
-								onClick={this.clearAllFilters}
-							>
-								Notīrīt visus filtrus
-							</Button>
 							<DropdownButton
 								variant="secondary"
 								title={this.state.dropdown.currentFilter} 

@@ -32,6 +32,7 @@ class EditEmployee extends React.Component {
 				name: "",
 				surname: "",
 				personalCode: "",
+				company: "",
 				position: "",
 				number: "",
 				uid: ""
@@ -89,6 +90,15 @@ class EditEmployee extends React.Component {
 		});
 	}
 
+	onCompanyChange = (event) => {
+		this.setState({ 
+			employee: {
+				...this.state.employee,
+				company: event.target.value
+			}
+		});
+	}
+
 	onPositionChange = (event) => {
 		this.setState({ 
 			employee: {
@@ -115,21 +125,29 @@ class EditEmployee extends React.Component {
 		});
 
 		awaitCard().then((res) => {
-			setEmployeeUID(res.data.uid, id).then(() => {
-				storeUpdateEmployee(id);
-
+			if(res.data) {
+				setEmployeeUID(res.data.uid, id).then(() => {
+					storeUpdateEmployee(id);
+	
+					this.setState({
+						employee: {
+							...this.state.employee,
+							uid: res.data.uid,
+							uid_added: new Date(),
+						},
+						changeCard: {
+							status: CHANGE_CARD_STATE.COMPLETE
+						}
+					});
+	
+				});
+			} else {
 				this.setState({
-					employee: {
-						...this.state.employee,
-						uid: res.data.uid,
-						uid_added: new Date(),
-					},
 					changeCard: {
-						status: CHANGE_CARD_STATE.COMPLETE
+						status: CHANGE_CARD_STATE.OFF
 					}
 				});
-
-			});
+			}
 		});
 	}
 
@@ -183,19 +201,37 @@ class EditEmployee extends React.Component {
 						</Col>
 					</Row>
 
+					<Row>
+						<Col>
+							<Form.Group>
+								<Form.Label>Personas Kods</Form.Label>
+								<Form.Control value={this.state.employee.personalCode} onChange={this.onPersonalCodeChange}/>
+							</Form.Group>
+						</Col>
+						<Col>
+							<Form.Group>
+								<Form.Label>Telefona Numurs</Form.Label>
+								<Form.Control value={this.state.employee.number} onChange={this.onNumberChange}/>
+							</Form.Group>
+						</Col>
+					</Row>
+
 					<Form.Group>
-						<Form.Label>Personas Kods</Form.Label>
-						<Form.Control value={this.state.employee.personalCode} onChange={this.onPersonalCodeChange}/>
+						<Form.Label>Uzņēmums</Form.Label>
+						<Form.Control 
+							as="select"
+							onChange={this.onCompanyChange}
+							value={this.state.employee.company}
+						>
+							<option value='SIA "Vārpas 1"'>SIA "Vārpas 1"</option>
+							<option value='SIA "Adeptus Renewable Energy"'>SIA "Adeptus Renewable Energy"</option>
+							<option value='SIA "Valkas koks"'>SIA "Valkas koks"</option>
+						</Form.Control>
 					</Form.Group>
 
 					<Form.Group>
 						<Form.Label>Amats</Form.Label>
 						<Form.Control value={this.state.employee.position} onChange={this.onPositionChange}/>
-					</Form.Group>
-
-					<Form.Group>
-						<Form.Label>Telefona Numurs</Form.Label>
-						<Form.Control value={this.state.employee.number} onChange={this.onNumberChange}/>
 					</Form.Group>
 
 					<Form.Group as={Row}>
