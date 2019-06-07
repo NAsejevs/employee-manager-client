@@ -4,7 +4,7 @@ import { Form, Button, Alert, Modal, Row, Col } from "react-bootstrap";
 
 import { showRegisterEmployee, hideRegisterEmployee } from "../actions/employeeActions";
 
-import { storeUpdateEmployees, addServerEmployee, getServerEmployee, deleteServerEmployee, addCard } from "../utils/employeeUtils";
+import { storeUpdateEmployees, addServerEmployee, getServerEmployee, deleteServerEmployee } from "../utils/employeeUtils";
 
 const REGISTER_STATE = {
 	DATA_INPUT: 0,

@@ -90,6 +90,7 @@ class CommentEmployee extends React.Component {
 								selected={this.state.comment.expires}
 								onChange={this.onExpiryDateChange}
 								maxDate={new Date()}
+								timeIntervals={1}
 								showTimeSelect
 								timeFormat="HH:mm"
 							/>

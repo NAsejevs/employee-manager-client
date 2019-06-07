@@ -85,7 +85,6 @@ class Employees extends React.Component {
 	applyCompanyFilter = (callback = () => null) => {
 		const result = this.state.tableData.filter((row) => {
 
-			console.log(row.company);
 			const company = row.company ? row.company : "";
 
 			return (company).toString().toLowerCase().indexOf(this.state.companyFilter.toLowerCase()) > -1;
@@ -213,18 +212,19 @@ class Employees extends React.Component {
 						style={index < cell.comments.length - 1 ? commentBorderStyle : null} 
 						className="ml-1 mr-1 pt-1 pb-2"
 					>
-						<Col>
+						<Col className="align-self-center">
 							<span>{comment.text}</span>
 						</Col>
 						<Col xs="auto">
-							<FiXCircle 
-								style={{ 
-									cursor: "pointer" 
-								}} 
+							<Button
+								size={"sm"}
+								variant="link"
 								onClick={() => deleteEmployeeComment(comment.id).then(() => {
 									storeUpdateEmployee(cell.id);
 								})}
-							/>
+							>
+								<FiXCircle className="mb-1" />
+							</Button>
 						</Col>
 					</Row>
 				);
@@ -260,7 +260,12 @@ class Employees extends React.Component {
 									</Popover>
 								}
 							>
-								<FiMessageSquare style={{ cursor: "pointer" }} className="ml-1"/>
+								<Button
+									size={"sm"}
+									variant="link"
+								>
+									<FiMessageSquare/>
+								</Button>
 							</OverlayTrigger>
 							: 
 							null
@@ -272,7 +277,7 @@ class Employees extends React.Component {
 
 		const companyFormatter = (cell, row) => {
 			return (
-				<span className="d-none d-md-inline-block text-truncate" style={{ maxWidth: "125px" }}>
+				<span className="d-none d-md-inline-block text-truncate" style={{ maxWidth: "14vw" }}>
 					{cell}
 				</span>
 			);
@@ -322,7 +327,7 @@ class Employees extends React.Component {
 				// Each work log entry formatted and applied in HTML format
 				badges.push(
 					<Row key={index} style={{ fontSize: "14px" }}>
-						<Col>
+						<Col xs={6}>
 							<nobr>
 								<span>
 									{workTimeStartFormatted}
@@ -336,7 +341,7 @@ class Employees extends React.Component {
 								}
 							</nobr>
 						</Col>
-						<Col className="text-center">
+						<Col xs={"auto"} className="text-center">
 							{
 								workTimeFormatted !== null
 								? <span>
@@ -357,9 +362,9 @@ class Employees extends React.Component {
 
 				badges.push(
 					<Row key={badges.length} style={{ fontSize: "14px" }}>
-						<Col>
+						<Col xs={6}>
 						</Col>
-						<Col className="text-center" style={{ borderTop: "solid 1px" }}>
+						<Col xs={"auto"} className="text-center" style={{ borderTop: "solid 1px" }}>
 							{
 								totalWorkTimeFormatted !== null
 								? <span>
@@ -443,6 +448,7 @@ class Employees extends React.Component {
 		}, {
 			dataField: "commands",
 			text: "",
+			classes: "align-middle",
 			formatter: commandFormatter
 		}];
 

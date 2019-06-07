@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import React from "react";
 
-import { DropdownButton, Form, Button, Row, Col, Dropdown, Collapse, Badge } from "react-bootstrap";
+import { DropdownButton, Form, Button, Row, Col, Dropdown, Collapse } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import BoostrapDatePicker from "./BoostrapDatePicker";
@@ -165,7 +165,6 @@ class Employees extends React.Component {
 	applyCompanyFilter = (callback = () => null) => {
 		const result = this.state.tableData.filter((row) => {
 
-			console.log(row.company);
 			const company = row.company ? row.company : "";
 
 			return (company).toString().toLowerCase().indexOf(this.state.companyFilter.toLowerCase()) > -1;
@@ -291,7 +290,7 @@ class Employees extends React.Component {
 
 		const companyFormatter = (cell, row) => {
 			return (
-				<span className="d-none d-md-inline-block text-truncate" style={{ maxWidth: "125px" }}>
+				<span className="d-none d-md-inline-block text-truncate" style={{ maxWidth: "14vw" }}>
 					{cell}
 				</span>
 			);
@@ -344,7 +343,7 @@ class Employees extends React.Component {
 					// Each work log entry formatted and applied in HTML format
 					badges.push(
 						<Row key={index} style={{ fontSize: "14px" }}>
-							<Col>
+							<Col xs={6}>
 								<nobr>
 									<span>
 										{workTimeStartFormatted}
@@ -358,7 +357,7 @@ class Employees extends React.Component {
 									}
 								</nobr>
 							</Col>
-							<Col className="text-center">
+							<Col xs={"auto"} className="text-center">
 								{
 									workTimeFormatted !== null
 									? <span>
@@ -380,9 +379,9 @@ class Employees extends React.Component {
 
 				badges.push(
 					<Row key={badges.length} style={{ fontSize: "14px" }}>
-						<Col>
+						<Col xs={6}>
 						</Col>
-						<Col className="text-center" style={{ borderTop: "solid 1px" }}>
+						<Col xs={"auto"} className="text-center" style={{ borderTop: "solid 1px" }}>
 							{
 								totalWorkTimeFormatted !== null
 								? <span>

@@ -40,6 +40,23 @@ export const getServerEmployeeWorkLogFromTo = (id, from, to) => {
 	});
 }
 
+export const deleteServerWorkLog = (id, working, employeeId) => {
+	return request.post("/deleteWorkLog", { 
+		id,
+		working,
+		employeeId,
+	});
+}
+
+export const editServerWorkLog = (id, startDate, endDate, working) => {
+	return request.post("/editWorkLog", { 
+		id,
+		startDate,
+		endDate,
+		working,
+	});
+}
+
 export const addServerEmployee = (employee) => {
 	return request.post("/addEmployee", {
 		employee

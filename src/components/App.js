@@ -20,7 +20,7 @@ import CommentEmployee from "./CommentEmployee";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
-import { storeUpdateEmployees, cardScanned, getServerEmployees } from "../utils/employeeUtils";
+import { storeUpdateEmployees, cardScanned } from "../utils/employeeUtils";
 
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
 import "../styles/table.css";
