@@ -3,10 +3,11 @@ import { connect } from "react-redux";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 
 import { authenticate } from "../utils/userUtils";
+import { production } from "../utils/config";
 
 import logo from "../images/logo.png";
 
-const DEBUG = true;
+const DEBUG = production;
 
 class LogIn extends React.Component {
 	constructor() {
