@@ -4,7 +4,7 @@ import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
 import { Container, Row, Col, Navbar, Nav, Spinner } from "react-bootstrap";
 
-import { employeeUpdateInterval } from "../utils/config";
+import { production, employeeUpdateInterval } from "../utils/config";
 
 import Employees from "./Employees";
 import Report from "./Report";
@@ -63,7 +63,9 @@ class App extends React.Component {
 				scannerConnectionEstablished: res.data.scanner,
 			}, () => {
 				checkSession().then((res) => {
-					if(this.state.serverConnectionEstablished === true && this.state.scannerConnectionEstablished === true) {
+					if(!production
+						|| (this.state.serverConnectionEstablished === true
+						&& this.state.scannerConnectionEstablished === true)) {
 						clearInterval(this.state.pingInterval);
 						this.setState({
 							loading: false,

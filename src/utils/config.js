@@ -1,6 +1,10 @@
 import axios from "axios";
 
-export const serverURL = "http://localhost:8080";
+export const production = true;
+
+export const serverURL = production
+	? "http://192.168.1.150:8080"
+	: "http://localhost:8080";
 export const employeeUpdateInterval = 60000;
 export const workLogUpdateInterval = 60000;
 
