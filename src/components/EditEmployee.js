@@ -53,6 +53,15 @@ class EditEmployee extends React.Component {
 				...this.state.employee,
 				...this.props.editEmployee.employee,
 			}
+		}, () => {
+			if(!this.state.employee.company) {
+				this.setState({
+					employee: {
+						...this.state.employee,
+						company: 'SIA "Vārpas 1"',
+					}
+				});
+			}
 		});
 	}
 
@@ -91,6 +100,7 @@ class EditEmployee extends React.Component {
 	}
 
 	onCompanyChange = (event) => {
+		console.log(event.target.value);
 		this.setState({ 
 			employee: {
 				...this.state.employee,
@@ -158,7 +168,7 @@ class EditEmployee extends React.Component {
 			this.setState({
 				employee: {
 					...this.state.employee,
-					uid: "NAV",
+					uid: "N/A",
 					uid_added: null,
 				},
 				changeCard: {
@@ -221,7 +231,11 @@ class EditEmployee extends React.Component {
 						<Form.Control 
 							as="select"
 							onChange={this.onCompanyChange}
-							value={this.state.employee.company}
+							value={
+								this.state.employee.company
+								? this.state.employee.company
+								: 'SIA "Vārpas 1"'
+							}
 						>
 							<option value='SIA "Vārpas 1"'>SIA "Vārpas 1"</option>
 							<option value='SIA "Adeptus Renewable Energy"'>SIA "Adeptus Renewable Energy"</option>
@@ -237,7 +251,11 @@ class EditEmployee extends React.Component {
 					<Form.Group as={Row}>
 						<Form.Label column xs={"auto"}>UID (NFC Karte)</Form.Label>
 						<Col>
-							<Form.Control disabled value={this.state.employee.uid ? this.state.employee.uid : "NAV"}/>
+							<Form.Control
+								disabled 
+								value={this.state.employee.uid ? this.state.employee.uid : "N/A"}
+								className="text-center"
+							/>
 						</Col>
 						<Col xs={"auto"}>
 							<Button variant="link" onClick={() => this.deleteCard(this.props.editEmployee.employee.id)}>Dzēst</Button>

@@ -130,7 +130,13 @@ export const deleteEmployeeComment = (commentId) => {
 export const cardScanned = (uid) => {
 	return request.post("/cardScanned", { 
 		uid: uid,
-		admin: 0,
+		admin: 1,
+	});
+}
+
+export const getEmployeeByUID = (uid) => {
+	return request.post("/getEmployeeByUID", {
+		uid,
 	});
 }
 

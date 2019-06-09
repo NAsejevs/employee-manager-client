@@ -4,6 +4,8 @@ import { Modal, Alert } from "react-bootstrap";
 
 import { showCheckCard, hideCheckCard, showEmployeeWorkLog } from "../actions/employeeActions";
 
+import { awaitCard, getEmployeeByUID } from "../utils/employeeUtils";
+
 //import { checkCard } from "../utils/employeeUtils";
 
 class CheckCard extends React.Component {
@@ -12,30 +14,30 @@ class CheckCard extends React.Component {
 
 		this.state = {
 			cardScanned: false,
-			employee: {}
+			notFound: false,
 		}
 	}
 
-	checkCard = (status) => {
-		if(status) {
-			// checkCard(status).then((res) => {
-			// 	if(this.props.checkCard.show) {
-			// 		this.hideModal();
-			// 		this.props.showEmployeeWorkLog(res.data.id);
-			// 	}
-			// }).catch(() => {
-			// 	if(this.props.checkCard.show) {
-			// 		this.checkCard(status);
-			// 	}
-			// });
-		} else {
-			//checkCard(status);
-		}
+	checkCard = () => {
+		awaitCard().then((res) => {
+			if(res.data) {	
+				getEmployeeByUID(res.data.uid).then((res2) => {
+					if(res2.data) {
+						this.hideModal();
+						this.props.showEmployeeWorkLog(res2.data.id);
+					} else {
+						this.setState({
+							cardScanned: true,
+							notFound: true,
+						});
+					}
+				});
+			}
+		});
 	}
 
 	hideModal = () => {
 		this.props.hideCheckCard();
-		this.checkCard(false);
 
 		this.setState({
 			cardScanned: false,
@@ -48,7 +50,7 @@ class CheckCard extends React.Component {
 			<Modal 
 				show={this.props.checkCard.show}
 				onHide={this.hideModal}
-				onEntered={() => this.checkCard(true)}
+				onEntered={() => this.checkCard()}
 			>
 				<Modal.Header closeButton>
 					<Modal.Title>Atrast darbinieku pēc kartes</Modal.Title>
@@ -56,22 +58,11 @@ class CheckCard extends React.Component {
 
 				<Modal.Body>
 					<Alert variant={"primary"} show={!this.state.cardScanned}>
-						Noskenējiet vēlamo NFC karti.
+						Noskenējiet NFC kartiņu...
 					</Alert>
-					{
-						this.state.cardScanned && this.state.employee !== false
-						? <div>
-							Vārds: {this.state.employee.name + " " + this.state.employee.surname}
-						</div>
-						: null
-					}
-					{
-						this.state.cardScanned && this.state.employee === false
-						? <div>
-							Uz šīs kartiņas nav reģistrēts neviens darbinieks.
-						</div>
-						: null
-					}
+					<Alert variant={"danger"} show={this.state.cardScanned && this.state.notFound}>
+						Uz šīs kartiņas nav reģistrēts neviens darbinieks.
+					</Alert>
 				</Modal.Body>
 			</Modal>
 		);
