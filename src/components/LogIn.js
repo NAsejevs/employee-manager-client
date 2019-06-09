@@ -7,7 +7,7 @@ import { production } from "../utils/config";
 
 import logo from "../images/logo.png";
 
-const DEBUG = production;
+const DEBUG = !production;
 
 class LogIn extends React.Component {
 	constructor() {
