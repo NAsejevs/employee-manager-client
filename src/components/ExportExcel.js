@@ -107,7 +107,7 @@ class ExportExcel extends React.Component {
 								onChange={() => this.onEmployeeCheck(index)}
 							/>
 						</td>
-						<td>{employee.name + " " + employee.surname}</td>
+						<td>{employee.surname + " " + employee.name}</td>
 						<td>{employee.personalCode}</td>
 						<td>{employee.position}</td>
 					</tr>
