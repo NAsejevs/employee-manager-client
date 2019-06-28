@@ -69,7 +69,7 @@ class EditEmployee extends React.Component {
 		this.props.hideEditEmployee();
 		this.setState({
 			...this.initialState
-		})
+		});
 	}
 
 	onNameChange = (event) => {
@@ -311,6 +311,7 @@ class EditEmployee extends React.Component {
 							storeUpdateEmployee(employeeId);
 						});
 						this.props.hideEditEmployee();
+						this.onHide();
 					}}>
 						Rediģēt
 					</Button>

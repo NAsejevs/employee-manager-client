@@ -245,7 +245,7 @@ class Employees extends React.Component {
 							onClick={() => this.props.showEmployeeWorkLog(cell.id)}
 							style={{ color: "#0000FF" }}
 						>
-							{cell.name + " " + cell.surname}
+							{cell.surname + " " + cell.name}
 						</Button>
 						{
 							cell.comments.length
@@ -441,6 +441,12 @@ class Employees extends React.Component {
 						return order === "asc" ? -1 : 1;
 					}
 				}
+
+				// If there are no work logs for today
+				if(!a.workLogs.length) {
+					return order === "asc" ? -1 : 1;
+				}
+
 				return 0;
 			},
 			classes: "align-middle",

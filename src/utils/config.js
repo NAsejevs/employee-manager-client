@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const production = true;
+export const production = false;
 
 export const serverURL = production
 	? "http://192.168.1.150:8080"

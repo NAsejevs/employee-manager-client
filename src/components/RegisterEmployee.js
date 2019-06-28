@@ -4,7 +4,7 @@ import { Form, Button, Alert, Modal, Row, Col } from "react-bootstrap";
 
 import { showRegisterEmployee, hideRegisterEmployee } from "../actions/employeeActions";
 
-import { storeUpdateEmployees, addServerEmployee, getServerEmployee, deleteServerEmployee } from "../utils/employeeUtils";
+import { storeUpdateEmployees, addServerEmployee, awaitCard, deleteServerEmployee } from "../utils/employeeUtils";
 
 const REGISTER_STATE = {
 	DATA_INPUT: 0,
@@ -27,7 +27,7 @@ class RegisterEmployee extends React.Component {
 			number: "",
 			personalCode: "",
 			addCard: true,
-			uid: ""
+			uid: null,
 		}
 
 		this.state = {
@@ -68,43 +68,38 @@ class RegisterEmployee extends React.Component {
 		event.preventDefault();
 		event.stopPropagation();
 		
-		const employee = {
+		let employee = {
 			name: this.state.name,
 			surname: this.state.surname,
 			company: this.state.company,
 			position: this.state.position,
 			number: this.state.number,
 			personalCode: this.state.personalCode,
+			uid: this.state.uid,
 		}
 		
 		if(this.state.registrationState === REGISTER_STATE.DATA_INPUT) {
 			if(this.state.addCard) {
-				addServerEmployee(employee).then((res) => {
-					storeUpdateEmployees();
-					const newEmployee = res.data;
-					let checkInterval = null;
+				this.setState({ 
+					registrationState: REGISTER_STATE.RFID_WAIT,
+				});
 
-					//addCard(newEmployee.id);
-	
-					if(newEmployee) {
-						this.setState({
-							newEmployee: newEmployee,
-						});
-						checkInterval = setInterval(() => {
-							getServerEmployee(newEmployee.id).then((res) => {
-								if(res.data.uid !== null) {
-									clearInterval(checkInterval);
-									this.setState({
-										newEmployee: newEmployee,
-										registrationState: REGISTER_STATE.COMPLETE,
-									});
-								}
+				awaitCard().then((res) => {
+					this.setState({
+						uid: res.data.uid,
+					}, () => {
+						employee = {
+							...employee,
+							uid: res.data.uid,
+						};
+
+						addServerEmployee(employee).then((res) => {
+							storeUpdateEmployees();
+
+							this.setState({
+								registrationState: REGISTER_STATE.COMPLETE,
 							});
-						}, 1000);
-					}
-
-					this.setState({ 
-						registrationState: REGISTER_STATE.RFID_WAIT,
+						});
 					});
 				});
 			} else {

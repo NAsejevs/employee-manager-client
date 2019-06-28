@@ -281,7 +281,7 @@ class Employees extends React.Component {
 							onClick={() => this.props.showEmployeeWorkLog(cell.id)}
 							style={{ color: "#0000FF" }}
 						>
-							{cell.name + " " + cell.surname}
+							{cell.surname + " " + cell.name}
 						</Button>
 					</nobr>
 				</div>

@@ -453,7 +453,7 @@ class ViewEmployee extends React.Component {
 						<Row>
 							<Col>
 								<h4>
-									{this.state.employee.name + " " + this.state.employee.surname}
+									{this.state.employee.surname + " " + this.state.employee.name}
 									{this.state.employee.personalCode
 										? " (" + this.state.employee.personalCode + ")"
 										: null
