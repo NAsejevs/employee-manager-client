@@ -16,7 +16,7 @@ import {
 	getServerEmployeeWorkLogFromTo,
 	getEmployeeComments,
 } from "../utils/employeeUtils";
-import { addZero, millisecondConverter } from "../utils/commonUtils";
+import { addZero, millisecondConverter, convertSpecialCharacters } from "../utils/commonUtils";
 
 import { FiMinimize2, FiMaximize2, FiUser } from "react-icons/fi";
 
@@ -440,13 +440,13 @@ class Employees extends React.Component {
 			// hidden: true,
 		}, {
 			dataField: "name",
-			text: "Vārds",
+			text: "Darbinieks",
 			sort: true,
 			sortFunc: (a, b, order) => {
-				if(a.name < b.name) {
-					return order === "asc" ? 1 : -1;
-				} else if(a.name > b.name) {
+				if(convertSpecialCharacters(a.surname) < convertSpecialCharacters(b.surname)) {
 					return order === "asc" ? -1 : 1;
+				} else if(convertSpecialCharacters(a.surname) > convertSpecialCharacters(b.surname)) {
+					return order === "asc" ? 1 : -1;
 				}
 				return 0;
 			},

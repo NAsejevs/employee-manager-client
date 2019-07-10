@@ -21,7 +21,7 @@ import {
 	getEmployeeComments,
 	deleteEmployeeComment,
 } from "../utils/employeeUtils";
-import { addZero, millisecondConverter } from "../utils/commonUtils";
+import { addZero, millisecondConverter, convertSpecialCharacters } from "../utils/commonUtils";
 
 import { FiUser, FiMinimize2, FiMaximize2, FiMessageSquare, FiXCircle } from "react-icons/fi";
 
@@ -41,6 +41,8 @@ class Employees extends React.Component {
 			showFilters: false,
 			showArchive: false,
 			showInactive: false,
+			showWorking: false,
+			showNotWorking: false,
 			nameFilter: "",
 			positionFilter: "",
 			companyFilter: ""
@@ -55,6 +57,8 @@ class Employees extends React.Component {
 		if(prevProps.employees !== this.props.employees
 			|| prevState.showArchive !== this.state.showArchive
 			|| prevState.showInactive !== this.state.showInactive
+			|| prevState.showWorking !== this.state.showWorking
+			|| prevState.showNotWorking !== this.state.showNotWorking
 			|| prevState.nameFilter !== this.state.nameFilter
 			|| prevState.positionFilter !== this.state.positionFilter
 			|| prevState.companyFilter !== this.state.companyFilter) {
@@ -115,6 +119,12 @@ class Employees extends React.Component {
 			if(!employee.active && !this.state.showInactive) {
 				return false;
 			}
+			if(employee.working && this.state.showNotWorking) {
+				return false;
+			}
+			if(!employee.working && this.state.showWorking) {
+				return false;
+			}
 			return true;
 		});
 
@@ -162,6 +172,14 @@ class Employees extends React.Component {
 
 	onToggleInactive = () => {
 		this.setState({ showInactive: !this.state.showInactive });
+	}
+
+	onToggleShowWorking = () => {
+		this.setState({ showWorking: !this.state.showWorking });
+	}
+
+	onToggleShowNotWorking = () => {
+		this.setState({ showNotWorking: !this.state.showNotWorking });
 	}
 
 	onToggleFilters = () => {
@@ -395,13 +413,13 @@ class Employees extends React.Component {
 			// hidden: true,
 		}, {
 			dataField: "name",
-			text: "Vārds",
+			text: "Darbinieks",
 			sort: true,
 			sortFunc: (a, b, order) => {
-				if(a.name < b.name) {
-					return order === "asc" ? 1 : -1;
-				} else if(a.name > b.name) {
+				if(convertSpecialCharacters(a.surname) < convertSpecialCharacters(b.surname)) {
 					return order === "asc" ? -1 : 1;
+				} else if(convertSpecialCharacters(a.surname) > convertSpecialCharacters(b.surname)) {
+					return order === "asc" ? 1 : -1;
 				}
 				return 0;
 			},
@@ -562,6 +580,22 @@ class Employees extends React.Component {
 									label="Rādīt deaktivizētus darbiniekus"
 									checked={this.state.showInactive}
 									onChange={this.onToggleInactive}
+								/>
+							</Form.Group>
+							<Form.Group>
+								<Form.Check 
+									type="checkbox" 
+									label="Rādīt tikai ienākušos darbiniekus"
+									checked={this.state.showWorking}
+									onChange={this.onToggleShowWorking}
+								/>
+							</Form.Group>
+							<Form.Group>
+								<Form.Check 
+									type="checkbox" 
+									label="Rādīt tikai izgājušos darbiniekus"
+									checked={this.state.showNotWorking}
+									onChange={this.onToggleShowNotWorking}
 								/>
 							</Form.Group>
 						</Col>

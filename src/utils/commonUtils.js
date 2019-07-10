@@ -44,3 +44,19 @@ export const getMonthName = (month) => {
 
 	return months[month];
 }
+
+export const convertSpecialCharacters = (string) => {
+	const special = ["Ā", "Č", "Ē", "Ģ", "Ī", "Ķ", "Ļ", "Ņ", "Š", "Ū", "Ž"];
+	const normal = ["A", "C", "E", "G", "I", "K", "L", "N", "S", "U", "Z"];
+
+	let output = "";
+	for (let i = 0; i < string.length; i++) {
+		const letter = string.toUpperCase().charAt(i);
+		if(special.indexOf(letter) !== -1) {
+			output += normal[special.indexOf(letter)]; 
+		} else {
+			output += letter;
+		}
+	}
+	return output;
+}
