@@ -432,7 +432,7 @@ class ViewEmployee extends React.Component {
 				}
 
 				return (
-					<tbody key={index}>
+					<tbody key={index} className="vertical-align-center">
 						{dateRow}
 						{workRow}
 						{totalDayRow}

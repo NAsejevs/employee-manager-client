@@ -9,7 +9,8 @@ import BoostrapDatePicker from "./BoostrapDatePicker";
 import ContainerBox from "./ContainerBox";
 
 import {
-	showEmployeeWorkLog
+	showEmployeeWorkLog,
+	showExportExcel
 } from "../actions/employeeActions";
 
 import {
@@ -18,7 +19,7 @@ import {
 } from "../utils/employeeUtils";
 import { addZero, millisecondConverter, convertSpecialCharacters } from "../utils/commonUtils";
 
-import { FiMinimize2, FiMaximize2, FiUser } from "react-icons/fi";
+import { FiMinimize2, FiMaximize2, FiUser, FiFileText } from "react-icons/fi";
 
 class Employees extends React.Component {
 
@@ -633,7 +634,7 @@ class Employees extends React.Component {
 					<Row className="mt-4">
 						<Col xs={"auto"}>
 							<Form.Group as={Row}>
-								<Form.Label column xs={"auto"}>Dati no</Form.Label>
+								<Form.Label column xs={"auto"} className="pr-0">Dati no</Form.Label>
 								<Col>
 									<BoostrapDatePicker
 										dateFormat="dd.MM.yyyy."
@@ -646,7 +647,7 @@ class Employees extends React.Component {
 						</Col>
 						<Col xs={"auto"}>
 							<Form.Group as={Row}>
-								<Form.Label column xs={"auto"}>līdz</Form.Label>
+								<Form.Label column xs={"auto"} className="pl-0 pr-0">līdz</Form.Label>
 								<Col>
 									<BoostrapDatePicker
 										dateFormat="dd.MM.yyyy."
@@ -660,6 +661,7 @@ class Employees extends React.Component {
 						</Col>
 						<Col>
 							<DropdownButton
+								alignRight
 								variant="secondary"
 								title={this.state.dropdown.currentFilter} 
 								className="float-right"
@@ -670,6 +672,16 @@ class Employees extends React.Component {
 								})
 							}
 							</DropdownButton>
+						</Col>
+						<Col xs={"auto"}>
+							<Button 
+								variant="success" 
+								onClick={this.props.showExportExcel}
+								className="float-right"
+							>
+								<FiFileText className="mr-2 mb-1"/>
+								Eksportēt Excel
+							</Button>
 						</Col>
 					</Row>
 				</Form>
@@ -699,7 +711,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
-		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id))
+		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id)),
+		showExportExcel: () => dispatch(showExportExcel()),
 	};
 }
 

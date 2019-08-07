@@ -1,5 +1,6 @@
 import { connect } from "react-redux";
 import React from "react";
+import Cookies from 'universal-cookie';
 
 import { Badge, Form, Button, Collapse, Row, Col, Dropdown, OverlayTrigger, Popover } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -30,22 +31,30 @@ class Employees extends React.Component {
 	constructor() {
 		super();
 
+		const cookies = new Cookies();
+		let settings = cookies.get("settings");
+
+		if(!settings) {
+			settings = {
+				showFilters: false,
+				showArchive: false,
+				showInactive: false,
+				showWorking: false,
+				showNotWorking: false,
+				nameFilter: "",
+				positionFilter: "",
+				companyFilter: "",
+				pageSize: 10,
+			}
+
+			cookies.set("settings", settings);
+		}
+
 		this.state = {
 			workLogUserId: null,
 			showWorkLogModal: false,
 			tableData: [],
-			filter: {
-				type: "",
-				filters: "",
-			},
-			showFilters: false,
-			showArchive: false,
-			showInactive: false,
-			showWorking: false,
-			showNotWorking: false,
-			nameFilter: "",
-			positionFilter: "",
-			companyFilter: ""
+			...settings,
 		}
 	}
 
@@ -54,7 +63,8 @@ class Employees extends React.Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.employees !== this.props.employees
+		if(
+			prevProps.employees !== this.props.employees
 			|| prevState.showArchive !== this.state.showArchive
 			|| prevState.showInactive !== this.state.showInactive
 			|| prevState.showWorking !== this.state.showWorking
@@ -64,83 +74,120 @@ class Employees extends React.Component {
 			|| prevState.companyFilter !== this.state.companyFilter) {
 			this.onTableChange();
 		}
+
+		if(
+			prevState.showFilters !== this.state.showFilters
+			||prevState.showArchive !== this.state.showArchive
+			|| prevState.showInactive !== this.state.showInactive
+			|| prevState.showWorking !== this.state.showWorking
+			|| prevState.showNotWorking !== this.state.showNotWorking
+			|| prevState.nameFilter !== this.state.nameFilter
+			|| prevState.positionFilter !== this.state.positionFilter
+			|| prevState.companyFilter !== this.state.companyFilter
+			|| prevState.pageSize !== this.state.pageSize) {
+			this.saveSettings();
+		}
+	}
+
+	saveSettings = () => {
+		const cookies = new Cookies();
+		const settings = {
+			showFilters: this.state.showFilters,
+			showArchive: this.state.showArchive,
+			showInactive: this.state.showInactive,
+			showWorking: this.state.showWorking,
+			showNotWorking: this.state.showNotWorking,
+			nameFilter: this.state.nameFilter,
+			positionFilter: this.state.positionFilter,
+			companyFilter: this.state.companyFilter,
+			pageSize: this.state.pageSize,
+		}
+
+		cookies.set("settings", settings);
 	}
 
 	onTableChange = () => {
-		this.formatTable(() => {
-			this.applyNameFilter(() => {
-				this.applyPositionFilter(() => {
-					this.applyCompanyFilter();
+		this.formatTable((tableData) => {
+			this.applyAllFilters(tableData);
+		});
+	}
+
+	applyAllFilters = (tableData) => {
+		this.applyNameFilter(tableData, (nameFilter) => {
+			this.applyPositionFilter(nameFilter, (positionFilter) => {
+				this.applyCompanyFilter(positionFilter, (companyFilter) => {
+					this.applyCheckboxFilters(companyFilter, (checkboxFilter) => {
+						this.setState({
+							tableData: checkboxFilter
+						}, () => {
+							console.log("applied all filters!");
+						});
+					});
 				});
 			});
 		});
 	}
 
-	applyNameFilter = (callback = () => null) => {
-		const result = this.state.tableData.filter((row) => {
+	applyNameFilter = (data, callback = () => null) => {
+		const result = data.filter((row) => {
 			return (row.name.name + " " + row.name.surname).toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
 		});
-
-		this.setState({
-			tableData: result
-		}, callback);
+		callback(result);
 	}
 
-	applyCompanyFilter = (callback = () => null) => {
-		const result = this.state.tableData.filter((row) => {
-
+	applyCompanyFilter = (data, callback = () => null) => {
+		const result = data.filter((row) => {
 			const company = row.company ? row.company : "";
-
 			return (company).toString().toLowerCase().indexOf(this.state.companyFilter.toLowerCase()) > -1;
 		});
-
-		this.setState({
-			tableData: result
-		}, callback);
+		callback(result);
 	}
 
-	applyPositionFilter = (callback = () => null) => {
-		const result = this.state.tableData.filter((row) => {
+	applyPositionFilter = (data, callback = () => null) => {
+		const result = data.filter((row) => {
 			const position = row.position ? row.position : "";
-
 			return (position).toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
 		});
-
-		this.setState({
-			tableData: result
-		}, callback);
+		callback(result);
 	}
 
-	formatTable = (callback = () => null) => {
-		const employees = this.props.employees.filter((employee) => {
-			if(employee.archived && !this.state.showArchive) {
+	applyCheckboxFilters = (data, callback = () => null) => {
+		const result = data.filter((row) => {
+			console.log(row);
+			if(row.archived && !this.state.showArchive) {
 				return false;
 			}
-			if(!employee.active && !this.state.showInactive) {
+			if(!row.active && !this.state.showInactive) {
 				return false;
 			}
-			if(employee.working && this.state.showNotWorking) {
+			if(row.working && this.state.showNotWorking) {
 				return false;
 			}
-			if(!employee.working && this.state.showWorking) {
+			if(!row.working && this.state.showWorking) {
 				return false;
 			}
 			return true;
 		});
+		callback(result);
+	}
 
+	formatTable = (callback = () => null) => {
 		const workLogFrom = new Date();
 		workLogFrom.setHours(0, 0, 0);
 
 		const workLogTo = new Date();
 		workLogTo.setHours(23, 59, 59);
 
-		const promise = employees.map((employee) => {
+		const promise = this.props.employees.map((employee) => {
 			return getServerEmployeeWorkLogFromTo(employee.id, workLogFrom, workLogTo).then((workLogs) => {
 				return getEmployeeComments(employee.id).then((comments) => {
 					return({
 						id: employee.id,
 						position: employee.position ? employee.position.toString() : null,
 						company: employee.company ? employee.company.toString() : null,
+						archived: employee.archived,
+						active: employee.active,
+						working: employee.working,
 						name: {
 							id: employee.id,
 							name: employee.name,
@@ -158,11 +205,8 @@ class Employees extends React.Component {
 			});
 		});
 
-		Promise.all(promise).then((res) => {
-			this.setState({ tableData: res,
-			}, () => {
-				callback();
-			});
+		Promise.all(promise).then((data) => {
+			callback(data);
 		});
 	}
 
@@ -211,6 +255,8 @@ class Employees extends React.Component {
 			companyFilter: "",
 			showArchive: false,
 			showInactive: false,
+			showWorking: false,
+			showNotWorking: false,
 			startDate: startDate,
 			endDate: endDate,
 		});
@@ -481,28 +527,48 @@ class Employees extends React.Component {
 			order: "asc"
 		}];
 
-		const paginationTotalRenderer = (from, to, size) => {
-			if(to === 0) {
-				return(
-					<span className="react-bootstrap-table-pagination-total">
-						&nbsp;Netika atrasts neviens rezultāts
-					</span>
-				);
-			}
-
-			return(
-				<span className="react-bootstrap-table-pagination-total">
-					&nbsp;Rāda { to-from+1 } no { size } rezultātiem
-				</span>
-			);
+		const onClickPageSize = (option) => {
+			this.setState({
+				pageSize: option.page
+			});
 		}
+
+		const sizePerPageRenderer = ({
+			options,
+			currSizePerPage,
+			onSizePerPageChange
+		}) => (
+			<Dropdown className="d-inline pr-2">
+				<Dropdown.Toggle variant="primary">
+					{this.state.pageSize === 9999 ? "Viss" : this.state.pageSize}
+				</Dropdown.Toggle>
+
+				<Dropdown.Menu>
+					{
+						options.map((option, index) => {
+							return (
+								<Dropdown.Item 
+									key={index} 
+									onClick={() => {
+										onClickPageSize(option);
+										onSizePerPageChange(option.page);
+									}}
+								>
+									{option.text}
+								</Dropdown.Item>
+							);
+						})
+					}
+				</Dropdown.Menu>
+			</Dropdown>
+		);
 
 		const pagination = paginationFactory({
 			page: 1,
 			alwaysShowAllBtns: true,
-			showTotal: true,
-			sizePerPage : 10,
-			paginationTotalRenderer: paginationTotalRenderer,
+			showTotal: false,
+			sizePerPage : this.state.pageSize,
+			sizePerPageRenderer,
 			sizePerPageList: [
 				{
 					text: "10",
@@ -517,8 +583,8 @@ class Employees extends React.Component {
 					text: "100",
 					value: 100,
 				},{
-					text: "Visi",
-					value: this.state.tableData.length,
+					text: "Viss",
+					value: 9999,
 				}
 			]
 		});
@@ -557,7 +623,7 @@ class Employees extends React.Component {
 							<Dropdown.Menu>
 								<Dropdown.Item onClick={this.props.showRegisterEmployee}>Pievienot darbinieku</Dropdown.Item>
 								<Dropdown.Item onClick={this.props.showCheckCard}>Atrast darbinieku pēc kartes</Dropdown.Item>
-								<Dropdown.Item onClick={this.props.showExportExcel}>Eksports</Dropdown.Item>
+								<Dropdown.Item onClick={this.props.showExportExcel}>Eksportēt Excel</Dropdown.Item>
 							</Dropdown.Menu>
 						</Dropdown>
 					</Col>
