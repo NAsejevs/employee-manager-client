@@ -443,7 +443,7 @@ class Filters extends React.Component {
                                             </Form.Group>
                                         </Col>
                                     </Row>
-                                    <Row>
+                                    <Row className="mb-2">
                                         {
                                             this.props.dateFilter
                                             ? dateFilter
