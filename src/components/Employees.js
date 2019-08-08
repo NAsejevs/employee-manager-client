@@ -31,10 +31,32 @@ class Employees extends React.Component {
 	constructor() {
 		super();
 
+		this.state = {
+			workLogUserId: null,
+			showWorkLogModal: false,
+			tableData: [],
+			// Filters and saved settings
+			showFilters: false,
+			showArchive: false,
+			showInactive: false,
+			showWorking: false,
+			showNotWorking: false,
+			nameFilter: "",
+			positionFilter: "",
+			companyFilter: "",
+			pageSize: 10,
+		}
+	}
+
+	componentWillMount() {
 		const cookies = new Cookies();
 		let settings = cookies.get("settings");
 
-		if(!settings) {
+		if(settings) {
+			this.setState({
+				...settings,
+			});
+		} else {
 			settings = {
 				showFilters: false,
 				showArchive: false,
@@ -49,13 +71,6 @@ class Employees extends React.Component {
 
 			cookies.set("settings", settings);
 		}
-
-		this.state = {
-			workLogUserId: null,
-			showWorkLogModal: false,
-			tableData: [],
-			...settings,
-		}
 	}
 
 	componentDidMount() {
@@ -63,9 +78,12 @@ class Employees extends React.Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
+		if(prevProps.employees !== this.props.employees) {
+			this.onTableChange();
+		}
+
 		if(
-			prevProps.employees !== this.props.employees
-			|| prevState.showArchive !== this.state.showArchive
+			prevState.showArchive !== this.state.showArchive
 			|| prevState.showInactive !== this.state.showInactive
 			|| prevState.showWorking !== this.state.showWorking
 			|| prevState.showNotWorking !== this.state.showNotWorking
@@ -119,8 +137,6 @@ class Employees extends React.Component {
 					this.applyCheckboxFilters(companyFilter, (checkboxFilter) => {
 						this.setState({
 							tableData: checkboxFilter
-						}, () => {
-							console.log("applied all filters!");
 						});
 					});
 				});
@@ -138,7 +154,7 @@ class Employees extends React.Component {
 	applyCompanyFilter = (data, callback = () => null) => {
 		const result = data.filter((row) => {
 			const company = row.company ? row.company : "";
-			return (company).toString().toLowerCase().indexOf(this.state.companyFilter.toLowerCase()) > -1;
+			return company.toString().toLowerCase().indexOf(this.state.companyFilter.toLowerCase()) > -1;
 		});
 		callback(result);
 	}
@@ -146,14 +162,13 @@ class Employees extends React.Component {
 	applyPositionFilter = (data, callback = () => null) => {
 		const result = data.filter((row) => {
 			const position = row.position ? row.position : "";
-			return (position).toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
+			return position.toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
 		});
 		callback(result);
 	}
 
 	applyCheckboxFilters = (data, callback = () => null) => {
 		const result = data.filter((row) => {
-			console.log(row);
 			if(row.archived && !this.state.showArchive) {
 				return false;
 			}
@@ -179,29 +194,32 @@ class Employees extends React.Component {
 		workLogTo.setHours(23, 59, 59);
 
 		const promise = this.props.employees.map((employee) => {
-			return getServerEmployeeWorkLogFromTo(employee.id, workLogFrom, workLogTo).then((workLogs) => {
-				return getEmployeeComments(employee.id).then((comments) => {
-					return({
-						id: employee.id,
-						position: employee.position ? employee.position.toString() : null,
-						company: employee.company ? employee.company.toString() : null,
-						archived: employee.archived,
-						active: employee.active,
-						working: employee.working,
-						name: {
-							id: employee.id,
-							name: employee.name,
-							surname: employee.surname,
-							working: employee.working,
-							comments: comments.data,
-						},
-						today: {
-							working: employee.working,
-							workLogs: workLogs.data,
-						},
-						commands: employee,
-					});
-				});
+			const workLogToday = [];
+			employee.workLog.forEach((workLog) => {
+				if(new Date(workLog.start_time).getTime() >= workLogFrom.getTime() && new Date(workLog.start_time).getTime() <= workLogTo.getTime()) {
+					return workLogToday.push(workLog);
+				}
+			})
+
+			return({
+				id: employee.id,
+				position: employee.position ? employee.position.toString() : "",
+				company: employee.company ? employee.company.toString() : "",
+				archived: employee.archived,
+				active: employee.active,
+				working: employee.working,
+				name: {
+					id: employee.id,
+					name: employee.name,
+					surname: employee.surname,
+					working: employee.working,
+					comments: employee.comments,
+				},
+				today: {
+					working: employee.working,
+					workLogs: workLogToday,
+				},
+				commands: employee,
 			});
 		});
 
@@ -590,11 +608,11 @@ class Employees extends React.Component {
 		});
 
 		const rowStyle = (row) => {
-			if(!row.commands.active) {
+			if(!row.active) {
 				return { backgroundColor: "rgba(255, 0, 0, 0.1)" };
 			}
 
-			if(row.commands.archived) {
+			if(row.archived) {
 				return { backgroundColor: "rgba(255, 255, 0, 0.1)" };
 			}
 		};

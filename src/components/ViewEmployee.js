@@ -68,6 +68,7 @@ class ViewEmployee extends React.Component {
 			});
 		});
 
+		clearInterval(this.state.updateInterval);
 		this.setState({
 			updateInterval: setInterval(() => {
 				getServerEmployee(this.props.employeeWorkLog.id).then((res) => {

@@ -1,5 +1,6 @@
 import { connect } from "react-redux";
 import React from "react";
+import Cookies from 'universal-cookie';
 
 import { DropdownButton, Form, Button, Row, Col, Dropdown, Collapse } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -40,12 +41,17 @@ class Employees extends React.Component {
 				type: "",
 				filters: "",
 			},
+			// Filters and saved settings
 			showFilters: false,
 			showArchive: false,
 			showInactive: false,
+			showWorking: false,
+			showNotWorking: false,
 			nameFilter: "",
 			positionFilter: "",
 			companyFilter: "",
+			pageSize: 10,
+
 			startDate: startDate,
 			endDate: endDate,
 			dropdown: {
@@ -55,21 +61,80 @@ class Employees extends React.Component {
 		}
 	}
 
+	componentWillMount() {
+		const cookies = new Cookies();
+		let settings = cookies.get("settings");
+
+		if(settings) {
+			this.setState({
+				...settings,
+			});
+		} else {
+			settings = {
+				showFilters: false,
+				showArchive: false,
+				showInactive: false,
+				showWorking: false,
+				showNotWorking: false,
+				nameFilter: "",
+				positionFilter: "",
+				companyFilter: "",
+				pageSize: 10,
+			}
+
+			cookies.set("settings", settings);
+		}
+	}
+
 	componentDidMount() {
 		this.onTableChange();
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.employees !== this.props.employees
-			|| prevState.showArchive !== this.state.showArchive
+		if(prevProps.employees !== this.props.employees) {
+			this.onTableChange();
+		}
+
+		if(
+			prevState.showArchive !== this.state.showArchive
 			|| prevState.showInactive !== this.state.showInactive
+			|| prevState.showWorking !== this.state.showWorking
+			|| prevState.showNotWorking !== this.state.showNotWorking
+			|| prevState.nameFilter !== this.state.nameFilter
+			|| prevState.positionFilter !== this.state.positionFilter
+			|| prevState.companyFilter !== this.state.companyFilter) {
+			this.onTableChange();
+		}
+
+		if(
+			prevState.showFilters !== this.state.showFilters
+			||prevState.showArchive !== this.state.showArchive
+			|| prevState.showInactive !== this.state.showInactive
+			|| prevState.showWorking !== this.state.showWorking
+			|| prevState.showNotWorking !== this.state.showNotWorking
 			|| prevState.nameFilter !== this.state.nameFilter
 			|| prevState.positionFilter !== this.state.positionFilter
 			|| prevState.companyFilter !== this.state.companyFilter
-			|| prevState.startDate !== this.state.startDate
-			|| prevState.endDate !== this.state.endDate) {
-			this.onTableChange();
+			|| prevState.pageSize !== this.state.pageSize) {
+			this.saveSettings();
 		}
+	}
+
+	saveSettings = () => {
+		const cookies = new Cookies();
+		const settings = {
+			showFilters: this.state.showFilters,
+			showArchive: this.state.showArchive,
+			showInactive: this.state.showInactive,
+			showWorking: this.state.showWorking,
+			showNotWorking: this.state.showNotWorking,
+			nameFilter: this.state.nameFilter,
+			positionFilter: this.state.positionFilter,
+			companyFilter: this.state.companyFilter,
+			pageSize: this.state.pageSize,
+		}
+
+		cookies.set("settings", settings);
 	}
 
 	handleDateChangeStart = (date) => {
@@ -132,96 +197,106 @@ class Employees extends React.Component {
 	}
 
 	onTableChange = () => {
-		this.formatTable(() => {
-			this.applyNameFilter(() => {
-				this.applyPositionFilter(() => {
-					this.applyCompanyFilter();
-				});
-			});
+		this.formatTable((tableData) => {
+			this.applyAllFilters(tableData);
 		});
 	}
 
-	applyNameFilter = (callback = () => null) => {
-		const result = this.state.tableData.filter((row) => {
-			return (row.name.name + " " + row.name.surname).toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
-		});
-
-		this.setState({
-			tableData: result
-		}, callback);
-	}
-
-	applyPositionFilter = (callback = () => null) => {
-		const result = this.state.tableData.filter((row) => {
-			const position = row.position ? row.position : "";
-
-			return (position).toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
-		});
-
-		this.setState({
-			tableData: result
-		}, callback);
-	}
-
-	applyCompanyFilter = (callback = () => null) => {
-		const result = this.state.tableData.filter((row) => {
-
-			const company = row.company ? row.company : "";
-
-			return (company).toString().toLowerCase().indexOf(this.state.companyFilter.toLowerCase()) > -1;
-		});
-
-		this.setState({
-			tableData: result
-		}, callback);
-	}
-
-	formatTable = (callback = () => null) => {
-		const employees = this.props.employees.filter((employee) => {
-			if(employee.archived && !this.state.showArchive) {
-				return false;
-			}
-			if(!employee.active && !this.state.showInactive) {
-				return false;
-			}
-			return true;
-		});
-
-		const workLogFrom = new Date(this.state.startDate);
-
-		const workLogTo = new Date(this.state.endDate);
-
-		const promise = employees.map((employee) => {
-			return getServerEmployeeWorkLogFromTo(employee.id, workLogFrom, workLogTo).then((workLogs) => {
-				return getEmployeeComments(employee.id).then((comments) => {
-					return({
-						id: employee.id,
-						position: employee.position ? employee.position.toString() : null,
-						company: employee.company ? employee.company.toString() : null,
-						name: {
-							id: employee.id,
-							name: employee.name,
-							surname: employee.surname,
-							working: employee.working,
-							comments: comments.data,
-						},
-						today: {
-							working: employee.working,
-							workLogs: workLogs.data,
-							startDate: this.state.startDate,
-							endDate: this.state.endDate,
-						},
-						commands: employee,
+	applyAllFilters = (tableData) => {
+		this.applyNameFilter(tableData, (nameFilter) => {
+			this.applyPositionFilter(nameFilter, (positionFilter) => {
+				this.applyCompanyFilter(positionFilter, (companyFilter) => {
+					this.applyCheckboxFilters(companyFilter, (checkboxFilter) => {
+						this.setState({
+							tableData: checkboxFilter
+						});
 					});
 				});
 			});
 		});
+	}
 
-		Promise.all(promise).then((res) => {
-			this.setState({ tableData: res,
-			}, () => {
-				callback();
+	applyNameFilter = (data, callback = () => null) => {
+		const result = data.filter((row) => {
+			return (row.name.name + " " + row.name.surname).toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
+		});
+		callback(result);
+	}
+
+	applyCompanyFilter = (data, callback = () => null) => {
+		const result = data.filter((row) => {
+			const company = row.company ? row.company : "";
+			return company.toString().toLowerCase().indexOf(this.state.companyFilter.toLowerCase()) > -1;
+		});
+		callback(result);
+	}
+
+	applyPositionFilter = (data, callback = () => null) => {
+		const result = data.filter((row) => {
+			const position = row.position ? row.position : "";
+			return position.toString().toLowerCase().indexOf(this.state.positionFilter.toLowerCase()) > -1;
+		});
+		callback(result);
+	}
+
+	applyCheckboxFilters = (data, callback = () => null) => {
+		const result = data.filter((row) => {
+			if(row.archived && !this.state.showArchive) {
+				return false;
+			}
+			if(!row.active && !this.state.showInactive) {
+				return false;
+			}
+			if(row.working && this.state.showNotWorking) {
+				return false;
+			}
+			if(!row.working && this.state.showWorking) {
+				return false;
+			}
+			return true;
+		});
+		callback(result);
+	}
+
+	formatTable = (callback = () => null) => {
+		const workLogFrom = new Date();
+		workLogFrom.setHours(0, 0, 0);
+
+		const workLogTo = new Date();
+		workLogTo.setHours(23, 59, 59);
+
+		const promise = this.props.employees.map((employee) => {
+			const workLogToday = [];
+			employee.workLog.forEach((workLog) => {
+				if(new Date(workLog.start_time).getTime() >= workLogFrom.getTime() && new Date(workLog.start_time).getTime() <= workLogTo.getTime()) {
+					return workLogToday.push(workLog);
+				}
+			})
+
+			return({
+				id: employee.id,
+				position: employee.position ? employee.position.toString() : "",
+				company: employee.company ? employee.company.toString() : "",
+				archived: employee.archived,
+				active: employee.active,
+				working: employee.working,
+				name: {
+					id: employee.id,
+					name: employee.name,
+					surname: employee.surname,
+					working: employee.working,
+					comments: employee.comments,
+				},
+				today: {
+					working: employee.working,
+					workLogs: workLogToday,
+				},
+				commands: employee,
 			});
+		});
+
+		Promise.all(promise).then((data) => {
+			callback(data);
 		});
 	}
 
@@ -498,28 +573,48 @@ class Employees extends React.Component {
 			order: "asc"
 		}];
 
-		const paginationTotalRenderer = (from, to, size) => {
-			if(to === 0) {
-				return(
-					<span className="react-bootstrap-table-pagination-total">
-						&nbsp;Netika atrasts neviens rezultāts
-					</span>
-				);
-			}
-
-			return(
-				<span className="react-bootstrap-table-pagination-total">
-					&nbsp;Rāda { to-from+1 } no { size } rezultātiem
-				</span>
-			);
+		const onClickPageSize = (option) => {
+			this.setState({
+				pageSize: option.page
+			});
 		}
+
+		const sizePerPageRenderer = ({
+			options,
+			currSizePerPage,
+			onSizePerPageChange
+		}) => (
+			<Dropdown className="d-inline pr-2">
+				<Dropdown.Toggle variant="primary">
+					{this.state.pageSize === 9999 ? "Viss" : this.state.pageSize}
+				</Dropdown.Toggle>
+
+				<Dropdown.Menu>
+					{
+						options.map((option, index) => {
+							return (
+								<Dropdown.Item 
+									key={index} 
+									onClick={() => {
+										onClickPageSize(option);
+										onSizePerPageChange(option.page);
+									}}
+								>
+									{option.text}
+								</Dropdown.Item>
+							);
+						})
+					}
+				</Dropdown.Menu>
+			</Dropdown>
+		);
 
 		const pagination = paginationFactory({
 			page: 1,
 			alwaysShowAllBtns: true,
-			showTotal: true,
-			sizePerPage : 10,
-			paginationTotalRenderer: paginationTotalRenderer,
+			showTotal: false,
+			sizePerPage : this.state.pageSize,
+			sizePerPageRenderer,
 			sizePerPageList: [
 				{
 					text: "10",
@@ -534,11 +629,12 @@ class Employees extends React.Component {
 					text: "100",
 					value: 100,
 				},{
-					text: "Visi",
-					value: this.state.tableData.length,
+					text: "Viss",
+					value: 9999,
 				}
 			]
 		});
+
 
 		const rowStyle = (row) => {
 			if(!row.commands.active) {
