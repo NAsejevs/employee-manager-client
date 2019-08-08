@@ -86,9 +86,12 @@ class ViewEmployee extends React.Component {
 		});
 	}
 
-	onModalHide = () => {
+	onHide = () => {
 		clearInterval(this.state.updateInterval);
+		this.props.hideEmployeeWorkLog();
+	}
 
+	onExited = () => {
 		this.setState({
 			employee: {
 				name: "Ielādē...",
@@ -445,8 +448,8 @@ class ViewEmployee extends React.Component {
 		return (
 			<Modal
 				show={this.props.employeeWorkLog.show}
-				onHide={this.props.hideEmployeeWorkLog}
-				onExited={this.onModalHide}
+				onHide={this.onHide}
+				onExited={this.onExited}
 				size={"lg"}
 			>
 				<Modal.Header closeButton>

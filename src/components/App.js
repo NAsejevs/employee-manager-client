@@ -27,6 +27,7 @@ import "../styles/table.css";
 
 import logo from "../images/logo.png";
 import { FiLogOut } from "react-icons/fi";
+import Schedule from "./Schedule";
 
 class App extends React.Component {
 	constructor() {
@@ -141,6 +142,9 @@ class App extends React.Component {
 												<LinkContainer exact={true} to="/report">
 													<Nav.Link>Atskaites</Nav.Link>
 												</LinkContainer>
+												<LinkContainer exact={true} to="/schedule">
+													<Nav.Link>Grafiks</Nav.Link>
+												</LinkContainer>
 											</Nav>
 											<Nav>
 												<Navbar.Text className="ml-md-4">
@@ -160,6 +164,7 @@ class App extends React.Component {
 									<Switch>
 										<Route exact path="/" component={Employees} />
 										<Route exact path="/report" component={Report} />
+										<Route exact path="/schedule" component={Schedule} />
 										<Route component={NotFound} />
 									</Switch>
 									<ViewEmployee/>

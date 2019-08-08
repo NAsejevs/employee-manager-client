@@ -16,10 +16,8 @@ import {
 } from "../actions/employeeActions";
 
 import {
-	storeUpdateEmployee,
 	getServerEmployeeWorkLogFromTo,
 	getEmployeeComments,
-	deleteEmployeeComment,
 } from "../utils/employeeUtils";
 import { daysInMonth, addZero, millisecondConverter } from "../utils/commonUtils";
 

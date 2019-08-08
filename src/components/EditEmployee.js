@@ -100,7 +100,6 @@ class EditEmployee extends React.Component {
 	}
 
 	onCompanyChange = (event) => {
-		console.log(event.target.value);
 		this.setState({ 
 			employee: {
 				...this.state.employee,
