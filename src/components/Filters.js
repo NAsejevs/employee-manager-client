@@ -5,6 +5,12 @@ import Cookies from 'universal-cookie';
 import { Form, Button, Collapse, Row, Col, Dropdown, DropdownButton } from "react-bootstrap";
 import BoostrapDatePicker from "./BoostrapDatePicker";
 
+import {
+	showRegisterEmployee,
+	showExportExcel,
+	showCheckCard
+} from "../actions/employeeActions";
+
 import { FiMinimize2, FiMaximize2 } from "react-icons/fi";
 
 class Filters extends React.Component {
@@ -476,6 +482,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
+		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
+		showExportExcel: () => dispatch(showExportExcel()),
+		showCheckCard: () => dispatch(showCheckCard())
 	};
 }
 

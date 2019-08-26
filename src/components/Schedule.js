@@ -28,7 +28,6 @@ class Employees extends React.Component {
 			showWorkLogModal: false,
 			tableData: [],
 			pageSize: 10,
-			scheduleData: [],
 		}
 	}
 
@@ -51,6 +50,20 @@ class Employees extends React.Component {
 
 	componentDidMount() {
 		this.onTableChange();
+
+		let scheduleData = [];
+
+		for(let i = 0; i < 200; i++) {
+			scheduleData.push({
+				id: i,
+				data: [],
+			});
+			scheduleData[i].data.fill(0, 0, 30);
+		}
+
+		this.setState({
+			scheduleData: scheduleData
+		});
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -89,26 +102,8 @@ class Employees extends React.Component {
 		});
 	}
 
-	onScheduleCellClick = (rowIndex, colIndex) => {
-
-	}
-
 	formatTable = (callback = () => null) => {
-		const workLogFrom = new Date();
-		workLogFrom.setHours(0, 0, 0);
-
-		const workLogTo = new Date();
-		workLogTo.setHours(23, 59, 59);
-
-		let scheduleData = [];
-
 		const promise = this.props.employees.map((employee) => {
-
-			scheduleData.push({
-				id: employee.id,
-				name: employee.name
-			});
-
 			return({
 				id: employee.id,
 				name: employee.name,
@@ -130,13 +125,6 @@ class Employees extends React.Component {
 
 		Promise.all(promise).then((data) => {
 			callback(data);
-
-			setTimeout(() => {
-				console.log("setting schedule data");
-				this.setState({
-					scheduleData: scheduleData,
-				});
-			}, 5000);
 		});
 	}
 
@@ -158,31 +146,45 @@ class Employees extends React.Component {
 			);
 		};
 
-		const dayFormatter = (cell, row, rowIndex, data) => {
-			let newScheduleData = data.scheduleData;
-			let index = this.state.scheduleData.findIndex((element) => {
+		const dayFormatter = (cell, row, rowIndex, extraData) => {
+			if(!extraData.scheduleData) return;
+			const scheduleData = [...extraData.scheduleData];
+			const colIndex = extraData.colIndex;
+
+			console.log(rowIndex);
+
+			// Find employee's array index by id
+			let index = scheduleData.findIndex((element) => {
 				return element.id === row.id;
 			});
 
-			console.log(index);
+			console.log("update!");
 
-			const onClickInput = (event) => {
-				event.target.select();
+			if(index === -1) {
+				return;
 			}
 
-			const onBlurInput = () => {
-				this.setState({
-
-				});
+			const onClickScheduleInput = (event) => {
+				event.target.select();
+			}
+		
+			const onChangeScheduleInput = (event) => {
+				let newScheduleData = [...this.state.scheduleData];
+				newScheduleData[index].days[colIndex] = event.target.value;
+		
+				this.setState(state => ({
+					...state,
+					scheduleData: newScheduleData,
+				}));
 			}
 
 			return (
 				<input 
-					onClick={onClickInput}
-					onBlur={onBlurInput}
+					onClick={onClickScheduleInput}
+					onChange={onChangeScheduleInput}
 					className="border-0 text-center" 
 					style={{ width: "32px", height: "32px", fontSize: "12px" }}
-					value={"D"}
+					value={scheduleData[index].days[colIndex]}
 				/>
 			);
 		};
@@ -217,7 +219,7 @@ class Employees extends React.Component {
 				dataField: (i + 1).toString(),
 				text: (i + 1).toString(),
 				formatter: dayFormatter,
-				formatExtraData: { i, scheduleData: this.state.scheduleData },
+				formatExtraData: { colIndex: i, scheduleData: this.state.scheduleData },
 				headerClasses: "text-center",
 				classes: "p-0 m-0",
 			});
