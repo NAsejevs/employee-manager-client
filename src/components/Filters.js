@@ -44,21 +44,21 @@ class Filters extends React.Component {
 
     componentWillMount() {
 		const cookies = new Cookies();
-		let settings = cookies.get("settings");
+        let settings = cookies.get("settings");
+        
+        const startDate = new Date();
+        startDate.setHours(0,0,0);
+
+        const endDate = new Date();
+        endDate.setHours(23,59,59);
 
 		if(settings) {
 			this.setState({
                 ...settings,
-				startDate: new Date(settings.startDate),
-				endDate: new Date(settings.endDate),
+				startDate: settings.startDate ? new Date(settings.startDate) : new Date(startDate),
+				endDate: settings.endDate ? new Date(settings.endDate) : new Date(endDate),
 			});
 		} else {
-            const startDate = new Date();
-            startDate.setHours(0,0,0);
-    
-            const endDate = new Date();
-            endDate.setHours(23,59,59);
-
 			settings = {
 				showFilters: false,
 				showArchive: false,

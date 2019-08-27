@@ -56,9 +56,9 @@ class Employees extends React.Component {
 		for(let i = 0; i < 200; i++) {
 			scheduleData.push({
 				id: i,
-				data: [],
+				days: [],
 			});
-			scheduleData[i].data.fill(0, 0, 30);
+			scheduleData[i].days.fill(0, 0, 30);
 		}
 
 		this.setState({
@@ -151,14 +151,10 @@ class Employees extends React.Component {
 			const scheduleData = [...extraData.scheduleData];
 			const colIndex = extraData.colIndex;
 
-			console.log(rowIndex);
-
 			// Find employee's array index by id
 			let index = scheduleData.findIndex((element) => {
 				return element.id === row.id;
 			});
-
-			console.log("update!");
 
 			if(index === -1) {
 				return;
