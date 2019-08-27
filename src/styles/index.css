@@ -37,3 +37,10 @@ body {
 	padding-top: 10px;
 	color: #b1b1b1;
 }
+
+.dot {
+	height: 25px;
+	width: 25px;
+	border-radius: 50%;
+	display: inline-block;
+  }

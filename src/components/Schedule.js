@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import React from "react";
 import Cookies from 'universal-cookie';
 
-import { Button, Dropdown } from "react-bootstrap";
+import { Row, Col, Button, Dropdown } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 
@@ -16,6 +16,8 @@ import {
 	showEmployeeWorkLog
 } from "../actions/employeeActions";
 
+import { getSchedules, saveSchedules } from "../utils/employeeUtils";
+
 import { daysInMonth, convertSpecialCharacters } from "../utils/commonUtils";
 
 class Employees extends React.Component {
@@ -23,11 +25,15 @@ class Employees extends React.Component {
 	constructor() {
 		super();
 
+		this.currentMonth = new Date().getMonth();
+
 		this.state = {
 			workLogUserId: null,
 			showWorkLogModal: false,
 			tableData: [],
 			pageSize: 10,
+			schedules: null,
+			saving: false,
 		}
 	}
 
@@ -51,24 +57,26 @@ class Employees extends React.Component {
 	componentDidMount() {
 		this.onTableChange();
 
-		let scheduleData = [];
-
-		for(let i = 0; i < 200; i++) {
-			scheduleData.push({
-				id: i,
-				days: [],
+		getSchedules(this.currentMonth).then((res) => {
+			const schedules = res.data.map((schedule) => {
+				const parsedSchedule = schedule;
+				console.log(parsedSchedule.days);
+				parsedSchedule.days = JSON.parse(parsedSchedule.days);
+				return parsedSchedule;
 			});
-			scheduleData[i].days.fill(0, 0, 30);
-		}
 
-		this.setState({
-			scheduleData: scheduleData
+			this.setState({
+				schedules: schedules,
+			});
 		});
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.employees !== this.props.employees) {
+		if(prevProps.employees !== this.props.employees ||
+			prevState.schedules !== this.state.schedules) {
 			this.onTableChange();
+			console.log("prevState.schedules: ", prevState.schedules);
+			console.log("this.state.schedules: ", this.state.schedules);
 		}
 
 		if(prevState.pageSize !== this.state.pageSize) {
@@ -102,8 +110,68 @@ class Employees extends React.Component {
 		});
 	}
 
+	onClickScheduleInput = (event, cell, row, rowIndex, colIndex) => {
+		event.target.select();
+	}
+
+	onChangeScheduleInput = (event, cell, row, rowIndex, colIndex) => {
+		let newSchedules = this.state.schedules;
+		const scheduleIndex = newSchedules.findIndex((schedule) => {
+			return schedule.employee_id === row.id;
+		});
+
+		if(scheduleIndex === -1) {
+			// Employee has no previous schedule entries, so let's create a new object for him
+
+			// Create new empty days
+			const newDays = new Array(31).fill("", 0, 31);
+
+			// Set the changed day
+			newDays[colIndex] = event.target.value;
+
+			newSchedules.push({
+				employee_id: row.id,
+				month: this.currentMonth,
+				days: newDays
+			});
+
+			this.setState({
+				schedules: [...newSchedules]
+			});
+		} else {
+			newSchedules[scheduleIndex].days[colIndex] = event.target.value;
+
+			this.setState({
+				schedules: [...newSchedules]
+			});
+		}
+	}
+
+	saveSchedules = () => {
+		this.setState({ saving: true });
+		saveSchedules(this.state.schedules).then(() => {
+			this.setState({ saving: false });
+		});
+	}
+
 	formatTable = (callback = () => null) => {
 		const promise = this.props.employees.map((employee) => {
+
+			let schedule = {};
+			if(this.state.schedules !== null) {
+				let scheduleIndex = this.state.schedules.findIndex((schedule) => {
+					return schedule.employee_id === employee.id;
+				});
+
+				if(this.state.schedules !== null && 
+					this.state.schedules[scheduleIndex] !== undefined &&
+					scheduleIndex !== -1) {
+					this.state.schedules[scheduleIndex].days.forEach((day, index) => {
+						schedule["scheduleDay" + index] = day;
+					});
+				}
+			}
+
 			return({
 				id: employee.id,
 				name: employee.name,
@@ -120,6 +188,7 @@ class Employees extends React.Component {
 					comments: employee.comments,
 				},
 				commands: employee,
+				...schedule
 			});
 		});
 
@@ -146,41 +215,14 @@ class Employees extends React.Component {
 			);
 		};
 
-		const dayFormatter = (cell, row, rowIndex, extraData) => {
-			if(!extraData.scheduleData) return;
-			const scheduleData = [...extraData.scheduleData];
-			const colIndex = extraData.colIndex;
-
-			// Find employee's array index by id
-			let index = scheduleData.findIndex((element) => {
-				return element.id === row.id;
-			});
-
-			if(index === -1) {
-				return;
-			}
-
-			const onClickScheduleInput = (event) => {
-				event.target.select();
-			}
-		
-			const onChangeScheduleInput = (event) => {
-				let newScheduleData = [...this.state.scheduleData];
-				newScheduleData[index].days[colIndex] = event.target.value;
-		
-				this.setState(state => ({
-					...state,
-					scheduleData: newScheduleData,
-				}));
-			}
-
+		const dayFormatter = (cell, row, rowIndex, colIndex) => {
 			return (
 				<input 
-					onClick={onClickScheduleInput}
-					onChange={onChangeScheduleInput}
+					onClick={(event) => this.onClickScheduleInput(event, cell, row, rowIndex, colIndex)}
+					onChange={(event) => this.onChangeScheduleInput(event, cell, row, rowIndex, colIndex)}
 					className="border-0 text-center" 
 					style={{ width: "32px", height: "32px", fontSize: "12px" }}
-					value={scheduleData[index].days[colIndex]}
+					value={cell}
 				/>
 			);
 		};
@@ -212,10 +254,10 @@ class Employees extends React.Component {
 		
 		for(let i = 0; i < days; i++) {
 			columns.push({
-				dataField: (i + 1).toString(),
+				dataField: "scheduleDay" + i,
 				text: (i + 1).toString(),
 				formatter: dayFormatter,
-				formatExtraData: { colIndex: i, scheduleData: this.state.scheduleData },
+				formatExtraData: i,
 				headerClasses: "text-center",
 				classes: "p-0 m-0",
 			});
@@ -295,6 +337,42 @@ class Employees extends React.Component {
 					onFilterChange={this.onFilterChange}
 					filterData={filterData => this.filterData = filterData}
 				/>
+				<Row>
+					<Col>
+						<span className="dot" style={{ backgroundColor: "red" }}>
+							<span className="ml-5">Diena</span>
+						</span>
+					</Col>
+					<Col>
+					<span className="dot" style={{ backgroundColor: "blue" }}>
+							<span className="ml-5">Nakts</span>
+						</span>
+					</Col>
+					<Col>
+					<span className="dot" style={{ backgroundColor: "gray" }}>
+							<span className="ml-5">Brīvdiena</span>
+						</span>
+					</Col>
+					<Col>
+					<span className="dot" style={{ backgroundColor: "yellow" }}>
+							<span className="ml-5">Atvaļinājums</span>
+						</span>
+					</Col>
+				</Row>
+				<Row>
+					<Col>
+						<Button  
+							onClick={this.saveSchedules}
+							className="float-right"
+						>
+							{
+								this.state.saving 
+								? "Saglabā..."
+								: "Saglabāt"
+							}
+						</Button>
+					</Col>
+				</Row>
 				<BootstrapTable 
 					bootstrap4={ true }
 					keyField="id"

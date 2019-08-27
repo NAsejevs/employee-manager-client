@@ -25,6 +25,18 @@ export const getServerEmployee = (id) => {
 	});
 }
 
+export const getSchedules = (month) => {
+	return request.post("/getSchedules", {
+		month
+	});
+}
+
+export const saveSchedules = (schedules) => {
+	return request.post("/saveSchedules", {
+		schedules
+	});
+}
+
 export const getServerEmployeeWorkLog = (id, order = "DESC") => {
 	return request.post("/getEmployeeWorkLog", { 
 		id,
