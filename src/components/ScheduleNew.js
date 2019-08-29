@@ -1,13 +1,12 @@
 import { connect } from "react-redux";
 import React from "react";
+import update from "immutability-helper";
 import ReactTable from "react-table";
 import Cookies from "universal-cookie";
 
 import "react-table/react-table.css";
 
-import { Row, Col, Button, Dropdown, InputGroup } from "react-bootstrap";
-import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
+import { Row, Col, Button } from "react-bootstrap";
 
 import ContainerBox from "./ContainerBox";
 import Filters from "./Filters";
@@ -21,8 +20,8 @@ import {
 
 import { getSchedules, saveSchedules } from "../utils/employeeUtils";
 
-import { keyboardMap, daysInMonth, convertSpecialCharacters, isWeekend } from "../utils/commonUtils";
-import { callbackify } from "util";
+import { daysInMonth } from "../utils/commonUtils";
+import { isThisSecond } from "date-fns/esm";
 
 class Employees extends React.Component {
 
@@ -48,6 +47,8 @@ class Employees extends React.Component {
 			// Scheduling specific
 			schedules: [],
 			selectedFields: [],
+			target: null,
+			targetValue: null,
 		}
 	}
 
@@ -83,7 +84,8 @@ class Employees extends React.Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.employees !== this.props.employees) {
+		if(prevProps.employees !== this.props.employees ||
+			prevState.schedules !== this.state.schedules) {
 			this.formatTableData();
 		}
 
@@ -141,7 +143,7 @@ class Employees extends React.Component {
 			return schedulePromise.then((index) => {
 				return ({
 					name: employee.surname + " " + employee.name,
-					schedule: this.state.schedules[index],
+					schedules: this.state.schedules,
 					scheduleIndex: index,
 				});
 			})
@@ -157,21 +159,45 @@ class Employees extends React.Component {
 	scheduleCellRenderer = (props) => {
 		const dayIndex = parseInt(props.column.Header) - 1;
 		const scheduleIndex = props.original.scheduleIndex;
+		const schedules = props.original.schedules;
+		let target = null;
+
+		const onFocus = (e) => {
+			console.log(e);
+			target = 9999;
+			if(e.target === this.state.target || this.state.target === null) {
+				this.setState({
+					target: e.target,
+					targetValue: e.target.value,
+				});
+			}
+		}
+
+		const onBlur = (e) => {
+			target = null;
+			this.setState({
+				target: null,
+				targetValue: null,
+			});
+		}
 
 		const onChange = (e) => {
-			let newSchedules = [...this.state.schedules];
+			let newSchedules = [...schedules];
 			newSchedules[scheduleIndex].days[dayIndex] = e.target.value;
 
 			this.setState({
 				schedules: newSchedules,
-			}, () => console.log(this.state.schedules));
+			})
 		}
 
 		return (
 			<input
+				key={[scheduleIndex, dayIndex]}
+				onFocus={(e) => onFocus(e)}
 				onChange={(e) => onChange(e)}
-				value={props.value.days[dayIndex]}
-				className="w-100 h-100"
+				onBlur={(e) => onBlur(e)}
+				value={target !== null ? schedules[scheduleIndex].days[dayIndex] : this.state.targetValue}
+				className="w-100 h-100 text-center"
 				style={{ border: 0, background: 0 }}
 			/>
 		)
@@ -188,7 +214,7 @@ class Employees extends React.Component {
 		for(let i = 0; i < days; i++) {
 			columns.push({
 				Header: (i + 1).toString(),
-				accessor: "schedule",
+				accessor: "schedules",
 				Cell: this.scheduleCellRenderer,
 				width: 32,
 				getProps: (state, rowInfo, column) => {
@@ -253,6 +279,9 @@ class Employees extends React.Component {
 								height: "32px",
 							},
 						};
+					}}
+					style={{
+						fontSize: "12px",
 					}}
 				/>
 			</ContainerBox>
