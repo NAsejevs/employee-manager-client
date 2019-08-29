@@ -37,13 +37,13 @@ class Employees extends React.Component {
 		this.keyDown = {};
 
 		this.state = {
-			workLogUserId: null,
-			showWorkLogModal: false,
+			// General
 			tableData: [],
 			pageSize: 10,
-			schedules: null,
-			selectedFields: [[0, 17], [0, 18]],
 			saving: false,
+			// Scheduling specific
+			schedules: [],
+			selectedFields: [],
 		}
 	}
 
@@ -75,41 +75,43 @@ class Employees extends React.Component {
 			});
 
 			this.setState({
-				schedules: schedules,
+				schedules: [...schedules],
 			});
 		});
 
-		window.addEventListener("keydown", (event) => {
-			this.keyDown[event.keyCode] = true;
+		// window.addEventListener("keydown", (event) => {
+		// 	this.keyDown[event.keyCode] = true;
 
-			console.log("key down: ", event.keyCode);
+		// 	if(this.state.selectedFields.length > 0 &&
+		// 		(keyboardMap[event.keyCode] === "D" ||
+		// 		keyboardMap[event.keyCode] === "N" ||
+		// 		keyboardMap[event.keyCode] === "B" ||
+		// 		keyboardMap[event.keyCode] === "A" ||
+		// 		keyboardMap[event.keyCode] === "S")) {
 
-			if(this.state.selectedFields.length > 0 &&
-				(keyboardMap[event.keyCode] === "D" ||
-				keyboardMap[event.keyCode] === "N" ||
-				keyboardMap[event.keyCode] === "B" ||
-				keyboardMap[event.keyCode] === "A" ||
-				keyboardMap[event.keyCode] === "S")) {
+		// 		let newSchedules = [...this.state.schedules];
 
-				this.state.selectedFields.forEach((field) => {
-					let newSchedules = [...this.state.schedules];
-					newSchedules[field[0]].days[field[2]] = keyboardMap[event.keyCode];
-			
-					this.setState({
-						schedules: [...newSchedules]
-					});
-				})
-			}
-		});
+		// 		this.state.selectedFields.forEach((field) => {
+		// 			newSchedules[field[0]].days[field[2]] = keyboardMap[event.keyCode];
+		// 		});
 
-		window.addEventListener("keyup", (event) => {
-			this.keyDown[event.keyCode] = false;
-		});
+		// 		this.setState({
+		// 			schedules: newSchedules,
+		// 		});
+		// 	}
+		// });
+
+		// window.addEventListener("keyup", (event) => {
+		// 	this.keyDown[event.keyCode] = false;
+		// });
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.employees !== this.props.employees ||
-			prevState.schedules !== this.state.schedules) {
+		if(prevState.schedules !== this.state.schedules) {
+			console.log("schedules changed!");
+		}
+
+		if(prevProps.employees !== this.props.employees) {
 			this.onTableChange();
 		}
 
@@ -155,44 +157,63 @@ class Employees extends React.Component {
 		});
 	}
 
+	onClickScheduleInput = (event, cell, row, rowIndex, colIndex, selectedFields, schedules, scheduleIndex) => {
+		if(!this.isKeyDown(17) && !this.isKeyDown(16)) { // CTRL is not being held
+			selectedFields = [];
+		}
+
+		if(this.isKeyDown(16)) { // SHIFT is being held down
+			const start = selectedFields[selectedFields.length - 1];
+			const end = [scheduleIndex, rowIndex, colIndex];
+
+			for(let i = Math.min(start[1], end[1]); i <= Math.max(start[1], end[1]); i++) {
+				for(let i2 = Math.min(start[2], end[2]); i2 <= Math.max(start[2], end[2]); i2++) {
+					selectedFields.push([scheduleIndex, i, i2]);
+				}
+			}
+		}
+		
+		selectedFields.push([scheduleIndex, rowIndex, colIndex]);
+
+		this.setState({
+			selectedFields: selectedFields,
+			counter: this.state.counter + 1,
+		});
+	}
+
+	onChangeScheduleInput = (event, cell, row, rowIndex, colIndex, selectedFields, schedules, scheduleIndex) => {
+		schedules[scheduleIndex].days[colIndex] = event.target.value;
+		// schedules = new Array(schedules);
+
+		this.setState({
+			schedules: schedules,
+			counter: this.state.counter + 1,
+		}, () => {
+			console.log(this.state.schedules[scheduleIndex].days[colIndex]);
+		});
+	}
+
 	formatTable = (callback = () => null) => {
+		const newSchedules = [...this.state.schedules];
 		const promise = this.props.employees.map((employee) => {
 
-			let schedule = {};
-			if(this.state.schedules !== null) {
-				let scheduleIndex = this.state.schedules.findIndex((schedule) => {
-					return schedule.employee_id === employee.id;
+			let scheduleIndex = newSchedules.findIndex((schedule) => {
+				return schedule.employee_id === employee.id;
+			});
+
+			if(scheduleIndex === -1) {
+				// Employee has no previous schedule entries, so let's create a new object for him
+				const newDays = new Array(31).fill("", 0, 31);
+	
+				newSchedules.push({
+					employee_id: employee.id,
+					month: this.currentMonth,
+					days: newDays
 				});
-
-				const newSchedules = [...this.state.schedules];
-
-				if(scheduleIndex === -1) {
-					// Employee has no previous schedule entries, so let's create a new object for him
-		
-					// Create new empty days
-					const newDays = new Array(31).fill("", 0, 31);
-		
-					newSchedules.push({
-						employee_id: employee.id,
-						month: this.currentMonth,
-						days: newDays
-					});
-
-					scheduleIndex = newSchedules.length - 1;
-
-					newSchedules[scheduleIndex].days.forEach((day, index) => {
-						schedule["scheduleDay" + index] = day;
-					});
-		
-					// this.setState({
-					// 	schedules: [...newSchedules]
-					// });
-				}
 			}
 
 			return({
 				id: employee.id,
-				name: employee.name,
 				position: employee.position ? employee.position.toString() : "",
 				company: employee.company ? employee.company.toString() : "",
 				archived: employee.archived,
@@ -201,17 +222,17 @@ class Employees extends React.Component {
 				name: {
 					id: employee.id,
 					name: employee.name,
-					surname: employee.surname,
-					working: employee.working,
-					comments: employee.comments,
+					surname: employee.surname
 				},
-				commands: employee,
-				...schedule
 			});
 		});
 
 		Promise.all(promise).then((data) => {
 			callback(data);
+
+			this.setState({
+				schedules: newSchedules,
+			});
 		});
 	}
 
@@ -231,7 +252,8 @@ class Employees extends React.Component {
 
 		const dayFormatter = (cell, row, rowIndex, extraData) => {
 			const colIndex = extraData.colIndex;
-			const selectedFields = extraData.selectedFields;
+			let selectedFields = [...extraData.selectedFields];
+			let schedules = [...extraData.schedules];
 
 			let color = this.transparentColor;
 
@@ -263,9 +285,9 @@ class Employees extends React.Component {
 				}
 			}
 
-			let scheduleIndex = this.state.schedules !== null ? this.state.schedules.findIndex((schedule) => {
+			let scheduleIndex = schedules.findIndex((schedule) => {
 				return schedule.employee_id === row.id;
-			}) : -1;
+			});
 
 			for(let i = 0; i < selectedFields.length; i++) {
 				if(selectedFields[i][1] === rowIndex &&
@@ -274,49 +296,18 @@ class Employees extends React.Component {
 				}
 			}
 
-			const onClickScheduleInput = (event, cell, row, rowIndex, colIndex) => {
-				let newSelectedFields = [...selectedFields];
-
-				if(!this.isKeyDown(17) && !this.isKeyDown(16)) { // CTRL is not being held
-					newSelectedFields = [];
-				}
-
-				if(this.isKeyDown(16)) { // SHIFT is being held down
-					const start = newSelectedFields[newSelectedFields.length - 1];
-					const end = [scheduleIndex, rowIndex, colIndex];
-
-					for(let i = Math.min(start[1], end[1]); i <= Math.max(start[1], end[1]); i++) {
-						for(let i2 = Math.min(start[2], end[2]); i2 <= Math.max(start[2], end[2]); i2++) {
-							newSelectedFields.push([scheduleIndex, i, i2]);
-						}
-					}
-				}
-				
-				newSelectedFields.push([scheduleIndex, rowIndex, colIndex]);
-
-				this.setState({
-					selectedFields: [...newSelectedFields],
-				});
-			}
-		
-			const onChangeScheduleInput = (event, cell, row, rowIndex, colIndex) => {
-				console.log(this.state.schedules);
-				let newSchedules = [...this.state.schedules];
-				newSchedules[scheduleIndex].days[colIndex] = event.target.value;
-		
-				this.setState({
-					schedules: [...newSchedules]
-				});
-			}
-
 			return (
 				<div style={{ backgroundColor: color }}>
 					<input 
-						onFocus={(event) => onClickScheduleInput(event, cell, row, rowIndex, colIndex)}
-						onChange={(event) => onChangeScheduleInput(event, cell, row, rowIndex, colIndex)}
+						onFocus={(event) => this.onClickScheduleInput(event, cell, row, rowIndex, colIndex, selectedFields, schedules, scheduleIndex)}
+						onChange={(event) => this.onChangeScheduleInput(event, cell, row, rowIndex, colIndex, selectedFields, schedules, scheduleIndex)}
 						className="border-0 text-center" 
 						style={{ width: "32px", height: "32px", fontSize: "12px", backgroundColor: "RGBA(0, 0, 0, 0)"}}
-						value={cell}
+						value={
+							scheduleIndex === -1
+							? ""
+							: schedules[scheduleIndex].days[colIndex]
+						}
 					/>
 				</div>
 			);
@@ -361,7 +352,12 @@ class Employees extends React.Component {
 				dataField: "scheduleDay" + i,
 				text: (i + 1).toString(),
 				formatter: dayFormatter,
-				formatExtraData: { colIndex: i, selectedFields: this.state.selectedFields },
+				formatExtraData: { 
+					colIndex: i, 
+					selectedFields: this.state.selectedFields,
+					schedules: this.state.schedules,
+					counter: this.state.counter,
+				},
 				headerClasses: "text-center",
 				headerStyle: { backgroundColor: color },
 				classes: "text-center p-0 m-0",

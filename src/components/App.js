@@ -17,6 +17,8 @@ import ExportExcel from "./ExportExcel";
 import LogIn from "./LogIn";
 import CheckCard from "./CheckCard";
 import CommentEmployee from "./CommentEmployee";
+import Schedule from "./Schedule";
+import ScheduleNew from "./ScheduleNew";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
@@ -27,7 +29,6 @@ import "../styles/table.css";
 
 import logo from "../images/logo.png";
 import { FiLogOut } from "react-icons/fi";
-import Schedule from "./Schedule";
 
 class App extends React.Component {
 	constructor() {
@@ -145,6 +146,9 @@ class App extends React.Component {
 												<LinkContainer exact={true} to="/schedule">
 													<Nav.Link>Grafiks</Nav.Link>
 												</LinkContainer>
+												<LinkContainer exact={true} to="/schedule_new">
+													<Nav.Link>Grafiks NEW!</Nav.Link>
+												</LinkContainer>
 											</Nav>
 											<Nav>
 												<Navbar.Text className="ml-md-4">
@@ -165,6 +169,7 @@ class App extends React.Component {
 										<Route exact path="/" component={Employees} />
 										<Route exact path="/report" component={Report} />
 										<Route exact path="/schedule" component={Schedule} />
+										<Route exact path="/schedule_new" component={ScheduleNew} />
 										<Route component={NotFound} />
 									</Switch>
 									<ViewEmployee/>
