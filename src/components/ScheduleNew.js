@@ -20,8 +20,7 @@ import {
 
 import { getSchedules, saveSchedules } from "../utils/employeeUtils";
 
-import { daysInMonth } from "../utils/commonUtils";
-import { isThisSecond } from "date-fns/esm";
+import { daysInMonth, keyboardMap } from "../utils/commonUtils";
 
 class Employees extends React.Component {
 
@@ -81,17 +80,50 @@ class Employees extends React.Component {
 				schedules: [...schedules],
 			});
 		});
+
+		window.addEventListener("keydown", (event) => {
+		this.keyDown[event.keyCode] = true;
+
+		if(this.state.selectedFields.length > 0 &&
+			(keyboardMap[event.keyCode] === "D" ||
+			keyboardMap[event.keyCode] === "N" ||
+			keyboardMap[event.keyCode] === "B" ||
+			keyboardMap[event.keyCode] === "A" ||
+			keyboardMap[event.keyCode] === "S")) {
+
+				let newSchedules = [...this.state.schedules];
+
+				this.state.selectedFields.forEach((field) => {
+					newSchedules[field[0]].days[field[2]] = keyboardMap[event.keyCode];
+				});
+
+				this.setState({
+					schedules: newSchedules,
+				});
+			}
+		});
+
+		window.addEventListener("keyup", (event) => {
+			this.keyDown[event.keyCode] = false;
+		});
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.employees !== this.props.employees ||
-			prevState.schedules !== this.state.schedules) {
+		if(prevProps.employees !== this.props.employees) {
 			this.formatTableData();
 		}
+
+		// if(prevState.schedules !== this.state.schedules) {
+		// 	this.formatTableData();
+		// }
 
 		if(prevState.pageSize !== this.state.pageSize) {
 			this.saveSettings();
 		}
+	}
+
+	isKeyDown = (key) => {
+		return this.keyDown[key];
 	}
 
 	saveSettings = () => {
@@ -112,6 +144,7 @@ class Employees extends React.Component {
 	}
 
 	formatTableData = () => {
+		console.log("formating table");
 		const tableData = this.props.employees.map((employee) => {
 			
 			const schedulePromise = new Promise((resolve, reject) => {
@@ -143,15 +176,16 @@ class Employees extends React.Component {
 			return schedulePromise.then((index) => {
 				return ({
 					name: employee.surname + " " + employee.name,
-					schedules: this.state.schedules,
+					schedules: this.state.schedules[index],
 					scheduleIndex: index,
+					selectedFields: this.state.selectedFields,
 				});
 			})
 		});
 
 		Promise.all(tableData).then((data) => {
 			this.setState({
-				tableData: data,
+				tableData: [...data],
 			});
 		});
 	}
@@ -159,46 +193,107 @@ class Employees extends React.Component {
 	scheduleCellRenderer = (props) => {
 		const dayIndex = parseInt(props.column.Header) - 1;
 		const scheduleIndex = props.original.scheduleIndex;
-		const schedules = props.original.schedules;
-		let target = null;
+		let selectedFields = [...this.state.selectedFields];
 
-		const onFocus = (e) => {
-			console.log(e);
-			target = 9999;
-			if(e.target === this.state.target || this.state.target === null) {
-				this.setState({
-					target: e.target,
-					targetValue: e.target.value,
-				});
+		const onClick = (e) => {
+			if(!this.isKeyDown(17) && !this.isKeyDown(16)) { // CTRL is not being held
+				selectedFields = [];
 			}
-		}
-
-		const onBlur = (e) => {
-			target = null;
+	
+			if(this.isKeyDown(16)) { // SHIFT is being held down
+				const start = selectedFields[selectedFields.length - 1];
+				const end = [scheduleIndex, dayIndex];
+	
+				for(let i = Math.min(start[1], end[1]); i <= Math.max(start[1], end[1]); i++) {
+					for(let i2 = Math.min(start[2], end[2]); i2 <= Math.max(start[2], end[2]); i2++) {
+						selectedFields.push([scheduleIndex, i, i2]);
+					}
+				}
+			}
+			
+			selectedFields.push([scheduleIndex, dayIndex]);
+	
 			this.setState({
-				target: null,
-				targetValue: null,
+				selectedFields: selectedFields,
 			});
 		}
 
-		const onChange = (e) => {
-			let newSchedules = [...schedules];
-			newSchedules[scheduleIndex].days[dayIndex] = e.target.value;
+		const onFocus = (e) => {
+			e.target.select();
+		}
 
-			this.setState({
-				schedules: newSchedules,
-			})
+		const onBlur = (e) => {
+			
+		}
+
+		const onChange = (e) => {
+			let newSchedules = [...this.state.schedules];
+			newSchedules[scheduleIndex].days[dayIndex] = new String(e.target.value).toUpperCase();
+
+			if(this.state.selectedFields.length > 1) {
+				this.state.selectedFields.forEach((field) => {
+					newSchedules[field[0]].days[field[1]] = new String(e.target.value).toUpperCase();
+				});
+			}
+
+			this.setState(() => {
+				return {
+					schedules: newSchedules
+				};
+			});
+		}
+
+		let color = this.transparentColor;
+
+		switch(this.state.schedules[scheduleIndex].days[dayIndex]) {
+			case "d":
+			case "D": {
+				color = this.dayColor;
+				break;
+			}
+			case "n":
+			case "N": {
+				color = this.nightColor;
+				break;
+			}
+			case "b":
+			case "B": {
+				color = this.dayOffColor;
+				break;
+			}
+			case "a":
+			case "A": {
+				color = this.vacationColor;
+				break;
+			}
+			case "s":
+			case "S": {
+				color = this.sickListColor;
+				break;
+			}
+			default: {
+				color = this.transparentColor;
+				break;
+			}
+		}
+
+		for(let i = 0; i < selectedFields.length; i++) {
+			if(selectedFields[i][0] === scheduleIndex &&
+				selectedFields[i][1] === dayIndex) {
+				color = "RGBA(1, 1, 1, 0.3)";
+			}
 		}
 
 		return (
 			<input
 				key={[scheduleIndex, dayIndex]}
+				onClick={(e) => onClick(e)}
 				onFocus={(e) => onFocus(e)}
 				onChange={(e) => onChange(e)}
 				onBlur={(e) => onBlur(e)}
-				value={target !== null ? schedules[scheduleIndex].days[dayIndex] : this.state.targetValue}
+				value={props.value.days[dayIndex]}
 				className="w-100 h-100 text-center"
-				style={{ border: 0, background: 0 }}
+				style={{ border: 0, background: color }}
 			/>
 		)
 	}
@@ -234,7 +329,21 @@ class Employees extends React.Component {
 					onFilterChange={this.onFilterChange}
 					filterData={filterData => this.filterData = filterData}
 				/>
-				<Row className="mt-3 text-center">
+				<Row className="mb-3">
+					<Col>
+						<Button  
+							onClick={this.saveSchedules}
+							className="float-right"
+						>
+							{
+								this.state.saving 
+								? "Saglabā..."
+								: "Saglabāt"
+							}
+						</Button>
+					</Col>
+				</Row>
+				<Row className="mb-3 text-center" style={{ fontSize: "14px" }}>
 					<Col>
 						<span className="dot align-bottom" style={{ backgroundColor: this.dayColor }}/>
 						<span className="ml-2">Diena</span>
@@ -254,20 +363,6 @@ class Employees extends React.Component {
 					<Col>
 						<span className="dot align-bottom" style={{ backgroundColor: this.sickListColor }}/>
 						<span className="ml-2">Slimības lapa</span>
-					</Col>
-				</Row>
-				<Row className="mb-3 mt-3">
-					<Col>
-						<Button  
-							onClick={this.saveSchedules}
-							className="float-right"
-						>
-							{
-								this.state.saving 
-								? "Saglabā..."
-								: "Saglabāt"
-							}
-						</Button>
 					</Col>
 				</Row>
 				<ReactTable
