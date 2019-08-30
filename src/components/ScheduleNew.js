@@ -1,6 +1,5 @@
 import { connect } from "react-redux";
 import React from "react";
-import update from "immutability-helper";
 import ReactTable from "react-table";
 import Cookies from "universal-cookie";
 
@@ -38,33 +37,28 @@ class Employees extends React.Component {
 
 		this.keyDown = {};
 
+		const cookies = new Cookies();
+		let settings = cookies.get("settings");
+
+		if(!settings) {
+			settings = {
+				pageSize: 10,
+			}
+
+			cookies.set("settings", settings);
+		}
+
 		this.state = {
 			// General
 			tableData: [],
 			pageSize: 10,
+			...settings,
 			saving: false,
 			// Scheduling specific
 			schedules: [],
 			selectedFields: [],
 			target: null,
 			targetValue: null,
-		}
-	}
-
-	componentWillMount() {
-		const cookies = new Cookies();
-		let settings = cookies.get("settings");
-
-		if(settings) {
-			this.setState({
-				...settings,
-			});
-		} else {
-			settings = {
-				pageSize: 10,
-			}
-
-			cookies.set("settings", settings);
 		}
 	}
 
@@ -78,7 +72,7 @@ class Employees extends React.Component {
 
 			this.setState({
 				schedules: [...schedules],
-			});
+			}, () => this.formatTableData());
 		});
 
 		window.addEventListener("keydown", (event) => {
@@ -112,10 +106,6 @@ class Employees extends React.Component {
 		if(prevProps.employees !== this.props.employees) {
 			this.formatTableData();
 		}
-
-		// if(prevState.schedules !== this.state.schedules) {
-		// 	this.formatTableData();
-		// }
 
 		if(prevState.pageSize !== this.state.pageSize) {
 			this.saveSettings();
@@ -202,7 +192,10 @@ class Employees extends React.Component {
 	
 			if(this.isKeyDown(16)) { // SHIFT is being held down
 				const start = selectedFields[selectedFields.length - 1];
-				const end = [scheduleIndex, dayIndex];
+				const end = [scheduleIndex, props.index, dayIndex];
+
+				console.log("start: ", start);
+				console.log("end: ", end);
 	
 				for(let i = Math.min(start[1], end[1]); i <= Math.max(start[1], end[1]); i++) {
 					for(let i2 = Math.min(start[2], end[2]); i2 <= Math.max(start[2], end[2]); i2++) {
@@ -211,7 +204,9 @@ class Employees extends React.Component {
 				}
 			}
 			
-			selectedFields.push([scheduleIndex, dayIndex]);
+			selectedFields.push([scheduleIndex, props.index, dayIndex]);
+
+			console.log(selectedFields);
 	
 			this.setState({
 				selectedFields: selectedFields,
@@ -228,11 +223,11 @@ class Employees extends React.Component {
 
 		const onChange = (e) => {
 			let newSchedules = [...this.state.schedules];
-			newSchedules[scheduleIndex].days[dayIndex] = new String(e.target.value).toUpperCase();
+			newSchedules[scheduleIndex].days[dayIndex] = e.target.value.toUpperCase();
 
 			if(this.state.selectedFields.length > 1) {
 				this.state.selectedFields.forEach((field) => {
-					newSchedules[field[0]].days[field[1]] = new String(e.target.value).toUpperCase();
+					newSchedules[field[0]].days[field[2]] = e.target.value.toUpperCase();
 				});
 			}
 
@@ -277,9 +272,9 @@ class Employees extends React.Component {
 			}
 		}
 
-		for(let i = 0; i < selectedFields.length; i++) {
-			if(selectedFields[i][0] === scheduleIndex &&
-				selectedFields[i][1] === dayIndex) {
+		for(let i = 0; i < this.state.selectedFields.length; i++) {
+			if(this.state.selectedFields[i][0] === scheduleIndex &&
+				this.state.selectedFields[i][2] === dayIndex) {
 				color = "RGBA(1, 1, 1, 0.3)";
 			}
 		}

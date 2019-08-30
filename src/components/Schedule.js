@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import React from "react";
 import Cookies from 'universal-cookie';
 
-import { Row, Col, Button, Dropdown, InputGroup } from "react-bootstrap";
+import { Row, Col, Button, Dropdown } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 
@@ -18,7 +18,7 @@ import {
 
 import { getSchedules, saveSchedules } from "../utils/employeeUtils";
 
-import { keyboardMap, daysInMonth, convertSpecialCharacters, isWeekend } from "../utils/commonUtils";
+import { daysInMonth, convertSpecialCharacters, isWeekend } from "../utils/commonUtils";
 
 class Employees extends React.Component {
 
@@ -36,31 +36,26 @@ class Employees extends React.Component {
 
 		this.keyDown = {};
 
-		this.state = {
-			// General
-			tableData: [],
-			pageSize: 10,
-			saving: false,
-			// Scheduling specific
-			schedules: [],
-			selectedFields: [],
-		}
-	}
-
-	componentWillMount() {
 		const cookies = new Cookies();
 		let settings = cookies.get("settings");
 
-		if(settings) {
-			this.setState({
-				...settings,
-			});
-		} else {
+		if(!settings) {
 			settings = {
 				pageSize: 10,
 			}
 
 			cookies.set("settings", settings);
+		}
+
+		this.state = {
+			// General
+			tableData: [],
+			pageSize: 10,
+			...settings,
+			saving: false,
+			// Scheduling specific
+			schedules: [],
+			selectedFields: [],
 		}
 	}
 

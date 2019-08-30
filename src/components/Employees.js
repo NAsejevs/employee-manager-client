@@ -30,28 +30,23 @@ class Employees extends React.Component {
 	constructor() {
 		super();
 
-		this.state = {
-			workLogUserId: null,
-			showWorkLogModal: false,
-			tableData: [],
-			pageSize: 10,
-		}
-	}
-
-	componentWillMount() {
 		const cookies = new Cookies();
 		let settings = cookies.get("settings");
 
-		if(settings) {
-			this.setState({
-				...settings,
-			});
-		} else {
+		if(!settings) {
 			settings = {
 				pageSize: 10,
 			}
 
 			cookies.set("settings", settings);
+		}
+
+		this.state = {
+			workLogUserId: null,
+			showWorkLogModal: false,
+			tableData: [],
+			pageSize: 10,
+			...settings
 		}
 	}
 

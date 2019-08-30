@@ -23,28 +23,6 @@ class Employees extends React.Component {
 	constructor() {
 		super();
 
-		const startDate = new Date();
-		startDate.setHours(0,0,0);
-
-		const endDate = new Date();
-		endDate.setHours(23,59,59);
-
-		this.state = {
-			workLogUserId: null,
-			showWorkLogModal: false,
-			tableData: [],
-			pageSize: 10,
-
-			startDate: startDate,
-			endDate: endDate,
-			dropdown: {
-				currentFilter: "Šodiena",
-				filters: ["Šodiena", "Vakardiena", "Pēdējās 7 dienas", "Pēdējās 30 dienas"]
-			}
-		}
-	}
-
-	componentWillMount() {
 		const cookies = new Cookies();
 		let settings = cookies.get("settings");
 
@@ -55,17 +33,29 @@ class Employees extends React.Component {
         endDate.setHours(23,59,59);
 
 		if(settings) {
-			this.setState({
+			settings = {
                 ...settings,
 				startDate: settings.startDate ? new Date(settings.startDate) : new Date(startDate),
 				endDate: settings.endDate ? new Date(settings.endDate) : new Date(endDate),
-			});
+			};
 		} else {
 			settings = {
 				pageSize: 10,
 			}
 
 			cookies.set("settings", settings);
+		}
+
+		this.state = {
+			workLogUserId: null,
+			showWorkLogModal: false,
+			tableData: [],
+			pageSize: 10,
+			...settings,
+			dropdown: {
+				currentFilter: "Šodiena",
+				filters: ["Šodiena", "Vakardiena", "Pēdējās 7 dienas", "Pēdējās 30 dienas"]
+			}
 		}
 	}
 

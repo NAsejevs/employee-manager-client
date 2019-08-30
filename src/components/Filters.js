@@ -17,33 +17,7 @@ class Filters extends React.Component {
     constructor() {
         super();
 
-        const startDate = new Date();
-		startDate.setHours(0,0,0);
-
-		const endDate = new Date();
-		endDate.setHours(23,59,59);
-
-        this.state = {
-            showFilters: false,
-			showArchive: false,
-			showInactive: false,
-			showWorking: false,
-			showNotWorking: false,
-			nameFilter: "",
-			positionFilter: "",
-            companyFilter: "",
-            startDate: startDate,
-            endDate: endDate,
-            
-			dropdown: {
-				currentFilter: "Šodiena",
-				filters: ["Šodiena", "Vakardiena", "Pēdējās 7 dienas", "Pēdējās 30 dienas"]
-			}
-        }
-    }
-
-    componentWillMount() {
-		const cookies = new Cookies();
+        const cookies = new Cookies();
         let settings = cookies.get("settings");
         
         const startDate = new Date();
@@ -53,11 +27,11 @@ class Filters extends React.Component {
         endDate.setHours(23,59,59);
 
 		if(settings) {
-			this.setState({
+			settings = {
                 ...settings,
 				startDate: settings.startDate ? new Date(settings.startDate) : new Date(startDate),
 				endDate: settings.endDate ? new Date(settings.endDate) : new Date(endDate),
-			});
+			};
 		} else {
 			settings = {
 				showFilters: false,
@@ -73,7 +47,15 @@ class Filters extends React.Component {
 			}
 
 			cookies.set("settings", settings);
-		}
+        }
+
+        this.state = {
+            ...settings,
+			dropdown: {
+				currentFilter: "Šodiena",
+				filters: ["Šodiena", "Vakardiena", "Pēdējās 7 dienas", "Pēdējās 30 dienas"]
+			}
+        }
     }
     
     componentDidMount() {
