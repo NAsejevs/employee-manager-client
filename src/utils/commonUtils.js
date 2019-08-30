@@ -70,6 +70,22 @@ export const convertSpecialCharacters = (string) => {
 	return output;
 }
 
+export const getDifference = (a, b) => {
+    let i = 0;
+    let j = 0;
+    let result = "";
+
+    while (j < b.length)
+    {
+        if (a[i] !== b[j] || i === a.length)
+            result += b[j];
+        else
+            i++;
+        j++;
+    }
+    return result;
+}
+
 export const keyboardMap = [
 	"", // [0]
 	"", // [1]

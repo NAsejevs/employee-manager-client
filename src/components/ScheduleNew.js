@@ -19,7 +19,7 @@ import {
 
 import { getSchedules, saveSchedules } from "../utils/employeeUtils";
 
-import { daysInMonth, keyboardMap } from "../utils/commonUtils";
+import { daysInMonth, getDifference } from "../utils/commonUtils";
 
 class Employees extends React.Component {
 
@@ -77,24 +77,6 @@ class Employees extends React.Component {
 
 		window.addEventListener("keydown", (event) => {
 		this.keyDown[event.keyCode] = true;
-
-		if(this.state.selectedFields.length > 0 &&
-			(keyboardMap[event.keyCode] === "D" ||
-			keyboardMap[event.keyCode] === "N" ||
-			keyboardMap[event.keyCode] === "B" ||
-			keyboardMap[event.keyCode] === "A" ||
-			keyboardMap[event.keyCode] === "S")) {
-
-				let newSchedules = [...this.state.schedules];
-
-				this.state.selectedFields.forEach((field) => {
-					newSchedules[field[0]].days[field[2]] = keyboardMap[event.keyCode];
-				});
-
-				this.setState({
-					schedules: newSchedules,
-				});
-			}
 		});
 
 		window.addEventListener("keyup", (event) => {
@@ -199,18 +181,16 @@ class Employees extends React.Component {
 	
 				for(let i = Math.min(start[1], end[1]); i <= Math.max(start[1], end[1]); i++) {
 					for(let i2 = Math.min(start[2], end[2]); i2 <= Math.max(start[2], end[2]); i2++) {
-						selectedFields.push([scheduleIndex, i, i2]);
+							selectedFields.push([i, i, i2]);
 					}
 				}
 			}
-			
-			selectedFields.push([scheduleIndex, props.index, dayIndex]);
 
-			console.log(selectedFields);
+			selectedFields.push([scheduleIndex, props.index, dayIndex]);
 	
 			this.setState({
 				selectedFields: selectedFields,
-			});
+			}, () => this.formatTableData());
 		}
 
 		const onFocus = (e) => {
@@ -223,11 +203,17 @@ class Employees extends React.Component {
 
 		const onChange = (e) => {
 			let newSchedules = [...this.state.schedules];
-			newSchedules[scheduleIndex].days[dayIndex] = e.target.value.toUpperCase();
+			let newValue = getDifference(newSchedules[scheduleIndex].days[dayIndex], e.target.value.toUpperCase());
+			
+			if(newValue === "") {
+				newValue = newSchedules[scheduleIndex].days[dayIndex];
+			}
+			
+			newSchedules[scheduleIndex].days[dayIndex] = newValue;
 
 			if(this.state.selectedFields.length > 1) {
 				this.state.selectedFields.forEach((field) => {
-					newSchedules[field[0]].days[field[2]] = e.target.value.toUpperCase();
+					newSchedules[field[0]].days[field[2]] = newValue;
 				});
 			}
 
