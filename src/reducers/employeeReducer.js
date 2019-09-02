@@ -17,6 +17,7 @@ import {
 	HIDE_EMPLOYEE_WORK_LOG,
 	SHOW_COMMENT_EMPLOYEE,
 	HIDE_COMMENT_EMPLOYEE,
+	SET_SCHEDULE_DAY,
 } from '../actions/actionTypes';
 
 export const employees = (state = initialState, action) => {

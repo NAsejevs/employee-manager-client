@@ -15,6 +15,7 @@ import {
 	HIDE_EMPLOYEE_WORK_LOG,
 	SHOW_COMMENT_EMPLOYEE,
 	HIDE_COMMENT_EMPLOYEE,
+	SET_SCHEDULE_DAY,
 } from "./actionTypes";
 
 export const updateEmployees = (employees) => {

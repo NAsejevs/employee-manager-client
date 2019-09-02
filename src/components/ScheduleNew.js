@@ -9,12 +9,13 @@ import { Row, Col, Button } from "react-bootstrap";
 
 import ContainerBox from "./ContainerBox";
 import Filters from "./Filters";
+import Cell from "./Cell";
 
 import {
 	showRegisterEmployee,
 	showExportExcel,
 	showCheckCard,
-	showEmployeeWorkLog
+	showEmployeeWorkLog,
 } from "../actions/employeeActions";
 
 import { getSchedules, saveSchedules } from "../utils/employeeUtils";
@@ -64,6 +65,7 @@ class Employees extends React.Component {
 
 	componentDidMount() {
 		getSchedules(this.currentMonth).then((res) => {
+			console.log(res);
 			const schedules = res.data.map((schedule) => {
 				const parsedSchedule = schedule;
 				parsedSchedule.days = JSON.parse(parsedSchedule.days);
@@ -118,41 +120,23 @@ class Employees extends React.Component {
 	formatTableData = () => {
 		console.log("formating table");
 		const tableData = this.props.employees.map((employee) => {
-			
-			const schedulePromise = new Promise((resolve, reject) => {
-				let scheduleIndex = this.state.schedules.findIndex((schedule) => {
-					return schedule.employee_id === employee.id;
-				});
+			let schedule = {};
+			if(employee.schedules.length === 0) {
+				const newDays = new Array(31).fill("", 0, 31);
 	
-				if(scheduleIndex === -1) {
-					// Employee has no previous schedule entries, so let's create a new object for him
-					const newDays = new Array(31).fill("", 0, 31);
-	
-					this.setState({
-						schedules: [
-							...this.state.schedules,
-							{
-								employee_id: employee.id,
-								month: this.currentMonth,
-								days: newDays
-							}
-						],
-					}, () => {
-						resolve(this.state.schedules.length - 1);
-					});
-				} else {
-					resolve(scheduleIndex);
+				schedule = {
+					employee_id: employee.id,
+					month: this.currentMonth,
+					days: newDays
 				}
-			});
+			}
 
-			return schedulePromise.then((index) => {
-				return ({
-					name: employee.surname + " " + employee.name,
-					schedules: this.state.schedules[index],
-					scheduleIndex: index,
-					selectedFields: this.state.selectedFields,
-				});
-			})
+			return {
+				employee: employee,
+				name: employee.surname + " " + employee.name,
+				schedule: schedule,
+				selectedFields: this.state.selectedFields,
+			};
 		});
 
 		Promise.all(tableData).then((data) => {
@@ -162,121 +146,31 @@ class Employees extends React.Component {
 		});
 	}
 
+	onCellChange = (e, props, dayIndex) => {
+		const employeeId = props.original.employee.id;
+		let newTableData = [...this.state.tableData];
+		const employeeIndex = newTableData.findIndex((employee) => {
+			return employee.employee.id === employeeId;
+		});
+
+		newTableData[employeeIndex].schedule.days[dayIndex] = e.target.value;
+
+		this.setState({
+			tableData: newTableData
+		}, () => {
+			console.log(this.state.tableData);
+		});
+	}
+
 	scheduleCellRenderer = (props) => {
+		const newProps = {...props}
 		const dayIndex = parseInt(props.column.Header) - 1;
-		const scheduleIndex = props.original.scheduleIndex;
-		let selectedFields = [...this.state.selectedFields];
-
-		const onClick = (e) => {
-			if(!this.isKeyDown(17) && !this.isKeyDown(16)) { // CTRL is not being held
-				selectedFields = [];
-			}
-	
-			if(this.isKeyDown(16)) { // SHIFT is being held down
-				const start = selectedFields[selectedFields.length - 1];
-				const end = [scheduleIndex, props.index, dayIndex];
-
-				console.log("start: ", start);
-				console.log("end: ", end);
-	
-				for(let i = Math.min(start[1], end[1]); i <= Math.max(start[1], end[1]); i++) {
-					for(let i2 = Math.min(start[2], end[2]); i2 <= Math.max(start[2], end[2]); i2++) {
-							selectedFields.push([i, i, i2]);
-					}
-				}
-			}
-
-			selectedFields.push([scheduleIndex, props.index, dayIndex]);
-	
-			this.setState({
-				selectedFields: selectedFields,
-			}, () => this.formatTableData());
-		}
-
-		const onFocus = (e) => {
-			e.target.select();
-		}
-
-		const onBlur = (e) => {
-			
-		}
-
-		const onChange = (e) => {
-			let newSchedules = [...this.state.schedules];
-			let newValue = getDifference(newSchedules[scheduleIndex].days[dayIndex], e.target.value.toUpperCase());
-			
-			if(newValue === "") {
-				newValue = newSchedules[scheduleIndex].days[dayIndex];
-			}
-			
-			newSchedules[scheduleIndex].days[dayIndex] = newValue;
-
-			if(this.state.selectedFields.length > 1) {
-				this.state.selectedFields.forEach((field) => {
-					newSchedules[field[0]].days[field[2]] = newValue;
-				});
-			}
-
-			this.setState(() => {
-				return {
-					schedules: newSchedules
-				};
-			});
-		}
-
-		let color = this.transparentColor;
-
-		switch(this.state.schedules[scheduleIndex].days[dayIndex]) {
-			case "d":
-			case "D": {
-				color = this.dayColor;
-				break;
-			}
-			case "n":
-			case "N": {
-				color = this.nightColor;
-				break;
-			}
-			case "b":
-			case "B": {
-				color = this.dayOffColor;
-				break;
-			}
-			case "a":
-			case "A": {
-				color = this.vacationColor;
-				break;
-			}
-			case "s":
-			case "S": {
-				color = this.sickListColor;
-				break;
-			}
-			default: {
-				color = this.transparentColor;
-				break;
-			}
-		}
-
-		for(let i = 0; i < this.state.selectedFields.length; i++) {
-			if(this.state.selectedFields[i][0] === scheduleIndex &&
-				this.state.selectedFields[i][2] === dayIndex) {
-				color = "RGBA(1, 1, 1, 0.3)";
-			}
-		}
-
-		return (
-			<input
-				key={[scheduleIndex, dayIndex]}
-				onClick={(e) => onClick(e)}
-				onFocus={(e) => onFocus(e)}
-				onChange={(e) => onChange(e)}
-				onBlur={(e) => onBlur(e)}
-				value={props.value.days[dayIndex]}
-				className="w-100 h-100 text-center"
-				style={{ border: 0, background: color }}
-			/>
-		)
+		return <Cell 
+			key={[props.original.name, dayIndex]} 
+			dayIndex={dayIndex} 
+			onCellChange={this.onCellChange} 
+			{...newProps}
+		/>
 	}
 
 	render() {
@@ -290,7 +184,7 @@ class Employees extends React.Component {
 		for(let i = 0; i < days; i++) {
 			columns.push({
 				Header: (i + 1).toString(),
-				accessor: "schedules",
+				accessor: "schedule",
 				Cell: this.scheduleCellRenderer,
 				width: 32,
 				getProps: (state, rowInfo, column) => {
@@ -376,7 +270,7 @@ function mapDispatchToProps(dispatch) {
 		showRegisterEmployee: () => dispatch(showRegisterEmployee()),
 		showExportExcel: () => dispatch(showExportExcel()),
 		showCheckCard: () => dispatch(showCheckCard()),
-		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id))
+		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id)),
 	};
 }
 
