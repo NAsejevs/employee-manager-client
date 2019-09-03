@@ -1,37 +1,21 @@
 import React from "react";
-import { connect } from "react-redux";
 
-class Cell extends React.PureComponent {
-	constructor() {
-		super();
-	}
-
-	componentDidMount() {
-
+class Cell extends React.Component {
+	shouldComponentUpdate(nextProps, nextState) {
+		if(nextProps.day !== this.props.day) {
+			return true;
+		}
+		return false;
 	}
 
 	render() {
-		console.log("re-render");
 		return (
 			<input
-				value={this.props.value.days[this.props.dayIndex]}
-				onChange={(e) => this.props.onCellChange(e, {...this.props}, this.props.dayIndex)}
+				value={this.props.day}
+				onChange={(e) => this.props.onChange(e, this.props.scheduleIndex, this.props.dayIndex)}
 			/>
 		);
 	}
 }
 
-function mapStateToProps(state) {
-	return {
-	};
-}
-
-function mapDispatchToProps(dispatch) {
-	return {
-	};
-}
-
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps
-)(Cell);
+export default Cell;

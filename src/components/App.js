@@ -30,7 +30,7 @@ import "../styles/table.css";
 import logo from "../images/logo.png";
 import { FiLogOut } from "react-icons/fi";
 
-class App extends React.Component {
+class App extends React.PureComponent {
 	constructor() {
 		super();
 
@@ -147,7 +147,7 @@ class App extends React.Component {
 													<Nav.Link>Grafiks</Nav.Link>
 												</LinkContainer>
 												<LinkContainer exact={true} to="/schedule_new">
-													<Nav.Link>Grafiks NEW!</Nav.Link>
+													<Nav.Link>Grafiks 2</Nav.Link>
 												</LinkContainer>
 											</Nav>
 											<Nav>

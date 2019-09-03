@@ -20,7 +20,7 @@ import {
 
 import { getSchedules, saveSchedules } from "../utils/employeeUtils";
 
-import { daysInMonth, getDifference } from "../utils/commonUtils";
+import { daysInMonth } from "../utils/commonUtils";
 
 class Employees extends React.Component {
 
@@ -49,13 +49,36 @@ class Employees extends React.Component {
 			cookies.set("settings", settings);
 		}
 
+		this.columns = [{
+			Header: "Vārds",
+			accessor: "name"
+		}];
+
+		const days = daysInMonth(new Date().getMonth(), new Date().getFullYear());
+
+		for(let i = 0; i < days; i++) {
+			this.columns.push({
+				Header: (i + 1).toString(),
+				accessor: "scheduleIndex",
+				Cell: this.scheduleCellRenderer,
+				width: 32,
+				getProps: (state, rowInfo, column) => {
+					return {
+						style: {
+							padding: 0,
+						},
+					};
+				},
+			});
+		}
+
 		this.state = {
 			// General
 			tableData: [],
 			pageSize: 10,
 			...settings,
-			saving: false,
 			// Scheduling specific
+			saving: false,
 			schedules: [],
 			selectedFields: [],
 			target: null,
@@ -64,18 +87,20 @@ class Employees extends React.Component {
 	}
 
 	componentDidMount() {
-		getSchedules(this.currentMonth).then((res) => {
-			console.log(res);
-			const schedules = res.data.map((schedule) => {
-				const parsedSchedule = schedule;
-				parsedSchedule.days = JSON.parse(parsedSchedule.days);
-				return parsedSchedule;
-			});
+		// getSchedules(this.currentMonth).then((res) => {
+		// 	const schedules = res.data.map((schedule) => {
+		// 		return {
+		// 			...schedule,
+		// 			days: JSON.parse(schedule.days)
+		// 		}
+		// 	});
 
-			this.setState({
-				schedules: [...schedules],
-			}, () => this.formatTableData());
-		});
+		// 	this.setState({
+		// 		schedules: schedules,
+		// 	}, () => {
+		// 		console.log("updated schedules");
+		// 	});
+		// });
 
 		window.addEventListener("keydown", (event) => {
 		this.keyDown[event.keyCode] = true;
@@ -118,85 +143,70 @@ class Employees extends React.Component {
 	}
 
 	formatTableData = () => {
-		console.log("formating table");
+		console.log("formatting table");
+		let newSchedules = [...this.state.schedules];
+
 		const tableData = this.props.employees.map((employee) => {
-			let schedule = {};
-			if(employee.schedules.length === 0) {
+			let scheduleIndex = newSchedules.findIndex((schedule) => {
+				return schedule.employee_id === employee.id;
+			});
+
+			if(scheduleIndex === -1) {
 				const newDays = new Array(31).fill("", 0, 31);
-	
-				schedule = {
+
+				newSchedules.push({
 					employee_id: employee.id,
 					month: this.currentMonth,
 					days: newDays
-				}
+				});
+
+				scheduleIndex = newSchedules.length - 1; 
 			}
 
 			return {
-				employee: employee,
+				id: employee.id,
 				name: employee.surname + " " + employee.name,
-				schedule: schedule,
-				selectedFields: this.state.selectedFields,
+				scheduleIndex: scheduleIndex,
 			};
 		});
 
 		Promise.all(tableData).then((data) => {
 			this.setState({
-				tableData: [...data],
+				tableData: data,
+				schedules: newSchedules,
 			});
 		});
 	}
 
-	onCellChange = (e, props, dayIndex) => {
-		const employeeId = props.original.employee.id;
-		let newTableData = [...this.state.tableData];
-		const employeeIndex = newTableData.findIndex((employee) => {
-			return employee.employee.id === employeeId;
-		});
+	onCellChange = (e, scheduleIndex, dayIndex) => {
+		this.performanceStart = new Date();
+		let newSchedules = [...this.state.schedules];
+		newSchedules[scheduleIndex].days[dayIndex] = e.target.value;
 
-		newTableData[employeeIndex].schedule.days[dayIndex] = e.target.value;
-
-		this.setState({
-			tableData: newTableData
+		this.setState(() => {
+			return {
+				schedules: newSchedules
+			}
 		}, () => {
-			console.log(this.state.tableData);
+			console.log("onCellChange took ", new Date() - this.performanceStart);
 		});
 	}
 
 	scheduleCellRenderer = (props) => {
-		const newProps = {...props}
 		const dayIndex = parseInt(props.column.Header) - 1;
+		const scheduleIndex = props.original.scheduleIndex;
+
 		return <Cell 
 			key={[props.original.name, dayIndex]} 
-			dayIndex={dayIndex} 
-			onCellChange={this.onCellChange} 
-			{...newProps}
+			dayIndex={parseInt(props.column.Header) - 1} 
+			scheduleIndex={props.original.scheduleIndex}
+			day={this.state.schedules[scheduleIndex].days[dayIndex]}
+			onChange={this.onCellChange}
+			{...props}
 		/>
 	}
 
 	render() {
-		const columns = [{
-			Header: "Vārds",
-			accessor: "name"
-		}];
-
-		const days = daysInMonth(new Date().getMonth(), new Date().getFullYear());
-
-		for(let i = 0; i < days; i++) {
-			columns.push({
-				Header: (i + 1).toString(),
-				accessor: "schedule",
-				Cell: this.scheduleCellRenderer,
-				width: 32,
-				getProps: (state, rowInfo, column) => {
-					return {
-						style: {
-							padding: 0,
-						},
-					};
-				},
-			});
-		}
-
 		return (
 			<ContainerBox header={"Grafiks"}>
 				<Filters 
@@ -242,7 +252,7 @@ class Employees extends React.Component {
 				</Row>
 				<ReactTable
 					data={ this.state.tableData } 
-					columns={ columns } 
+					columns={ this.columns } 
 					getTrProps={(state, rowInfo, instance) => {
 						return {
 							style: {
