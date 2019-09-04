@@ -8,11 +8,25 @@ class Cell extends React.Component {
 		return false;
 	}
 
+	onBlur = (e) => {
+		if(e.target.innerHTML !== this.props.day) {
+			console.log("e.target.value: ", e.target.value);
+			console.log("this.props.day: ", this.props.day);
+			this.props.onChange(e, this.props.scheduleIndex, this.props.dayIndex);
+		}
+	}
+
 	render() {
 		return (
-			<input
-				value={this.props.day}
-				onChange={(e) => this.props.onChange(e, this.props.scheduleIndex, this.props.dayIndex)}
+			<div
+				style={{ backgroundColor: "#fafafa" }}
+				className="w-100 h-100"
+				contentEditable
+				suppressContentEditableWarning
+				onBlur={e => this.onBlur(e)}
+				dangerouslySetInnerHTML={{
+					__html: this.props.day
+				}}
 			/>
 		);
 	}

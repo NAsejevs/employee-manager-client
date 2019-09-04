@@ -13,7 +13,7 @@ import {
 
 import { FiMinimize2, FiMaximize2 } from "react-icons/fi";
 
-class Filters extends React.Component {
+class Filters extends React.PureComponent {
     constructor() {
         super();
 

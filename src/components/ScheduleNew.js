@@ -59,8 +59,7 @@ class Employees extends React.Component {
 		for(let i = 0; i < days; i++) {
 			this.columns.push({
 				Header: (i + 1).toString(),
-				accessor: "scheduleIndex",
-				Cell: this.scheduleCellRenderer,
+				Cell: this.newScheduleCellRenderer,
 				width: 32,
 				getProps: (state, rowInfo, column) => {
 					return {
@@ -87,20 +86,20 @@ class Employees extends React.Component {
 	}
 
 	componentDidMount() {
-		// getSchedules(this.currentMonth).then((res) => {
-		// 	const schedules = res.data.map((schedule) => {
-		// 		return {
-		// 			...schedule,
-		// 			days: JSON.parse(schedule.days)
-		// 		}
-		// 	});
+		getSchedules(this.currentMonth).then((res) => {
+			const schedules = res.data.map((schedule) => {
+				return {
+					...schedule,
+					days: JSON.parse(schedule.days)
+				}
+			});
 
-		// 	this.setState({
-		// 		schedules: schedules,
-		// 	}, () => {
-		// 		console.log("updated schedules");
-		// 	});
-		// });
+			this.setState({
+				schedules: schedules,
+			}, () => {
+				console.log("fetched schedules from the server!");
+			});
+		});
 
 		window.addEventListener("keydown", (event) => {
 		this.keyDown[event.keyCode] = true;
@@ -136,6 +135,7 @@ class Employees extends React.Component {
 	}
 
 	saveSchedules = () => {
+		console.log("saving..");
 		this.setState({ saving: true });
 		saveSchedules(this.state.schedules).then(() => {
 			this.setState({ saving: false });
@@ -167,6 +167,7 @@ class Employees extends React.Component {
 				id: employee.id,
 				name: employee.surname + " " + employee.name,
 				scheduleIndex: scheduleIndex,
+				days: newSchedules[scheduleIndex].days,
 			};
 		});
 
@@ -181,7 +182,8 @@ class Employees extends React.Component {
 	onCellChange = (e, scheduleIndex, dayIndex) => {
 		this.performanceStart = new Date();
 		let newSchedules = [...this.state.schedules];
-		newSchedules[scheduleIndex].days[dayIndex] = e.target.value;
+		newSchedules[scheduleIndex].days[dayIndex] = e.target.innerHTML;
+		console.log(e);
 
 		this.setState(() => {
 			return {
@@ -202,8 +204,27 @@ class Employees extends React.Component {
 			scheduleIndex={props.original.scheduleIndex}
 			day={this.state.schedules[scheduleIndex].days[dayIndex]}
 			onChange={this.onCellChange}
-			{...props}
 		/>
+	}
+
+	newScheduleCellRenderer = (props) => {
+		const dayIndex = parseInt(props.column.Header) - 1;
+		return (
+			<div
+				style={{ backgroundColor: "#fafafa" }}
+				className="w-100 h-100"
+				contentEditable
+				suppressContentEditableWarning
+				onBlur={e => {
+					let schedules = [...this.state.schedules];
+					schedules[props.original.scheduleIndex].days[dayIndex] = e.target.innerHTML;
+					this.setState({ schedules });
+				}}
+				dangerouslySetInnerHTML={{
+					__html: this.state.schedules[props.original.scheduleIndex].days[dayIndex]
+				}}
+			/>
+		);
 	}
 
 	render() {
