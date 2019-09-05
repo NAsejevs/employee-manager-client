@@ -21,22 +21,12 @@ import {
 import { getSchedules, saveSchedules } from "../utils/employeeUtils";
 
 import { daysInMonth } from "../utils/commonUtils";
+import Table from "./table/Table";
 
-class Employees extends React.Component {
+class CustomSchedule extends React.Component {
 
 	constructor() {
 		super();
-
-		this.currentMonth = new Date().getMonth();
-
-		this.transparentColor = "RGBA(0, 0, 0, 0)";
-		this.dayColor = "yellow";
-		this.nightColor = "blue";
-		this.dayOffColor = "gray";
-		this.vacationColor = "green";
-		this.sickListColor = "cyan";
-
-		this.keyDown = {};
 
 		const cookies = new Cookies();
 		let settings = cookies.get("settings");
@@ -49,28 +39,6 @@ class Employees extends React.Component {
 			cookies.set("settings", settings);
 		}
 
-		this.columns = [{
-			Header: "Vārds",
-			accessor: "name"
-		}];
-
-		const days = daysInMonth(new Date().getMonth(), new Date().getFullYear());
-
-		for(let i = 0; i < days; i++) {
-			this.columns.push({
-				Header: (i + 1).toString(),
-				Cell: this.scheduleCellRenderer,
-				width: 32,
-				getProps: (state, rowInfo, column) => {
-					return {
-						style: {
-							padding: 0,
-						},
-					};
-				},
-			});
-		}
-
 		this.state = {
 			// General
 			tableData: [],
@@ -79,11 +47,45 @@ class Employees extends React.Component {
 			// Scheduling specific
 			saving: false,
 			schedules: [],
-			selectedFields: [],
-			target: null,
-			targetValue: null,
-			counter: 0,
 		}
+
+		this.currentMonth = new Date().getMonth();
+		this.columns = [{
+			header: "Vārds",
+			accessor: "name",
+		}];
+
+		for(let i = 0; i < daysInMonth(new Date().getMonth(), new Date().getFullYear()); i++) {
+			this.columns.push({
+				header: (i + 1).toString(),
+				accessor: "days",
+				cellRenderer: (props) => this.cellRenderer(props)
+			});
+		}
+	}
+
+	cellRenderer = (props) => {
+		console.log("cell re-rendered");
+		const onChange = (e) => {
+			const newSchedules = [...this.state.schedules];
+			newSchedules[props.original.scheduleIndex].days[props.colId] = e.target.value;
+			
+			console.log(e.target.value);
+
+			this.setState({
+				schedules: newSchedules,
+			}, this.formatTableData());
+		}
+
+		return (
+			<React.PureComponent>
+				
+				<input
+					value={props.value[props.colId]}
+					onChange={onChange}
+				/>
+			</React.PureComponent>
+		);
 	}
 
 	componentDidMount() {
@@ -97,17 +99,7 @@ class Employees extends React.Component {
 
 			this.setState({
 				schedules: schedules,
-			}, () => {
-				console.log("fetched schedules from the server!");
 			});
-		});
-
-		window.addEventListener("keydown", (event) => {
-		this.keyDown[event.keyCode] = true;
-		});
-
-		window.addEventListener("keyup", (event) => {
-			this.keyDown[event.keyCode] = false;
 		});
 	}
 
@@ -148,7 +140,7 @@ class Employees extends React.Component {
 		let newSchedules = [...this.state.schedules];
 
 		const tableData = this.props.employees.map((employee) => {
-			let scheduleIndex = newSchedules.findIndex((schedule) => {
+			let scheduleIndex = this.state.schedules.findIndex((schedule) => {
 				return schedule.employee_id === employee.id;
 			});
 
@@ -167,9 +159,9 @@ class Employees extends React.Component {
 			return {
 				id: employee.id,
 				name: employee.surname + " " + employee.name,
-				scheduleIndex: scheduleIndex,
 				days: newSchedules[scheduleIndex].days,
-			};
+				scheduleIndex,
+			}
 		});
 
 		Promise.all(tableData).then((data) => {
@@ -178,61 +170,6 @@ class Employees extends React.Component {
 				schedules: newSchedules,
 			});
 		});
-	}
-
-	onCellChange = (e, scheduleIndex, dayIndex) => {
-		this.performanceStart = new Date();
-		const then = Date.now()
-		console.log(then)
-		let newSchedules = [...this.state.schedules];
-		console.log(Date.now())
-		newSchedules[scheduleIndex].days[dayIndex] = e.target.innerHTML;
-		console.log(e);
-
-		this.setState(() => {
-			return {
-				schedules: newSchedules
-			}
-		}, () => {
-			console.log("onCellChange took ", new Date() - this.performanceStart);
-		});
-	}
-
-	scheduleCellRenderer = (props) => {
-		const dayIndex = parseInt(props.column.Header) - 1;
-		const scheduleIndex = props.original.scheduleIndex;
-
-		return <Cell 
-			key={[props.original.name, dayIndex]} 
-			dayIndex={parseInt(props.column.Header) - 1} 
-			scheduleIndex={props.original.scheduleIndex}
-			day={this.state.schedules[scheduleIndex].days[dayIndex]}
-			onChange={this.onCellChange}
-		/>
-	}
-
-	newScheduleCellRenderer = (props) => {
-		const dayIndex = parseInt(props.column.Header) - 1;
-
-		return (
-			<div
-				key={[props.original.scheduleIndex, dayIndex]}
-				style={{ lineHeight: "32px", fontSize: "18px" }}
-				className="w-100 h-100 text-center"
-				contentEditable
-				suppressContentEditableWarning
-				onBlur={e => {
-					if(this.state.schedules[props.original.scheduleIndex].days[dayIndex] !== e.target.innerHTML) {
-						let schedules = [...this.state.schedules];
-						schedules[props.original.scheduleIndex].days[dayIndex] = e.target.innerHTML;
-						this.setState({ schedules });
-					}
-				}}
-				dangerouslySetInnerHTML={{
-					__html: this.state.schedules[props.original.scheduleIndex].days[dayIndex]
-				}}
-			/>
-		);
 	}
 
 	render() {
@@ -279,20 +216,11 @@ class Employees extends React.Component {
 						<span className="ml-2">Slimības lapa</span>
 					</Col>
 				</Row>
-				<ReactTable
-					data={ this.state.tableData } 
-					columns={ this.columns } 
-					showPagination={true}
-					showPaginationTop={true}
-					getTrProps={(state, rowInfo, instance) => {
-						return {
-							style: {
-								height: "32px",
-							},
-						};
-					}}
-					style={{
-						fontSize: "12px",
+				<Table
+					columns={this.columns}
+					data={this.state.tableData}
+					onCellChange={(e, props) => {
+						console.log(e, props)
 					}}
 				/>
 			</ContainerBox>
@@ -318,4 +246,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
 	mapStateToProps,
 	mapDispatchToProps
-)(Employees);
+)(CustomSchedule);
