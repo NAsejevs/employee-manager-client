@@ -3,24 +3,14 @@ import React from "react";
 import Cell from "./Cell";
 
 class Row extends React.Component {
-    constructor() {
-        super();
-
-        this.state = {
-            data: "",
-        }
-    }
-
-    componentDidMount() {
-        this.setState({
-            ...this.props,
-        });
+    constructor(props) {
+        super(props);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        console.log("this.props.data: ", this.props.data.days[1]);
-        console.log("nextProps.data: ", nextProps.data.days[1]);
-        if(JSON.stringify(this.state.data) !== JSON.stringify(nextProps.data)) return true;
+        if(JSON.stringify(nextProps.data) !== JSON.stringify(this.props.data)) {
+            return true;
+        }
         return false;
     }
 
@@ -33,10 +23,10 @@ class Row extends React.Component {
                     rowId: this.props.rowId,
                     colId: index,
                 }
-                return <td key={index}>{column.cellRenderer(props)}</td>
+                return <td key={[this.props.data.id, index]}>{column.cellRenderer(props)}</td>
             } else {
                 return <Cell 
-                    key={index} 
+                    key={[this.props.data.id, index]} 
                     data={this.props.data[column.accessor]}
                 />
             }
@@ -48,7 +38,7 @@ class Row extends React.Component {
 	render() {
         console.log("row re-rendered");
 		return (
-            <tr>
+            <tr key={this.props.data.id}>
                 {this.splitData()}
             </tr>
 		);

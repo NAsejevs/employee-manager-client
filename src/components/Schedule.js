@@ -1,6 +1,7 @@
 import { connect } from "react-redux";
 import React from "react";
 import Cookies from 'universal-cookie';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { Row, Col, Button, Dropdown } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -8,6 +9,7 @@ import paginationFactory from "react-bootstrap-table2-paginator";
 
 import ContainerBox from "./ContainerBox";
 import Filters from "./Filters";
+import ScheduleCell from "./ScheduleCell";
 
 import {
 	showRegisterEmployee,
@@ -70,7 +72,7 @@ class Employees extends React.Component {
 			});
 
 			this.setState({
-				schedules: [...schedules],
+				schedules: cloneDeep(schedules),
 			});
 		});
 
@@ -172,19 +174,15 @@ class Employees extends React.Component {
 
 		this.setState({
 			selectedFields: selectedFields,
-			counter: this.state.counter + 1,
 		});
 	}
 
 	onChangeScheduleInput = (event, cell, row, rowIndex, colIndex, selectedFields, schedules, scheduleIndex) => {
-		schedules[scheduleIndex].days[colIndex] = event.target.value;
-		// schedules = new Array(schedules);
+		let newSchedules = cloneDeep(this.state.schedules);
+		newSchedules[scheduleIndex].days[colIndex] = event.target.value;
 
 		this.setState({
-			schedules: schedules,
-			counter: this.state.counter + 1,
-		}, () => {
-			console.log(this.state.schedules[scheduleIndex].days[colIndex]);
+			schedules: newSchedules,
 		});
 	}
 
@@ -246,66 +244,17 @@ class Employees extends React.Component {
 		};
 
 		const dayFormatter = (cell, row, rowIndex, extraData) => {
-			const colIndex = extraData.colIndex;
-			let selectedFields = [...extraData.selectedFields];
-			let schedules = [...extraData.schedules];
-
-			let color = this.transparentColor;
-
-			switch(cell) {
-				case "d":
-				case "D": {
-					color = this.dayColor;
-					break;
-				}
-				case "N": {
-					color = this.nightColor;
-					break;
-				}
-				case "B": {
-					color = this.dayOffColor;
-					break;
-				}
-				case "A": {
-					color = this.vacationColor;
-					break;
-				}
-				case "S": {
-					color = this.sickListColor;
-					break;
-				}
-				default: {
-					color = this.transparentColor;
-					break;
-				}
+			const props = {
+				cell, 
+				row, 
+				rowIndex, 
+				extraData
 			}
-
-			let scheduleIndex = schedules.findIndex((schedule) => {
-				return schedule.employee_id === row.id;
-			});
-
-			for(let i = 0; i < selectedFields.length; i++) {
-				if(selectedFields[i][1] === rowIndex &&
-					selectedFields[i][2] === colIndex) {
-					color = "RGBA(1, 1, 1, 0.3)";
-				}
-			}
-
-			return (
-				<div style={{ backgroundColor: color }}>
-					<input 
-						onFocus={(event) => this.onClickScheduleInput(event, cell, row, rowIndex, colIndex, selectedFields, schedules, scheduleIndex)}
-						onChange={(event) => this.onChangeScheduleInput(event, cell, row, rowIndex, colIndex, selectedFields, schedules, scheduleIndex)}
-						className="border-0 text-center" 
-						style={{ width: "32px", height: "32px", fontSize: "12px", backgroundColor: "RGBA(0, 0, 0, 0)"}}
-						value={
-							scheduleIndex === -1
-							? ""
-							: schedules[scheduleIndex].days[colIndex]
-						}
-					/>
-				</div>
-			);
+			return <ScheduleCell 
+				onClickScheduleInput={this.onClickScheduleInput}
+				onChangeScheduleInput={this.onChangeScheduleInput}
+				{...props}
+			/>
 		};
 
 		const columns = [{

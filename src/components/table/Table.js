@@ -2,6 +2,8 @@ import React from "react";
 
 import Row from "./Row";
 
+import "../../styles/table/index.css";
+
 class Table extends React.PureComponent {
     constructor() {
         super();
@@ -27,7 +29,6 @@ class Table extends React.PureComponent {
                     data={row}
                     columns={this.props.columns}
                     rowId={index}
-                    onCellChange={this.props.onCellChange}
                 />
             );
         });
@@ -35,11 +36,13 @@ class Table extends React.PureComponent {
     }
 
 	render() {
-        console.log("table re-rendered");
+        console.log(" ----------- TABLE RE-RENDER ----------- ");
 		return (
 			<table>
-                <tbody>
+                <thead>
                     {this.renderColumns()}
+                </thead>
+                <tbody>
                     {this.renderRows()}
                 </tbody>
             </table>

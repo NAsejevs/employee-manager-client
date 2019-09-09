@@ -2,6 +2,7 @@ import { connect } from "react-redux";
 import React from "react";
 import ReactTable from "react-table";
 import Cookies from "universal-cookie";
+import cloneDeep from 'lodash/cloneDeep';
 
 import "react-table/react-table.css";
 
@@ -22,6 +23,7 @@ import { getSchedules, saveSchedules } from "../utils/employeeUtils";
 
 import { daysInMonth } from "../utils/commonUtils";
 import Table from "./table/Table";
+import InputCell from "./table/InputCell";
 
 class CustomSchedule extends React.Component {
 
@@ -65,27 +67,16 @@ class CustomSchedule extends React.Component {
 	}
 
 	cellRenderer = (props) => {
-		console.log("cell re-rendered");
 		const onChange = (e) => {
-			const newSchedules = [...this.state.schedules];
+			const newSchedules = cloneDeep(this.state.schedules);
 			newSchedules[props.original.scheduleIndex].days[props.colId] = e.target.value;
-			
-			console.log(e.target.value);
 
 			this.setState({
 				schedules: newSchedules,
-			}, this.formatTableData());
+			});
 		}
 
-		return (
-			<React.PureComponent>
-				
-				<input
-					value={props.value[props.colId]}
-					onChange={onChange}
-				/>
-			</React.PureComponent>
-		);
+		return <InputCell {...props} onChange={onChange}/>;
 	}
 
 	componentDidMount() {
@@ -104,7 +95,8 @@ class CustomSchedule extends React.Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.employees !== this.props.employees) {
+		if(JSON.stringify(prevProps.employees) !== JSON.stringify(this.props.employees) ||
+			JSON.stringify(prevState.schedules) !== JSON.stringify(this.state.schedules)) {
 			this.formatTableData();
 		}
 
@@ -219,9 +211,6 @@ class CustomSchedule extends React.Component {
 				<Table
 					columns={this.columns}
 					data={this.state.tableData}
-					onCellChange={(e, props) => {
-						console.log(e, props)
-					}}
 				/>
 			</ContainerBox>
 		);
