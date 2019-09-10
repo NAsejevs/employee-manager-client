@@ -1,30 +1,35 @@
 import React from "react";
+import findIndex from "lodash/findIndex";
 
 class ScheduleCell extends React.Component {
+	constructor() {
+		super();
+
+		this.transparentColor = "RGBA(0, 0, 0, 0)";
+		this.dayColor = "yellow";
+		this.nightColor = "blue";
+		this.dayOffColor = "gray";
+		this.vacationColor = "green";
+		this.sickListColor = "cyan";
+	}
 	
 	shouldComponentUpdate(nextProps, nextState) {
-		const {cell, row, rowIndex, extraData} = {...this.props};
-
-		let scheduleIndex = this.props.extraData.schedules.findIndex((schedule) => {
-			return schedule.employee_id === row.id;
-		});
-
-		if(JSON.stringify(nextProps.extraData.schedules[scheduleIndex]) !== JSON.stringify(this.props.extraData.schedules[scheduleIndex])) return true;
+		if(JSON.stringify(nextProps.row.schedule.days[nextProps.extraData.colIndex]) !== JSON.stringify(this.props.row.schedule.days[this.props.extraData.colIndex]) ||
+			return true;
+		}
 		return false;
 	}
 
 	render() {
 		console.log("cell render");
-		const {cell, row, rowIndex, extraData} = {...this.props};
 
-		const colIndex = extraData.colIndex;
-		let selectedFields = [...extraData.selectedFields];
-		let schedules = [...extraData.schedules];
+		const rowIndex = this.props.rowIndex;
+		const colIndex = this.props.extraData.colIndex;
+		let selectedFields = this.props.row.selectedFields;
 
 		let color = this.transparentColor;
 
-		switch(cell) {
-			case "d":
+		switch(this.props.row.schedule.days[colIndex]) {
 			case "D": {
 				color = this.dayColor;
 				break;
@@ -51,10 +56,6 @@ class ScheduleCell extends React.Component {
 			}
 		}
 
-		let scheduleIndex = schedules.findIndex((schedule) => {
-			return schedule.employee_id === row.id;
-		});
-
 		for(let i = 0; i < selectedFields.length; i++) {
 			if(selectedFields[i][1] === rowIndex &&
 				selectedFields[i][2] === colIndex) {
@@ -65,15 +66,11 @@ class ScheduleCell extends React.Component {
 		return (
 			<div style={{ backgroundColor: color }}>
 				<input 
-					onFocus={(event) => this.props.onClickScheduleInput(event, cell, row, rowIndex, colIndex, selectedFields, schedules, scheduleIndex)}
-					onChange={(event) => this.props.onChangeScheduleInput(event, cell, row, rowIndex, colIndex, selectedFields, schedules, scheduleIndex)}
+					onFocus={(event) => this.props.onClickScheduleInput(event, this.props.row.scheduleIndex, rowIndex, colIndex)}
+					onChange={(event) => this.props.onChangeScheduleInput(event, this.props.row.scheduleIndex, colIndex)}
 					className="border-0 text-center" 
 					style={{ width: "32px", height: "32px", fontSize: "12px", backgroundColor: "RGBA(0, 0, 0, 0)"}}
-					value={
-						scheduleIndex === -1
-						? ""
-						: schedules[scheduleIndex].days[colIndex]
-					}
+					value={this.props.row.schedule.days[colIndex]}
 				/>
 			</div>
 		);
