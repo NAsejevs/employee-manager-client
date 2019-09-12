@@ -28,11 +28,12 @@ class Employees extends React.PureComponent {
 		super();
 
 		this.transparentColor = "RGBA(0, 0, 0, 0)";
-		this.dayColor = "yellow";
-		this.nightColor = "blue";
-		this.dayOffColor = "gray";
-		this.vacationColor = "green";
-		this.sickListColor = "cyan";
+		this.dayColor = "#ffcc00";
+		this.nightColor = "#005f9d";
+		this.dayOffColor = "#ff99cc";
+		this.vacationColor = "#00ff00";
+		this.sickListColor = "#2fc2b5";
+		this.weekendColor = "#ffcc99";
 
 		this.keyDown = {};
 
@@ -91,7 +92,7 @@ class Employees extends React.PureComponent {
 
 			let color = "RGBA(0, 0, 0, 0)";
 			if(isWeekend(date)) {
-				color = "lime";
+				color = this.weekendColor;
 			}
 
 			this.columns.push({
