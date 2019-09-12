@@ -18,9 +18,6 @@ import LogIn from "./LogIn";
 import CheckCard from "./CheckCard";
 import CommentEmployee from "./CommentEmployee";
 import Schedule from "./Schedule";
-import ScheduleNew from "./ScheduleNew";
-import CustomSchedule from "./CustomSchedule"
-import Table from "./table/Table";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
@@ -148,12 +145,6 @@ class App extends React.PureComponent {
 												<LinkContainer exact={true} to="/schedule">
 													<Nav.Link>Grafiks</Nav.Link>
 												</LinkContainer>
-												<LinkContainer exact={true} to="/schedule_new">
-													<Nav.Link>Grafiks 2</Nav.Link>
-												</LinkContainer>
-												<LinkContainer exact={true} to="/schedule_nils">
-													<Nav.Link>Grafiks Nils</Nav.Link>
-												</LinkContainer>
 											</Nav>
 											<Nav>
 												<Navbar.Text className="ml-md-4">
@@ -174,8 +165,6 @@ class App extends React.PureComponent {
 										<Route exact path="/" component={Employees} />
 										<Route exact path="/report" component={Report} />
 										<Route exact path="/schedule" component={Schedule} />
-										<Route exact path="/schedule_new" component={ScheduleNew} />
-										<Route exact path="/schedule_nils" component={CustomSchedule} />
 										<Route component={NotFound} />
 									</Switch>
 									<ViewEmployee/>

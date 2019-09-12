@@ -447,6 +447,7 @@ class Filters extends React.PureComponent {
                                             </Button>
                                         </Col>
                                     </Row>
+                                    <hr/>
                                 </div>
                             </Collapse>
                         </Col>

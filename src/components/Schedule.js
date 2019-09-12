@@ -1,7 +1,6 @@
 import { connect } from "react-redux";
 import React from "react";
 import Cookies from "universal-cookie";
-import cloneDeep from "lodash/cloneDeep";
 
 import { Row, Col, Button, Dropdown } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -10,6 +9,7 @@ import paginationFactory from "react-bootstrap-table2-paginator";
 import ContainerBox from "./ContainerBox";
 import Filters from "./Filters";
 import ScheduleCell from "./ScheduleCell";
+import BoostrapDatePicker from "./BoostrapDatePicker";
 
 import {
 	showRegisterEmployee,
@@ -22,12 +22,10 @@ import { getSchedules, saveSchedules } from "../utils/employeeUtils";
 
 import { daysInMonth, convertSpecialCharacters, isWeekend } from "../utils/commonUtils";
 
-class Employees extends React.Component {
+class Employees extends React.PureComponent {
 
 	constructor() {
 		super();
-
-		this.currentMonth = new Date().getMonth();
 
 		this.transparentColor = "RGBA(0, 0, 0, 0)";
 		this.dayColor = "yellow";
@@ -37,6 +35,8 @@ class Employees extends React.Component {
 		this.sickListColor = "cyan";
 
 		this.keyDown = {};
+
+		this.cellRefs = [];
 
 		const cookies = new Cookies();
 		let settings = cookies.get("settings");
@@ -58,6 +58,7 @@ class Employees extends React.Component {
 			// Scheduling specific
 			schedules: [],
 			selectedFields: [],
+			scheduleDate: new Date(),
 		}
 
 		this.columns = [{
@@ -79,15 +80,13 @@ class Employees extends React.Component {
 				}
 				return 0;
 			},
-			classes: "text-center p-0 m-0",
 			formatter: this.nameFormatter,
 		}];
 
 		const days = daysInMonth(new Date().getMonth(), new Date().getFullYear());
 
 		for(let i = 0; i < days; i++) {
-			const date = new Date();
-			date.setMonth(this.currentMonth);
+			const date = new Date(this.state.scheduleDate);
 			date.setDate(i);
 
 			let color = "RGBA(0, 0, 0, 0)";
@@ -143,18 +142,7 @@ class Employees extends React.Component {
 
 	componentDidMount() {
 		this.onTableChange();
-
-		getSchedules(this.currentMonth).then((res) => {
-			const schedules = res.data.map((schedule) => {
-				const parsedSchedule = schedule;
-				parsedSchedule.days = JSON.parse(parsedSchedule.days);
-				return parsedSchedule;
-			});
-
-			this.setState({
-				schedules: cloneDeep(schedules),
-			});
-		});
+		this.fetchSchedules();
 
 		window.addEventListener("keydown", (event) => {
 			this.keyDown[event.keyCode] = true;
@@ -162,6 +150,20 @@ class Employees extends React.Component {
 
 		window.addEventListener("keyup", (event) => {
 			this.keyDown[event.keyCode] = false;
+		});
+	}
+
+	fetchSchedules = () => {
+		getSchedules(this.state.scheduleDate.getMonth()).then((res) => {
+			const schedules = res.data.map((schedule) => {
+				const parsedSchedule = schedule;
+				parsedSchedule.days = JSON.parse(parsedSchedule.days);
+				return parsedSchedule;
+			});
+
+			this.setState({
+				schedules: JSON.parse(JSON.stringify(schedules)),
+			});
 		});
 	}
 
@@ -214,25 +216,33 @@ class Employees extends React.Component {
 		});
 	}
 
-	onClickScheduleInput = (event, scheduleIndex, rowIndex, colIndex) => {
-		let newSchedules = cloneDeep(this.state.schedules);
-		newSchedules[scheduleIndex].days[colIndex] = event.target.value; 
+	onChangeScheduleDate = (date) => {
+		this.setState({
+			scheduleDate: new Date(date),
+		}, () => this.fetchSchedules());
+	}
 
-		if(!this.isKeyDown(17) && !this.isKeyDown(16)) { // CTRL is not being held
+	onClickScheduleInput = (event, scheduleIndex, rowIndex, colIndex) => {
+		event.target.select();
+		let selectedFields = JSON.parse(JSON.stringify(this.state.selectedFields));
+
+		if(!this.isKeyDown(17) && !this.isKeyDown(16)) { // CTRL and SHIFT is not being held
 			selectedFields = [];
 		}
 
 		if(this.isKeyDown(16)) { // SHIFT is being held down
 			const start = selectedFields[selectedFields.length - 1];
-			const end = [scheduleIndex, rowIndex, colIndex];
+			if(start !== undefined) {
+				const end = [scheduleIndex, rowIndex, colIndex];
 
-			for(let i = Math.min(start[1], end[1]); i <= Math.max(start[1], end[1]); i++) {
-				for(let i2 = Math.min(start[2], end[2]); i2 <= Math.max(start[2], end[2]); i2++) {
-					selectedFields.push([scheduleIndex, i, i2]);
+				for(let i = Math.min(start[1], end[1]); i <= Math.max(start[1], end[1]); i++) {
+					for(let i2 = Math.min(start[2], end[2]); i2 <= Math.max(start[2], end[2]); i2++) {
+						selectedFields.push([-1, i, i2]);
+					}
 				}
 			}
 		}
-		
+
 		selectedFields.push([scheduleIndex, rowIndex, colIndex]);
 
 		this.setState({
@@ -240,9 +250,21 @@ class Employees extends React.Component {
 		});
 	}
 
-	onChangeScheduleInput = (event, scheduleIndex, colIndex) => {
-		let newSchedules = cloneDeep(this.state.schedules);
-		newSchedules[scheduleIndex].days[colIndex] = event.target.value;
+	onChangeScheduleInput = (event, scheduleIndex, rowIndex, colIndex) => {
+		let newSchedules = JSON.parse(JSON.stringify(this.state.schedules));
+
+		const value = event.target.value.toUpperCase();
+
+		if(newSchedules[scheduleIndex].days[colIndex] !== value) {
+			newSchedules[scheduleIndex].days[colIndex] = value.replace(newSchedules[scheduleIndex].days[colIndex], "");
+		}
+		if(this.state.selectedFields.length > 1) {
+			this.state.selectedFields.forEach((selectedField) => {
+				if(newSchedules[this.cellRefs[selectedField[1]][selectedField[2]].props.row.scheduleIndex].days[selectedField[2]] !== value) {
+					newSchedules[this.cellRefs[selectedField[1]][selectedField[2]].props.row.scheduleIndex].days[selectedField[2]] = value.replace(newSchedules[this.cellRefs[selectedField[1]][selectedField[2]].props.row.scheduleIndex].days[selectedField[2]], "");
+				}
+			});
+		}
 
 		this.setState({
 			schedules: newSchedules,
@@ -250,8 +272,8 @@ class Employees extends React.Component {
 	}
 
 	formatTable = (callback = () => null) => {
-		const newSchedules = cloneDeep(this.state.schedules);
-		const promise = this.props.employees.map((employee) => {
+		const newSchedules = JSON.parse(JSON.stringify(this.state.schedules));
+		const promise = this.props.employees.map((employee, index) => {
 
 			let scheduleIndex = newSchedules.findIndex((schedule) => {
 				return schedule.employee_id === employee.id;
@@ -322,6 +344,13 @@ class Employees extends React.Component {
 		return <ScheduleCell 
 			onClickScheduleInput={this.onClickScheduleInput}
 			onChangeScheduleInput={this.onChangeScheduleInput}
+			ref={(ref) => {
+				if(this.cellRefs[rowIndex] === undefined) {
+					this.cellRefs[rowIndex] = new Array(31);
+				}
+				this.cellRefs[rowIndex][extraData.colIndex] = ref;
+				return true;
+			}}
 			{...props}
 		/>
 	};
@@ -373,24 +402,24 @@ class Employees extends React.Component {
 				/>
 				<Row className="mt-3 text-center">
 					<Col>
-						<span className="dot align-bottom" style={{ backgroundColor: this.dayColor }}/>
-						<span className="ml-2">Diena</span>
+						<span className="dot align-middle" style={{ backgroundColor: this.dayColor }}/>
+						<span className="ml-2">(D)iena</span>
 					</Col>
 					<Col>
-						<span className="dot align-bottom" style={{ backgroundColor: this.nightColor }}/>
-						<span className="ml-2">Nakts</span>
+						<span className="dot align-middle" style={{ backgroundColor: this.nightColor }}/>
+						<span className="ml-2">(N)akts</span>
 					</Col>
 					<Col>
-						<span className="dot align-bottom" style={{ backgroundColor: this.dayOffColor }}/>
-						<span className="ml-2">Brīvdiena</span>
+						<span className="dot align-middle" style={{ backgroundColor: this.dayOffColor }}/>
+						<span className="ml-2">(B)rīvdiena</span>
 					</Col>
 					<Col>
-						<span className="dot align-bottom" style={{ backgroundColor: this.vacationColor }}/>
-						<span className="ml-2">Atvaļinājums</span>
+						<span className="dot align-middle" style={{ backgroundColor: this.vacationColor }}/>
+						<span className="ml-2">(A)tvaļinājums</span>
 					</Col>
 					<Col>
-						<span className="dot align-bottom" style={{ backgroundColor: this.sickListColor }}/>
-						<span className="ml-2">Slimības lapa</span>
+						<span className="dot align-middle" style={{ backgroundColor: this.sickListColor }}/>
+						<span className="ml-2">(S)limības lapa</span>
 					</Col>
 				</Row>
 				<Row className="mb-3 mt-3">
@@ -405,6 +434,13 @@ class Employees extends React.Component {
 								: "Saglabāt"
 							}
 						</Button>
+						<BoostrapDatePicker
+							dateFormat="MM.yyyy."
+							selected={this.state.scheduleDate}
+							onChange={this.onChangeScheduleDate}
+							showMonthYearPicker
+							className="float-right mr-2 text-center"
+						/>
 					</Col>
 				</Row>
 				<BootstrapTable 
@@ -417,7 +453,6 @@ class Employees extends React.Component {
 					hover={ true }
 					defaultSorted={ this.defaultSorted }
 					remote={ { filter: true } }
-					onTableChange={ this.onTableChange }
 					pagination={ this.pagination }
 				/>
 			</ContainerBox>

@@ -1,5 +1,4 @@
 import React from "react";
-import findIndex from "lodash/findIndex";
 
 class ScheduleCell extends React.Component {
 	constructor() {
@@ -14,15 +13,23 @@ class ScheduleCell extends React.Component {
 	}
 	
 	shouldComponentUpdate(nextProps, nextState) {
-		if(JSON.stringify(nextProps.row.schedule.days[nextProps.extraData.colIndex]) !== JSON.stringify(this.props.row.schedule.days[this.props.extraData.colIndex]) ||
+		if(nextProps.row.selectedFields.find((selectedField) => {
+			return selectedField[1] === this.props.rowIndex &&
+			selectedField[2] === this.props.extraData.colIndex;
+		}) || this.props.row.selectedFields.find((selectedField) => {
+			return selectedField[1] === this.props.rowIndex &&
+			selectedField[2] === this.props.extraData.colIndex;
+		})) {
+			return true;
+		}
+		if(JSON.stringify(nextProps.row.schedule.days[nextProps.extraData.colIndex]) !== 
+			JSON.stringify(this.props.row.schedule.days[this.props.extraData.colIndex])) {
 			return true;
 		}
 		return false;
 	}
 
 	render() {
-		console.log("cell render");
-
 		const rowIndex = this.props.rowIndex;
 		const colIndex = this.props.extraData.colIndex;
 		let selectedFields = this.props.row.selectedFields;
@@ -67,7 +74,7 @@ class ScheduleCell extends React.Component {
 			<div style={{ backgroundColor: color }}>
 				<input 
 					onFocus={(event) => this.props.onClickScheduleInput(event, this.props.row.scheduleIndex, rowIndex, colIndex)}
-					onChange={(event) => this.props.onChangeScheduleInput(event, this.props.row.scheduleIndex, colIndex)}
+					onChange={(event) => this.props.onChangeScheduleInput(event, this.props.row.scheduleIndex, rowIndex, colIndex)}
 					className="border-0 text-center" 
 					style={{ width: "32px", height: "32px", fontSize: "12px", backgroundColor: "RGBA(0, 0, 0, 0)"}}
 					value={this.props.row.schedule.days[colIndex]}
