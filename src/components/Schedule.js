@@ -22,7 +22,7 @@ import { getSchedules, saveSchedules } from "../utils/employeeUtils";
 
 import { daysInMonth, convertSpecialCharacters, isWeekend } from "../utils/commonUtils";
 
-class Employees extends React.PureComponent {
+class Employees extends React.Component {
 
 	constructor() {
 		super();
@@ -142,7 +142,7 @@ class Employees extends React.PureComponent {
 	}
 
 	componentDidMount() {
-		this.onTableChange();
+		//this.onTableChange();
 		this.fetchSchedules();
 
 		window.addEventListener("keydown", (event) => {
@@ -155,23 +155,45 @@ class Employees extends React.PureComponent {
 	}
 
 	fetchSchedules = () => {
+		console.log("fetchSchedules");
 		getSchedules(this.state.scheduleDate.getMonth()).then((res) => {
-			const schedules = res.data.map((schedule) => {
-				const parsedSchedule = schedule;
-				parsedSchedule.days = JSON.parse(parsedSchedule.days);
-				return parsedSchedule;
-			});
+			const newSchedules = this.props.employees.map((employee) => {
+				let days = [];
+				const schedule = res.data.find((schedule) => {
+					return schedule.employee_id === employee.id
+				});
 
-			this.setState({
-				schedules: JSON.parse(JSON.stringify(schedules)),
+				if(schedule === undefined) {
+					days = new Array(31).fill(" ", 0, 31);
+				} else {
+					days = JSON.parse(schedule.days);
+				}
+
+				return {
+					employee_id: employee.id,
+					month: this.state.scheduleDate.getMonth(),
+					days: days
+				};
+			});
+	
+			Promise.all(newSchedules).then((data) => {
+				this.setState({
+					schedules: JSON.parse(JSON.stringify(data)),
+					selectedFields: [],
+				}, () => this.onTableChange());
 			});
 		});
 	}
 
 	componentDidUpdate(prevProps, prevState) {
+		if(prevProps.employees.length === 0 && this.props.employees.length !== 0) {
+			this.fetchSchedules();
+		}
+
 		if(JSON.stringify(prevProps.employees) !== JSON.stringify(this.props.employees) ||
 			JSON.stringify(prevState.schedules) !== JSON.stringify(this.state.schedules) ||
 			JSON.stringify(prevState.selectedFields) !== JSON.stringify(this.state.selectedFields)) {
+			console.log("ontablechange");
 			this.onTableChange();
 		}
 
@@ -258,12 +280,14 @@ class Employees extends React.PureComponent {
 
 		if(newSchedules[scheduleIndex].days[colIndex] !== value) {
 			newSchedules[scheduleIndex].days[colIndex] = value.replace(newSchedules[scheduleIndex].days[colIndex], "");
+
+			if(newSchedules[scheduleIndex].days[colIndex] === "") {
+				newSchedules[scheduleIndex].days[colIndex] = " ";
+			}
 		}
 		if(this.state.selectedFields.length > 1) {
 			this.state.selectedFields.forEach((selectedField) => {
-				if(newSchedules[this.cellRefs[selectedField[1]][selectedField[2]].props.row.scheduleIndex].days[selectedField[2]] !== value) {
-					newSchedules[this.cellRefs[selectedField[1]][selectedField[2]].props.row.scheduleIndex].days[selectedField[2]] = value.replace(newSchedules[this.cellRefs[selectedField[1]][selectedField[2]].props.row.scheduleIndex].days[selectedField[2]], "");
-				}
+				newSchedules[this.cellRefs[selectedField[1]][selectedField[2]].props.row.scheduleIndex].days[selectedField[2]] = newSchedules[scheduleIndex].days[colIndex];
 			});
 		}
 
@@ -272,27 +296,31 @@ class Employees extends React.PureComponent {
 		});
 	}
 
-	formatTable = (callback = () => null) => {
-		const newSchedules = JSON.parse(JSON.stringify(this.state.schedules));
-		const promise = this.props.employees.map((employee, index) => {
+	createEmptySchedule = () => {
+		console.log("createEmptySchedule");
+		const selectedFields = [];
 
-			let scheduleIndex = newSchedules.findIndex((schedule) => {
-				return schedule.employee_id === employee.id;
+		const newSchedules = this.props.employees.map((employee) => {
+			const newDays = new Array(31).fill(" ", 0, 31);
+
+			return {
+				employee_id: employee.id,
+				month: this.state.scheduleDate.getMonth(),
+				days: newDays
+			};
+		});
+
+		Promise.all(newSchedules).then(() => {
+			this.setState({
+				schedules: newSchedules,
+				selectedFields: selectedFields,
 			});
+		});
+	}
 
-			if(scheduleIndex === -1) {
-				// Employee has no previous schedule entries, so let's create a new object for him
-				const newDays = new Array(31).fill("", 0, 31);
-	
-				newSchedules.push({
-					employee_id: employee.id,
-					month: this.currentMonth,
-					days: newDays
-				});
-
-				scheduleIndex = newSchedules.length - 1;
-			}
-
+	formatTable = (callback = () => null) => {
+		console.log("formatting table");
+		const promise = this.props.employees.map((employee, index) => {
 			return({
 				id: employee.id,
 				name: {
@@ -305,20 +333,14 @@ class Employees extends React.PureComponent {
 				archived: employee.archived,
 				active: employee.active,
 				working: employee.working,
-				schedule: newSchedules[scheduleIndex],
-				scheduleIndex,
+				schedule: this.state.schedules[index],
+				scheduleIndex: index,
 				selectedFields: this.state.selectedFields,
 			});
 		});
 
 		Promise.all(promise).then((data) => {
 			callback(data);
-
-			if(JSON.stringify(newSchedules) !== JSON.stringify(this.state.schedules)) {
-				this.setState({
-					schedules: newSchedules,
-				});
-			}
 		});
 	}
 
@@ -336,13 +358,18 @@ class Employees extends React.PureComponent {
 	};
 
 	dayFormatter = (cell, row, rowIndex, extraData) => {
+		if(row.schedule === undefined ||
+			row === undefined) {
+			return null;
+		}
+
 		const props = {
 			cell, 
 			row, 
 			rowIndex, 
 			extraData
 		}
-		return <ScheduleCell 
+		return <ScheduleCell
 			onClickScheduleInput={this.onClickScheduleInput}
 			onChangeScheduleInput={this.onChangeScheduleInput}
 			ref={(ref) => {
@@ -391,7 +418,6 @@ class Employees extends React.PureComponent {
 			pageSize: option.page
 		});
 	}
-
 
 	render() {
 		return (

@@ -77,7 +77,7 @@ class ScheduleCell extends React.Component {
 					onFocus={(event) => this.props.onClickScheduleInput(event, this.props.row.scheduleIndex, rowIndex, colIndex)}
 					onChange={(event) => this.props.onChangeScheduleInput(event, this.props.row.scheduleIndex, rowIndex, colIndex)}
 					className="border-0 text-center" 
-					style={{ width: "32px", height: "32px", fontSize: "12px", backgroundColor: "RGBA(0, 0, 0, 0)"}}
+					style={{ width: "32px", height: "32px", fontSize: "12px", backgroundColor: "RGBA(0, 0, 0, 0)", outline: "none"}}
 					value={this.props.row.schedule.days[colIndex]}
 				/>
 			</div>
