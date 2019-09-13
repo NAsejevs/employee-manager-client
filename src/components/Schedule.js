@@ -185,9 +185,45 @@ class Employees extends React.Component {
 		});
 	}
 
+	checkEmptySchedules = () => {
+		const newSchedules = this.props.employees.map((employee) => {
+			let days = [];
+			const schedule = this.state.schedules.find((schedule) => {
+				return schedule.employee_id === employee.id
+			});
+
+			if(schedule === undefined) {
+				days = new Array(31).fill(" ", 0, 31);
+			} else {
+				days = schedule.days;
+			}
+
+			return {
+				employee_id: employee.id,
+				month: this.state.scheduleDate.getMonth(),
+				days: days
+			};
+		});
+
+		Promise.all(newSchedules).then((data) => {
+			this.setState({
+				schedules: JSON.parse(JSON.stringify(data)),
+			}, () => {
+				this.onTableChange();
+			});
+		});
+	}
+
 	componentDidUpdate(prevProps, prevState) {
 		if(prevProps.employees.length === 0 && this.props.employees.length !== 0) {
 			this.fetchSchedules();
+			console.log("fetchschedules");
+		}
+
+		if(JSON.stringify(prevProps.employees) !== JSON.stringify(this.props.employees) &&
+			this.props.employees.length > 0) {
+			this.checkEmptySchedules();
+			console.log("checkemtyschedules");
 		}
 
 		if(JSON.stringify(prevProps.employees) !== JSON.stringify(this.props.employees) ||
@@ -247,6 +283,10 @@ class Employees extends React.Component {
 
 	onClickScheduleInput = (event, scheduleIndex, rowIndex, colIndex) => {
 		event.target.select();
+	}
+
+	onFocusScheduleInput = (event, scheduleIndex, rowIndex, colIndex) => {
+		event.target.select();
 		let selectedFields = JSON.parse(JSON.stringify(this.state.selectedFields));
 
 		if(!this.isKeyDown(17) && !this.isKeyDown(16)) { // CTRL and SHIFT is not being held
@@ -297,7 +337,6 @@ class Employees extends React.Component {
 	}
 
 	createEmptySchedule = () => {
-		console.log("createEmptySchedule");
 		const selectedFields = [];
 
 		const newSchedules = this.props.employees.map((employee) => {
@@ -319,7 +358,7 @@ class Employees extends React.Component {
 	}
 
 	formatTable = (callback = () => null) => {
-		console.log("formatting table");
+		this.cellRefs = [];
 		const promise = this.props.employees.map((employee, index) => {
 			return({
 				id: employee.id,
@@ -370,7 +409,9 @@ class Employees extends React.Component {
 			extraData
 		}
 		return <ScheduleCell
+			key={[row.id, rowIndex]}
 			onClickScheduleInput={this.onClickScheduleInput}
+			onFocusScheduleInput={this.onFocusScheduleInput}
 			onChangeScheduleInput={this.onChangeScheduleInput}
 			ref={(ref) => {
 				if(this.cellRefs[rowIndex] === undefined) {

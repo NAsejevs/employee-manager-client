@@ -67,14 +67,15 @@ class ScheduleCell extends React.Component {
 		for(let i = 0; i < selectedFields.length; i++) {
 			if(selectedFields[i][1] === rowIndex &&
 				selectedFields[i][2] === colIndex) {
-				outline = "2px #df7b7b solid";
+				outline = "2px #2f8cfb solid";
 			}
 		}
 		
 		return (
 			<div style={{ backgroundColor: color, outline: outline }}>
 				<input 
-					onFocus={(event) => this.props.onClickScheduleInput(event, this.props.row.scheduleIndex, rowIndex, colIndex)}
+					onClick={(event) => this.props.onClickScheduleInput(event, this.props.row.scheduleIndex, rowIndex, colIndex)}
+					onFocus={(event) => this.props.onFocusScheduleInput(event, this.props.row.scheduleIndex, rowIndex, colIndex)}
 					onChange={(event) => this.props.onChangeScheduleInput(event, this.props.row.scheduleIndex, rowIndex, colIndex)}
 					className="border-0 text-center" 
 					style={{ width: "32px", height: "32px", fontSize: "12px", backgroundColor: "RGBA(0, 0, 0, 0)", outline: "none"}}
