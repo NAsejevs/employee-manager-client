@@ -25,6 +25,9 @@ const initialState = {
 		show: false,
 		employee: {},
 	},
+	notifications: {
+		show: false,
+	},
 };
 
 export default initialState;

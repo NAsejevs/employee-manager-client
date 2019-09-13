@@ -34,6 +34,7 @@ class Employees extends React.Component {
 		this.vacationColor = "#00ff00";
 		this.sickListColor = "#2fc2b5";
 		this.weekendColor = "#ffcc99";
+		this.lateColor = "red";
 
 		this.keyDown = {};
 
@@ -468,26 +469,30 @@ class Employees extends React.Component {
 					onFilterChange={this.onFilterChange}
 					filterData={filterData => this.filterData = filterData}
 				/>
-				<Row className="mt-3 text-center">
+				<Row className="mt-3 text-center" style={{ fontSize: "14px" }}>
 					<Col>
 						<span className="dot align-middle" style={{ backgroundColor: this.dayColor }}/>
-						<span className="ml-2">(D)iena</span>
+						<span className="ml-2">(D) Diena</span>
 					</Col>
 					<Col>
 						<span className="dot align-middle" style={{ backgroundColor: this.nightColor }}/>
-						<span className="ml-2">(N)akts</span>
+						<span className="ml-2">(N) Nakts</span>
 					</Col>
 					<Col>
 						<span className="dot align-middle" style={{ backgroundColor: this.dayOffColor }}/>
-						<span className="ml-2">(B)rīvdiena</span>
+						<span className="ml-2">(B) Brīvdiena</span>
 					</Col>
 					<Col>
 						<span className="dot align-middle" style={{ backgroundColor: this.vacationColor }}/>
-						<span className="ml-2">(A)tvaļinājums</span>
+						<span className="ml-2">(A) Atvaļinājums</span>
 					</Col>
 					<Col>
 						<span className="dot align-middle" style={{ backgroundColor: this.sickListColor }}/>
-						<span className="ml-2">(S)limības lapa</span>
+						<span className="ml-2">(S) Slimības lapa</span>
+					</Col>
+					<Col>
+						<span className="dot align-middle" style={{ backgroundColor: this.lateColor }}/>
+						<span className="ml-2">(K) Darba kavējums</span>
 					</Col>
 				</Row>
 				<Row className="mb-3 mt-3">

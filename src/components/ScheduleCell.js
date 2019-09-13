@@ -10,6 +10,7 @@ class ScheduleCell extends React.Component {
 		this.dayOffColor = "#ff99cc";
 		this.vacationColor = "#00ff00";
 		this.sickListColor = "#2fc2b5";
+		this.lateColor = "red";
 	}
 	
 	shouldComponentUpdate(nextProps, nextState) {
@@ -56,6 +57,10 @@ class ScheduleCell extends React.Component {
 			}
 			case "S": {
 				color = this.sickListColor;
+				break;
+			}
+			case "K": {
+				color = this.lateColor;
 				break;
 			}
 			default: {

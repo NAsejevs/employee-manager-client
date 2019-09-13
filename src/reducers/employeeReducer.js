@@ -17,6 +17,8 @@ import {
 	HIDE_EMPLOYEE_WORK_LOG,
 	SHOW_COMMENT_EMPLOYEE,
 	HIDE_COMMENT_EMPLOYEE,
+	SHOW_NOTIFICATIONS,
+	HIDE_NOTIFICATIONS,
 } from '../actions/actionTypes';
 
 export const employees = (state = initialState, action) => {
@@ -154,6 +156,22 @@ export const employees = (state = initialState, action) => {
 					...state.commentEmployee,
 					show: false,
 					employee: {},
+				},
+			}
+		case SHOW_NOTIFICATIONS:
+			return {
+				...state,
+				notifications: {
+					...state.notifications,
+					show: true,
+				},
+			}
+		case HIDE_NOTIFICATIONS:
+			return {
+				...state,
+				notifications: {
+					...state.notifications,
+					show: false,
 				},
 			}
 		default:

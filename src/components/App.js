@@ -18,6 +18,7 @@ import LogIn from "./LogIn";
 import CheckCard from "./CheckCard";
 import CommentEmployee from "./CommentEmployee";
 import Schedule from "./Schedule";
+import Notifications from "./Notifications";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
@@ -28,6 +29,7 @@ import "../styles/table.css";
 
 import logo from "../images/logo.png";
 import { FiLogOut } from "react-icons/fi";
+import { showNotifications } from "../actions/employeeActions";
 
 class App extends React.PureComponent {
 	constructor() {
@@ -145,6 +147,7 @@ class App extends React.PureComponent {
 												<LinkContainer exact={true} to="/schedule">
 													<Nav.Link>Grafiks</Nav.Link>
 												</LinkContainer>
+												<Nav.Link onClick={this.props.showNotifications}>Paziņojumi</Nav.Link>
 											</Nav>
 											<Nav>
 												<Navbar.Text className="ml-md-4">
@@ -174,6 +177,7 @@ class App extends React.PureComponent {
 									<ExportExcel/>
 									<CheckCard/>
 									<CommentEmployee/>
+									<Notifications/>
 								</Col>
 							</Row>
 							<Row>
@@ -201,6 +205,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
+		showNotifications: () => dispatch(showNotifications()),
 	};
 }
 
