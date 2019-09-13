@@ -17,11 +17,13 @@ import {
 	HIDE_EMPLOYEE_WORK_LOG,
 	SHOW_COMMENT_EMPLOYEE,
 	HIDE_COMMENT_EMPLOYEE,
+	UPDATE_NOTIFICATIONS,
 	SHOW_NOTIFICATIONS,
 	HIDE_NOTIFICATIONS,
 } from '../actions/actionTypes';
 
 export const employees = (state = initialState, action) => {
+	console.log(action);
 	switch (action.type) {
 		case UPDATE_EMPLOYEES:
 			return {
@@ -156,6 +158,14 @@ export const employees = (state = initialState, action) => {
 					...state.commentEmployee,
 					show: false,
 					employee: {},
+				},
+			}
+		case UPDATE_NOTIFICATIONS:
+			return {
+				...state,
+				notifications: {
+					...state.notifications,
+					data: action.payload,
 				},
 			}
 		case SHOW_NOTIFICATIONS:

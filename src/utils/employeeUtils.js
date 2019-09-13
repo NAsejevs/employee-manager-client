@@ -25,6 +25,10 @@ export const getServerEmployee = (id) => {
 	});
 }
 
+export const getNotifications = () => {
+	return request.post("/getNotifications");
+}
+
 export const getSchedules = (month) => {
 	return request.post("/getSchedules", {
 		month

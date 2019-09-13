@@ -1,14 +1,41 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Button, Form, Row, Col, Alert } from "react-bootstrap";
+import { Modal, Alert } from "react-bootstrap";
 
 import { hideNotifications } from "../actions/employeeActions";
 
 class Notifications extends React.Component {
 	constructor(props) {
         super(props);
-        
-        console.log("hello world!!");
+	}
+
+	componentDidUpdate() {
+		console.log(this.props.notifications.data);
+	}
+
+	displayNotifications = () => {
+		return this.props.notifications.data.map((notification) => {
+			const notificationData = JSON.parse(notification.data);
+
+			switch(notification.type) {
+				case "EMPLOYEE_LATE": {
+					const employee = this.props.employees.find((employee) => employee.id === notificationData.id);
+
+					return (
+						<Alert key={notification.id} variant={"danger"}>
+							<b>{employee.surname + " " + employee.name}</b> - Darba kavējums
+						</Alert>
+					);
+				}
+				default: {
+					return (
+						<Alert key={notification.id}>
+							Nezināms ieraksts
+						</Alert>
+					);
+				}
+			}
+		})
 	}
 
 	onHide = () => {
@@ -18,6 +45,7 @@ class Notifications extends React.Component {
 	render() {
 		return (
 			<Modal 
+				size="lg"
 				show={this.props.notifications.show}
 				onHide={() => this.onHide()}
 			>
@@ -26,7 +54,7 @@ class Notifications extends React.Component {
 				</Modal.Header>
 
 				<Modal.Body>
-					
+					{this.displayNotifications()}
 				</Modal.Body>
 
 				<Modal.Footer>
@@ -40,6 +68,7 @@ class Notifications extends React.Component {
 function mapStateToProps(state) {
 	return {
 		notifications: state.employees.notifications,
+		employees: state.employees.employees,
 	};
 }
 

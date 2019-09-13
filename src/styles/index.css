@@ -5,6 +5,10 @@ body {
 	margin-bottom: 100px;
 }
 
+hr {
+	margin-bottom: 0;
+}
+
 .navbar {
     border: 0;
     border-style: solid;

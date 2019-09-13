@@ -27,6 +27,7 @@ const initialState = {
 	},
 	notifications: {
 		show: false,
+		data: [],
 	},
 };
 

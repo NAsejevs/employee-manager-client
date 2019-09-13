@@ -29,7 +29,8 @@ import "../styles/table.css";
 
 import logo from "../images/logo.png";
 import { FiLogOut } from "react-icons/fi";
-import { showNotifications } from "../actions/employeeActions";
+import { updateNotifications, showNotifications } from "../actions/employeeActions";
+import { getNotifications } from "../utils/employeeUtils";
 
 class App extends React.PureComponent {
 	constructor() {
@@ -91,8 +92,15 @@ class App extends React.PureComponent {
 	
 	onAuthentification = () => {
 		storeUpdateEmployees();
+		getNotifications().then(res => {
+			this.props.updateNotifications(res.data);
+		});
+
 		setInterval(() => {
 			storeUpdateEmployees();
+			getNotifications().then(res => {
+				this.props.updateNotifications(res.data);
+			});
 		}, employeeUpdateInterval);
 	}
 
@@ -147,7 +155,27 @@ class App extends React.PureComponent {
 												<LinkContainer exact={true} to="/schedule">
 													<Nav.Link>Grafiks</Nav.Link>
 												</LinkContainer>
-												<Nav.Link onClick={this.props.showNotifications}>Paziņojumi</Nav.Link>
+												<Nav.Link 
+													onClick={this.props.showNotifications} 
+													style={{ position: "relative" }}
+												>
+													Paziņojumi
+													<div style={{ 
+														position: "absolute", 
+														right: "-10px", 
+														top: 0,
+														backgroundColor: "red",
+														textAlign: "center",
+														lineHeight: "19px",
+														borderRadius: "50%",
+														height: "20px",
+														width: "20px",
+														color: "white",
+														fontSize: "12px"
+													}}>
+														{this.props.notifications.data.length}
+													</div>
+												</Nav.Link>
 											</Nav>
 											<Nav>
 												<Navbar.Text className="ml-md-4">
@@ -200,12 +228,14 @@ class App extends React.PureComponent {
 
 function mapStateToProps(state) {
 	return {
+		notifications: state.employees.notifications,
 	};
 }
 
 function mapDispatchToProps(dispatch) {
 	return {
 		showNotifications: () => dispatch(showNotifications()),
+		updateNotifications: (data) => dispatch(updateNotifications(data)),
 	};
 }
 

@@ -15,6 +15,7 @@ import {
 	HIDE_EMPLOYEE_WORK_LOG,
 	SHOW_COMMENT_EMPLOYEE,
 	HIDE_COMMENT_EMPLOYEE,
+	UPDATE_NOTIFICATIONS,
 	SHOW_NOTIFICATIONS,
 	HIDE_NOTIFICATIONS,
 } from "./actionTypes";
@@ -118,6 +119,13 @@ export const showCommentEmployee = (employee) => {
 export const hideCommentEmployee = () => {
 	return {
 		type: HIDE_COMMENT_EMPLOYEE,
+	}
+}
+
+export const updateNotifications = (data) => {
+	return {
+		type: UPDATE_NOTIFICATIONS,
+		payload: data,
 	}
 }
 
