@@ -293,15 +293,15 @@ class Employees extends React.Component {
 		};
 
 		const startDateFormatted = 
-			  addZero(this.state.startDate.getDate()) + "." 
-			+ addZero(this.state.startDate.getMonth() + 1) + "." 
-			+ addZero(this.state.startDate.getFullYear());
+			  addZero(new Date(this.state.startDate).getDate()) + "." 
+			+ addZero(new Date(this.state.startDate).getMonth() + 1) + "." 
+			+ addZero(new Date(this.state.startDate).getFullYear());
 
 
 		const endDateFormatted =
-			  addZero(this.state.endDate.getDate()) + "." 
-			+ addZero(this.state.endDate.getMonth() + 1) + "." 
-			+ addZero(this.state.endDate.getFullYear());
+			  addZero(new Date(this.state.endDate).getDate()) + "." 
+			+ addZero(new Date(this.state.endDate).getMonth() + 1) + "." 
+			+ addZero(new Date(this.state.endDate).getFullYear());
 
 		const dateRange = startDateFormatted + (startDateFormatted === endDateFormatted ? "" : " - " + endDateFormatted);
 

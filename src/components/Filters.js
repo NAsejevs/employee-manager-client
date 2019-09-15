@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import Cookies from 'universal-cookie';
+import Cookies from "universal-cookie";
 
 import { Form, Button, Collapse, Row, Col, Dropdown, DropdownButton } from "react-bootstrap";
 import BoostrapDatePicker from "./BoostrapDatePicker";
@@ -186,7 +186,7 @@ class Filters extends React.PureComponent {
     
     onChangeDateStart = (date) => {
 		const startOfDay = new Date(date);
-		startOfDay.setHours(0,0,0);
+        startOfDay.setHours(0,0,0,0);
 		this.setState({
 			startDate: startOfDay,
 		});
@@ -194,7 +194,7 @@ class Filters extends React.PureComponent {
 
 	onChangeDateEnd = (date) => {
 		const endOfDay = new Date(date);
-		endOfDay.setHours(23,59,59);
+		endOfDay.setHours(23,59,59,59);
 		this.setState({
 			endDate: endOfDay,
 		});
@@ -264,6 +264,7 @@ class Filters extends React.PureComponent {
     }
     
 	render() {
+        console.log(this.state.startDate);
         const dateFilter = (
             <>
                 <Col xs={"auto"}>
@@ -272,7 +273,7 @@ class Filters extends React.PureComponent {
                         <Col>
                             <BoostrapDatePicker
                                 dateFormat="dd.MM.yyyy."
-                                selected={this.state.startDate}
+                                selected={new Date(this.state.startDate)}
                                 onChange={this.onChangeDateStart}
                                 maxDate={new Date()}
                             />
@@ -285,9 +286,9 @@ class Filters extends React.PureComponent {
                         <Col>
                             <BoostrapDatePicker
                                 dateFormat="dd.MM.yyyy."
-                                selected={this.state.endDate}
+                                selected={new Date(this.state.endDate)}
                                 onChange={this.onChangeDateEnd}
-                                minDate={this.state.startDate}
+                                minDate={new Date(this.state.startDate)}
                                 maxDate={new Date()}
                             />
                         </Col>
