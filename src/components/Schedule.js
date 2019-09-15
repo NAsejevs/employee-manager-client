@@ -156,7 +156,6 @@ class Employees extends React.Component {
 	}
 
 	fetchSchedules = () => {
-		console.log("fetchSchedules");
 		getSchedules(this.state.scheduleDate.getMonth()).then((res) => {
 			const newSchedules = this.props.employees.map((employee) => {
 				let days = [];
@@ -218,19 +217,16 @@ class Employees extends React.Component {
 	componentDidUpdate(prevProps, prevState) {
 		if(prevProps.employees.length === 0 && this.props.employees.length !== 0) {
 			this.fetchSchedules();
-			console.log("fetchschedules");
 		}
 
 		if(JSON.stringify(prevProps.employees) !== JSON.stringify(this.props.employees) &&
 			this.props.employees.length > 0) {
 			this.checkEmptySchedules();
-			console.log("checkemtyschedules");
 		}
 
 		if(JSON.stringify(prevProps.employees) !== JSON.stringify(this.props.employees) ||
 			JSON.stringify(prevState.schedules) !== JSON.stringify(this.state.schedules) ||
 			JSON.stringify(prevState.selectedFields) !== JSON.stringify(this.state.selectedFields)) {
-			console.log("ontablechange");
 			this.onTableChange();
 		}
 

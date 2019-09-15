@@ -111,7 +111,6 @@ class Filters extends React.PureComponent {
     }
     
     applyNameFilter = (data, callback = () => null) => {
-        console.log("name filter: ", this.state.nameFilter)
 		const result = data.filter((row) => {
 			return (row.name.name + " " + row.name.surname).toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
 		});

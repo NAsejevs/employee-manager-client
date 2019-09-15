@@ -9,10 +9,6 @@ class Notifications extends React.Component {
         super(props);
 	}
 
-	componentDidUpdate() {
-		console.log(this.props.notifications.data);
-	}
-
 	shouldComponentUpdate(nextProps, nextState) {
 		if(nextProps.employees.length > 0) {
 			return true;
