@@ -11,6 +11,8 @@ import {
 	showCheckCard
 } from "../actions/employeeActions";
 
+import { initialSettings } from "../utils/userUtils";
+
 import { FiMinimize2, FiMaximize2 } from "react-icons/fi";
 
 class Filters extends React.PureComponent {
@@ -26,30 +28,8 @@ class Filters extends React.PureComponent {
         const endDate = new Date();
         endDate.setHours(23,59,59);
 
-		if(settings) {
-			settings = {
-                ...settings,
-				startDate: settings.startDate ? new Date(settings.startDate) : new Date(startDate),
-				endDate: settings.endDate ? new Date(settings.endDate) : new Date(endDate),
-			};
-		} else {
-			settings = {
-				showFilters: false,
-				showArchive: false,
-				showInactive: false,
-				showWorking: false,
-				showNotWorking: false,
-				nameFilter: "",
-				positionFilter: "",
-                companyFilter: "",
-                startDate: startDate,
-                endDate: endDate,
-			}
-
-			cookies.set("settings", settings);
-        }
-
         this.state = {
+            ...initialSettings,
             ...settings,
 			dropdown: {
 				currentFilter: "Šodiena",
@@ -131,6 +111,7 @@ class Filters extends React.PureComponent {
     }
     
     applyNameFilter = (data, callback = () => null) => {
+        console.log("name filter: ", this.state.nameFilter)
 		const result = data.filter((row) => {
 			return (row.name.name + " " + row.name.surname).toString().toLowerCase().indexOf(this.state.nameFilter.toLowerCase()) > -1;
 		});

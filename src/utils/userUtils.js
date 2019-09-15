@@ -1,5 +1,17 @@
 import { request } from "./config";
 
+export const initialSettings = {
+	showFilters: false,
+	showArchive: false,
+	showInactive: false,
+	showWorking: false,
+	showNotWorking: false,
+	nameFilter: "",
+	positionFilter: "",
+	companyFilter: "",
+	pageSize: 10,
+}
+
 export const checkSession = () => {
 	return request.post("/checkSession");
 }

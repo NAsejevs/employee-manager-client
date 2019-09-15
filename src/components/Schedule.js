@@ -497,6 +497,16 @@ class Employees extends React.Component {
 				</Row>
 				<Row className="mb-3 mt-3">
 					<Col>
+						<ul style={{ fontSize: "12px" }}>
+							<li>
+								CTRL + KLIKŠĶIS - Iezīmē vairākus individuālus lauciņus
+							</li>
+							<li>
+								SHIFT + KLIKŠĶIS - Iezīmē vairākus no-līdz lauciņus
+							</li>
+						</ul>
+					</Col>
+					<Col>
 						<Button  
 							onClick={this.saveSchedules}
 							className="float-right"

@@ -13,6 +13,13 @@ class Notifications extends React.Component {
 		console.log(this.props.notifications.data);
 	}
 
+	shouldComponentUpdate(nextProps, nextState) {
+		if(nextProps.employees.length > 0) {
+			return true;
+		}
+		return false;
+	}
+
 	displayNotifications = () => {
 		return this.props.notifications.data.map((notification) => {
 			const notificationData = JSON.parse(notification.data);
