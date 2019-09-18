@@ -1,4 +1,5 @@
 import { 
+	UPDATE_USER,
 	UPDATE_EMPLOYEES,
 	UPDATE_EMPLOYEE,
 	SHOW_DELETE_EMPLOYEE, 
@@ -18,7 +19,17 @@ import {
 	UPDATE_NOTIFICATIONS,
 	SHOW_NOTIFICATIONS,
 	HIDE_NOTIFICATIONS,
+	SHOW_HISTORY,
+	HIDE_HISTORY,
 } from "./actionTypes";
+
+
+export const updateUser = (user) => {
+	return {
+		type: UPDATE_USER,
+		payload: user,
+	}
+}
 
 export const updateEmployees = (employees) => {
 	return {
@@ -140,3 +151,16 @@ export const hideNotifications = () => {
 		type: HIDE_NOTIFICATIONS,
 	}
 }
+
+export const showHistory = () => {
+	return {
+		type: SHOW_HISTORY,
+	}
+}
+
+export const hideHistory = () => {
+	return {
+		type: HIDE_HISTORY,
+	}
+}
+

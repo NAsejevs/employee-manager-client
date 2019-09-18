@@ -18,6 +18,7 @@ import LogIn from "./LogIn";
 import CheckCard from "./CheckCard";
 import CommentEmployee from "./CommentEmployee";
 import Schedule from "./Schedule";
+import History from "./History";
 import Notifications from "./Notifications";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
@@ -29,7 +30,7 @@ import "../styles/table.css";
 
 import logo from "../images/logo.png";
 import { FiLogOut } from "react-icons/fi";
-import { updateNotifications, showNotifications } from "../actions/employeeActions";
+import { updateUser, updateNotifications, showNotifications, showHistory } from "../actions/employeeActions";
 import { getNotifications } from "../utils/employeeUtils";
 
 class App extends React.PureComponent {
@@ -80,7 +81,7 @@ class App extends React.PureComponent {
 								getUserByKey().then((res) => {
 									this.setState({
 										user: res.data,
-									});
+									}, () => this.props.updateUser(this.state.user));
 								});
 							}
 						});
@@ -155,6 +156,9 @@ class App extends React.PureComponent {
 												<LinkContainer exact={true} to="/schedule">
 													<Nav.Link>Grafiks</Nav.Link>
 												</LinkContainer>
+												<Nav.Link onClick={this.props.showHistory}>
+													Vēsture
+												</Nav.Link>
 												<Nav.Link 
 													onClick={this.props.showNotifications} 
 													style={{ position: "relative" }}
@@ -173,7 +177,9 @@ class App extends React.PureComponent {
 														color: "white",
 														fontSize: "12px"
 													}}>
-														{this.props.notifications.data.length}
+														{this.props.notifications.data.filter((notification) => {
+															return !notification.type.includes("LOG");
+														}).length}
 													</div>
 												</Nav.Link>
 											</Nav>
@@ -205,6 +211,7 @@ class App extends React.PureComponent {
 									<ExportExcel/>
 									<CheckCard/>
 									<CommentEmployee/>
+									<History/>
 									<Notifications/>
 								</Col>
 							</Row>
@@ -234,8 +241,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
 	return {
+		updateUser: (user) => dispatch(updateUser(user)),
 		showNotifications: () => dispatch(showNotifications()),
 		updateNotifications: (data) => dispatch(updateNotifications(data)),
+		showHistory: () => dispatch(showHistory()),
 	};
 }
 

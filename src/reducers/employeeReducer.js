@@ -1,6 +1,7 @@
 import initialState from "../store/initialState";
 
-import { 
+import {
+	UPDATE_USER,
 	UPDATE_EMPLOYEES,
 	UPDATE_EMPLOYEE,
 	SHOW_DELETE_EMPLOYEE, 
@@ -20,11 +21,17 @@ import {
 	UPDATE_NOTIFICATIONS,
 	SHOW_NOTIFICATIONS,
 	HIDE_NOTIFICATIONS,
+	SHOW_HISTORY,
+	HIDE_HISTORY,
 } from '../actions/actionTypes';
 
 export const employees = (state = initialState, action) => {
-	console.log(action);
 	switch (action.type) {
+		case UPDATE_USER:
+			return {
+				...state,
+				user: action.payload,
+			}
 		case UPDATE_EMPLOYEES:
 			return {
 				...state,
@@ -184,6 +191,22 @@ export const employees = (state = initialState, action) => {
 					show: false,
 				},
 			}
+		case SHOW_HISTORY:
+				return {
+					...state,
+					history: {
+						...state.history,
+						show: true,
+					},
+				}
+		case HIDE_HISTORY:
+				return {
+					...state,
+					history: {
+						...state.history,
+						show: false,
+					},
+				}
 		default:
 			return state;
 	}

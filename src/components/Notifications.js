@@ -1,12 +1,21 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Alert } from "react-bootstrap";
+import { Modal, Alert, Button, Row, Col } from "react-bootstrap";
 
-import { hideNotifications } from "../actions/employeeActions";
+import { hideNotifications, showEmployeeWorkLog } from "../actions/employeeActions";
+
+import { addNotification } from "../utils/employeeUtils";
+import { formatDate } from "../utils/commonUtils";
 
 class Notifications extends React.Component {
 	constructor(props) {
         super(props);
+	}
+
+	componentDidMount() {
+		window.addNotification = (type, data) => {
+			addNotification(type, data);
+		}
 	}
 
 	shouldComponentUpdate(nextProps, nextState) {
@@ -24,17 +33,61 @@ class Notifications extends React.Component {
 				case "EMPLOYEE_LATE": {
 					const employee = this.props.employees.find((employee) => employee.id === notificationData.id);
 
-					return (
-						<Alert key={notification.id} variant={"danger"}>
-							<b>{employee.surname + " " + employee.name}</b> - Darba kavējums
-						</Alert>
-					);
+					if(employee) {
+						return (
+							<Alert 
+								key={notification.id} 
+								variant={"danger"}
+								dismissible
+							>
+								<Row>
+									<Col>
+										<Button
+											variant="link"
+											onClick={() => this.props.showEmployeeWorkLog(employee.id)}
+											className="pl-0"
+										>
+											{employee.surname + " " + employee.name}
+										</Button>
+									</Col>
+									<Col className="d-flex flex-column justify-content-center">
+										<span className="text-center">
+											<b>DARBA KAVĒJUMS</b>
+										</span>
+									</Col>
+									<Col className="d-flex flex-column justify-content-center">
+										<span className="flex-right text-right">
+											{formatDate(notification.date)}
+										</span>
+									</Col>
+								</Row>
+								<hr className="m-0"/>
+								<Row className="pt-1">
+									<Col className="d-flex flex-column justify-content-center">
+										<span>
+											Ienācis: {employee.working ? "JĀ" : "NĒ"}
+										</span>
+									</Col>
+									<Col className="d-flex flex-column justify-content-center">
+										{
+											employee.working 
+											? (
+												<span className="text-right">
+													Ieradās: {employee.working ? formatDate(employee.last_work_start) : formatDate(employee.last_work_end)}
+												</span>
+											)
+											: null
+										}
+									</Col>
+								</Row>
+							</Alert>
+						);
+					}
+					break;
 				}
 				default: {
 					return (
-						<Alert key={notification.id}>
-							Nezināms ieraksts
-						</Alert>
+						null
 					);
 				}
 			}
@@ -78,6 +131,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
 	return {
 		hideNotifications: () => dispatch(hideNotifications()),
+		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id))
 	};
 }
 

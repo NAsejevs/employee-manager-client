@@ -1,4 +1,5 @@
 const initialState = {
+	user: null,
 	employees: [],
 	employeeWorkLog: {
 		show: false,
@@ -28,6 +29,9 @@ const initialState = {
 	notifications: {
 		show: false,
 		data: [],
+	},
+	history: {
+		show: false,
 	},
 };
 

@@ -4,7 +4,8 @@ import { Form, Button, Alert, Modal, Row, Col } from "react-bootstrap";
 
 import { showRegisterEmployee, hideRegisterEmployee } from "../actions/employeeActions";
 
-import { storeUpdateEmployees, addServerEmployee, awaitCard, deleteServerEmployee } from "../utils/employeeUtils";
+import { addNotification, storeUpdateEmployees, addServerEmployee, awaitCard, deleteServerEmployee } from "../utils/employeeUtils";
+import * as LOG_TYPE from "../utils/logTypes";
 
 const REGISTER_STATE = {
 	DATA_INPUT: 0,
@@ -95,7 +96,7 @@ class RegisterEmployee extends React.Component {
 
 						addServerEmployee(employee).then((res) => {
 							storeUpdateEmployees();
-
+							addNotification(LOG_TYPE.LOG_ADD_EMPLOYEE, { user: this.props.user.username, id: res.data.id });
 							this.setState({
 								registrationState: REGISTER_STATE.COMPLETE,
 							});
@@ -105,6 +106,7 @@ class RegisterEmployee extends React.Component {
 			} else {
 				addServerEmployee(employee).then((res) => {
 					storeUpdateEmployees();
+					addNotification(LOG_TYPE.LOG_ADD_EMPLOYEE, { user: this.props.user.username, id: res.data.id });
 					if(res.data) {
 						this.setState({ 
 							registrationState: REGISTER_STATE.COMPLETE,
@@ -287,7 +289,8 @@ function Buttons(props) {
 function mapStateToProps(state) {
 	return {
 		employees: state.employees.employees,
-		registerEmployee: state.employees.registerEmployee
+		registerEmployee: state.employees.registerEmployee,
+		user: state.employees.user,
 	};
 }
 

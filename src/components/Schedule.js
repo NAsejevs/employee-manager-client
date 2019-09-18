@@ -143,7 +143,6 @@ class Employees extends React.Component {
 	}
 
 	componentDidMount() {
-		//this.onTableChange();
 		this.fetchSchedules();
 
 		window.addEventListener("keydown", (event) => {

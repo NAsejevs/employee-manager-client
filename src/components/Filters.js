@@ -264,7 +264,6 @@ class Filters extends React.PureComponent {
     }
     
 	render() {
-        console.log(this.state.startDate);
         const dateFilter = (
             <>
                 <Col xs={"auto"}>

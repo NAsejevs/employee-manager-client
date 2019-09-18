@@ -1,6 +1,7 @@
 import { request } from "./config";
 import store from "../store/store";
-import { updateEmployees, updateEmployee } from "../actions/employeeActions";
+import { updateEmployees, updateEmployee, updateNotifications } from "../actions/employeeActions";
+import * as LOG_TYPE from "../utils/logTypes";
 
 export const storeUpdateEmployees = () => {
 	return getServerEmployees().then((res) => {
@@ -27,6 +28,14 @@ export const getServerEmployee = (id) => {
 
 export const getNotifications = () => {
 	return request.post("/getNotifications");
+}
+
+export const addNotification = (type, data) => {
+	return request.post("/addNotification", { type, data }).then(() => {
+		getNotifications().then(res => {
+			store.dispatch(updateNotifications(res.data));
+		})
+	});
 }
 
 export const getSchedules = (month) => {
@@ -65,6 +74,7 @@ export const deleteServerWorkLog = (id, working, employeeId) => {
 }
 
 export const editServerWorkLog = (id, startDate, endDate, working) => {
+	addNotification(LOG_TYPE.LOG_EDIT_WORK_LOG, { user: store.getState().employees.user.username, id, startDate });
 	return request.post("/editWorkLog", { 
 		id,
 		startDate,
@@ -80,6 +90,11 @@ export const addServerEmployee = (employee) => {
 }
 
 export const setServerEmployeeWorking = (id, working) => {
+	if(working) {
+		addNotification(LOG_TYPE.LOG_SET_WORKING, { user: store.getState().employees.user.username, id });
+	} else {
+		addNotification(LOG_TYPE.LOG_SET_NOT_WORKING, { user: store.getState().employees.user.username, id });
+	}
 	return request.post("/setEmployeeWorking", {
 		id, 
 		working
@@ -107,6 +122,7 @@ export const deleteServerEmployee = (id) => {
 }
 
 export const editServerEmployee = (employee) => {
+	addNotification(LOG_TYPE.LOG_EDIT_EMPLOYEE, { user: store.getState().employees.user.username, id: employee.id });
 	return request.post("/editEmployee", {
 		employee
 	});
