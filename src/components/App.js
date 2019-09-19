@@ -178,7 +178,11 @@ class App extends React.PureComponent {
 														fontSize: "12px"
 													}}>
 														{this.props.notifications.data.filter((notification) => {
-															return !notification.type.includes("LOG");
+															const notificationDate = new Date(notification.date);
+															return notificationDate.getFullYear() === new Date().getFullYear() &&
+																notificationDate.getMonth() === new Date().getMonth() &&
+																notificationDate.getDate() === new Date().getDate() &&
+																!notification.type.includes("LOG");
 														}).length}
 													</div>
 												</Nav.Link>

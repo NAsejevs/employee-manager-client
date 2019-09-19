@@ -2,6 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import { Modal, Alert, Button, Row, Col } from "react-bootstrap";
 
+import BoostrapDatePicker from "./BoostrapDatePicker";
+
 import { hideNotifications, showEmployeeWorkLog } from "../actions/employeeActions";
 
 import { addNotification } from "../utils/employeeUtils";
@@ -9,24 +11,30 @@ import { formatDate } from "../utils/commonUtils";
 
 class Notifications extends React.Component {
 	constructor(props) {
-        super(props);
-	}
-
-	componentDidMount() {
-		window.addNotification = (type, data) => {
-			addNotification(type, data);
+		super(props);
+		
+		this.state = {
+			notifications: [],
+			notificationDate: new Date(),
 		}
 	}
 
-	shouldComponentUpdate(nextProps, nextState) {
-		if(nextProps.employees.length > 0) {
-			return true;
+	componentDidUpdate(prevProps, prevState) {
+		if(prevState.notificationDate !== this.state.notificationDate ||
+			prevProps.notifications !== this.props.notifications) {
+			this.setState({
+				notifications: this.props.notifications.data.filter(notification => {
+					const notificationDate = new Date(notification.date);
+					return notificationDate.getFullYear() === this.state.notificationDate.getFullYear() &&
+						notificationDate.getMonth() === this.state.notificationDate.getMonth() &&
+						notificationDate.getDate() === this.state.notificationDate.getDate();
+				})
+			});
 		}
-		return false;
 	}
 
 	displayNotifications = () => {
-		return this.props.notifications.data.map((notification) => {
+		const notifications = this.state.notifications.map((notification) => {
 			const notificationData = JSON.parse(notification.data);
 
 			switch(notification.type) {
@@ -38,7 +46,6 @@ class Notifications extends React.Component {
 							<Alert 
 								key={notification.id} 
 								variant={"danger"}
-								dismissible
 							>
 								<Row>
 									<Col>
@@ -61,37 +68,31 @@ class Notifications extends React.Component {
 										</span>
 									</Col>
 								</Row>
-								<hr className="m-0"/>
-								<Row className="pt-1">
-									<Col className="d-flex flex-column justify-content-center">
-										<span>
-											Ienācis: {employee.working ? "JĀ" : "NĒ"}
-										</span>
-									</Col>
-									<Col className="d-flex flex-column justify-content-center">
-										{
-											employee.working 
-											? (
-												<span className="text-right">
-													Ieradās: {employee.working ? formatDate(employee.last_work_start) : formatDate(employee.last_work_end)}
-												</span>
-											)
-											: null
-										}
-									</Col>
-								</Row>
 							</Alert>
 						);
 					}
-					break;
+					return null;
 				}
 				default: {
-					return (
-						null
-					);
+					return null;
 				}
 			}
-		})
+		});
+
+		if(notifications.filter(notification => notification != null).length === 0) {
+			return (
+				<h2 style={{ color: "grey" }} className="text-center">
+					Nav ierakstu...
+				</h2>
+			);
+		}
+		return notifications;
+	}
+
+	onChangeNotificationDate = (date) => {
+		this.setState({
+			notificationDate: date,
+		});
 	}
 
 	onHide = () => {
@@ -106,16 +107,22 @@ class Notifications extends React.Component {
 				onHide={() => this.onHide()}
 			>
 				<Modal.Header closeButton>
-					<Modal.Title>Paziņojumi</Modal.Title>
+					<Modal.Title className="w-100">Paziņojumi</Modal.Title>
+					<BoostrapDatePicker
+						dateFormat="dd.MM.yyyy."
+						selected={new Date(this.state.notificationDate)}
+						onChange={this.onChangeNotificationDate}
+						maxDate={new Date()}
+					/>
 				</Modal.Header>
 
 				<Modal.Body>
-					{this.displayNotifications()}
+					<Row>
+						<Col>
+							{this.displayNotifications()}
+						</Col>
+					</Row>
 				</Modal.Body>
-
-				<Modal.Footer>
-					
-				</Modal.Footer>
 			</Modal>
 		);
 	}
