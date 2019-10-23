@@ -19,7 +19,8 @@ import CheckCard from "./CheckCard";
 import CommentEmployee from "./CommentEmployee";
 import Schedule from "./Schedule";
 import History from "./History";
-import Notifications from "./Notifications";
+import NotificationsNew from "./NotificationsNew";
+import ProcessNotification from "./ProcessNotification";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
@@ -216,7 +217,8 @@ class App extends React.PureComponent {
 									<CheckCard/>
 									<CommentEmployee/>
 									<History/>
-									<Notifications/>
+									<NotificationsNew/>
+									<ProcessNotification/>
 								</Col>
 							</Row>
 							<Row>

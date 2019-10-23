@@ -66,7 +66,7 @@ export const getMonthName = (month) => {
 
 export const isWeekend = (date) => {
 	const day = date.getDay();
-	return ((day === 5) || (day === 6));
+	return ((day === 0) || (day === 6));
 }
 
 export const convertSpecialCharacters = (string) => {

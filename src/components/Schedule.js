@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import React from "react";
 import Cookies from "universal-cookie";
 
-import { Row, Col, Button, Dropdown } from "react-bootstrap";
+import { Row, Col, Button, Dropdown, Form } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 
@@ -58,6 +58,7 @@ class Employees extends React.Component {
 			...settings,
 			saving: false,
 			// Scheduling specific
+			uncheckedEmployees: [],
 			schedules: [],
 			selectedFields: [],
 			scheduleDate: new Date(),
@@ -97,7 +98,7 @@ class Employees extends React.Component {
 			}
 
 			this.columns.push({
-				dataField: "schedule" + i,
+				dataField: "day" + i,
 				text: (i + 1).toString(),
 				formatter: this.dayFormatter,
 				formatExtraData: { 
@@ -225,7 +226,8 @@ class Employees extends React.Component {
 
 		if(JSON.stringify(prevProps.employees) !== JSON.stringify(this.props.employees) ||
 			JSON.stringify(prevState.schedules) !== JSON.stringify(this.state.schedules) ||
-			JSON.stringify(prevState.selectedFields) !== JSON.stringify(this.state.selectedFields)) {
+			JSON.stringify(prevState.selectedFields) !== JSON.stringify(this.state.selectedFields) ||
+			JSON.stringify(prevState.uncheckedEmployees) !== JSON.stringify(this.state.uncheckedEmployees)) {
 			this.onTableChange();
 		}
 
@@ -274,7 +276,31 @@ class Employees extends React.Component {
 	onChangeScheduleDate = (date) => {
 		this.setState({
 			scheduleDate: new Date(date),
-		}, () => this.fetchSchedules());
+		}, () => {
+			this.columns = this.columns.map((column, index) => {
+				if(!column.dataField.includes("day")) {
+					return column;
+				}
+	
+				const date = new Date(this.state.scheduleDate);
+				date.setDate(parseInt(column.text));
+				console.log(date);
+	
+				let color = "RGBA(0, 0, 0, 0)";
+				if(isWeekend(date)) {
+					console.log("is weekend!")
+					color = this.weekendColor;
+				}
+	
+				return {
+					...column,
+					headerStyle: { backgroundColor: color },
+					style: { backgroundColor: color },
+				}
+			});
+
+			this.fetchSchedules();
+		});
 	}
 
 	onClickScheduleInput = (event, scheduleIndex, rowIndex, colIndex) => {
@@ -332,6 +358,23 @@ class Employees extends React.Component {
 		});
 	}
 
+	onEmployeeCheck = (id) => {
+		const uncheckedEmployees = [...this.state.uncheckedEmployees];
+		const employeeIndex = uncheckedEmployees.indexOf(id);
+		
+		if(employeeIndex === -1) {
+			uncheckedEmployees.push(id);
+		} else {
+			uncheckedEmployees.splice(employeeIndex, 1);
+		}
+
+		this.setState({
+			uncheckedEmployees: uncheckedEmployees
+		}, () => {
+			console.log(this.state.uncheckedEmployees);
+		});
+	}
+
 	createEmptySchedule = () => {
 		const selectedFields = [];
 
@@ -361,7 +404,8 @@ class Employees extends React.Component {
 				name: {
 					id: employee.id,
 					name: employee.name,
-					surname: employee.surname
+					surname: employee.surname,
+					checked: !this.state.uncheckedEmployees.includes(employee.id),
 				},
 				position: employee.position ? employee.position.toString() : "",
 				company: employee.company ? employee.company.toString() : "",
@@ -381,14 +425,22 @@ class Employees extends React.Component {
 
 	nameFormatter = (cell, row) => {
 		return (
-			<Button 
-				variant="link" 
-				onClick={() => this.props.showEmployeeWorkLog(cell.id)}
-				style={{ color: "#0000FF", fontSize: "12px" }}
-				className="m-0 p-0"
-			>
-				{cell.surname + " " + cell.name}
-			</Button>
+			<nobr>
+				<Form.Check 
+					type="checkbox"
+					checked={cell.checked}
+					onChange={() => this.onEmployeeCheck(cell.id)}
+					className="mr-1 d-inline"
+				/>
+				<Button 
+					variant="link" 
+					onClick={() => this.props.showEmployeeWorkLog(cell.id)}
+					style={{ color: "#0000FF", fontSize: "12px" }}
+					className="m-0 p-0 align-text-top"
+				>
+					{cell.surname + " " + cell.name}
+				</Button>
+			</nobr>
 		);
 	};
 

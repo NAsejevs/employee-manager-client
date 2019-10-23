@@ -30,6 +30,10 @@ const initialState = {
 		show: false,
 		data: [],
 	},
+	processNotification: {
+		show: false,
+		notification: null,
+	},
 	history: {
 		show: false,
 	},

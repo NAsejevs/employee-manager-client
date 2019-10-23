@@ -19,6 +19,8 @@ import {
 	UPDATE_NOTIFICATIONS,
 	SHOW_NOTIFICATIONS,
 	HIDE_NOTIFICATIONS,
+	SHOW_PROCESS_NOTIFICATION,
+	HIDE_PROCESS_NOTIFICATION,
 	SHOW_HISTORY,
 	HIDE_HISTORY,
 } from "./actionTypes";
@@ -149,6 +151,19 @@ export const showNotifications = () => {
 export const hideNotifications = () => {
 	return {
 		type: HIDE_NOTIFICATIONS,
+	}
+}
+
+export const showProcessNotification = (data) => {
+	return {
+		type: SHOW_PROCESS_NOTIFICATION,
+		payload: data,
+	}
+}
+
+export const hideProcessNotification  = () => {
+	return {
+		type: HIDE_PROCESS_NOTIFICATION,
 	}
 }
 

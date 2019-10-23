@@ -21,6 +21,8 @@ import {
 	UPDATE_NOTIFICATIONS,
 	SHOW_NOTIFICATIONS,
 	HIDE_NOTIFICATIONS,
+	SHOW_PROCESS_NOTIFICATION,
+	HIDE_PROCESS_NOTIFICATION,
 	SHOW_HISTORY,
 	HIDE_HISTORY,
 } from '../actions/actionTypes';
@@ -188,6 +190,24 @@ export const employees = (state = initialState, action) => {
 				...state,
 				notifications: {
 					...state.notifications,
+					show: false,
+				},
+			}
+		case SHOW_PROCESS_NOTIFICATION:
+			return {
+				...state,
+				processNotification: {
+					...state.processNotification,
+					notification: action.payload,
+					show: true,
+				},
+			}
+		case HIDE_PROCESS_NOTIFICATION:
+			return {
+				...state,
+				processNotification: {
+					...state.processNotification,
+					notification: null,
 					show: false,
 				},
 			}
