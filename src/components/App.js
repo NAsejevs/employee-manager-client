@@ -19,8 +19,7 @@ import CheckCard from "./CheckCard";
 import CommentEmployee from "./CommentEmployee";
 import Schedule from "./Schedule";
 import History from "./History";
-import NotificationsNew from "./NotificationsNew";
-import ProcessNotification from "./ProcessNotification";
+import Notifications from "./Notifications";
 
 import { checkSession, logOut, getUserByKey } from "../utils/userUtils";
 import { pingServer } from "../utils/commonUtils";
@@ -129,6 +128,14 @@ class App extends React.PureComponent {
 		} else {
 			if(this.state.authenticated) {
 				// User interface
+				const unreadNotifications = this.props.notifications.notifications.filter((notification) => {
+					const notificationDate = new Date(notification.date);
+					return notificationDate.getFullYear() === new Date().getFullYear() &&
+						notificationDate.getMonth() === new Date().getMonth() &&
+						notificationDate.getDate() === new Date().getDate() &&
+						!notification.type.includes("LOG");
+				}).length;
+
 				return (
 					<Router>
 						<Container fluid={true}>
@@ -165,27 +172,26 @@ class App extends React.PureComponent {
 													style={{ position: "relative" }}
 												>
 													Paziņojumi
-													<div style={{ 
-														position: "absolute", 
-														right: "-10px", 
-														top: 0,
-														backgroundColor: "red",
-														textAlign: "center",
-														lineHeight: "19px",
-														borderRadius: "50%",
-														height: "20px",
-														width: "20px",
-														color: "white",
-														fontSize: "12px"
-													}}>
-														{this.props.notifications.data.filter((notification) => {
-															const notificationDate = new Date(notification.date);
-															return notificationDate.getFullYear() === new Date().getFullYear() &&
-																notificationDate.getMonth() === new Date().getMonth() &&
-																notificationDate.getDate() === new Date().getDate() &&
-																!notification.type.includes("LOG");
-														}).length}
-													</div>
+													{
+														unreadNotifications ? (
+															<div style={{ 
+																position: "absolute", 
+																right: "-10px", 
+																top: 0,
+																backgroundColor: "red",
+																textAlign: "center",
+																lineHeight: "19px",
+																borderRadius: "50%",
+																height: "20px",
+																width: "20px",
+																color: "white",
+																fontSize: "12px"
+															}}>
+																{unreadNotifications}
+															</div>
+														)
+														: null
+													}
 												</Nav.Link>
 											</Nav>
 											<Nav>
@@ -217,8 +223,7 @@ class App extends React.PureComponent {
 									<CheckCard/>
 									<CommentEmployee/>
 									<History/>
-									<NotificationsNew/>
-									<ProcessNotification/>
+									<Notifications/>
 								</Col>
 							</Row>
 							<Row>

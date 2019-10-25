@@ -28,11 +28,15 @@ const initialState = {
 	},
 	notifications: {
 		show: false,
-		data: [],
+		notifications: [],
 	},
 	processNotification: {
 		show: false,
 		notification: null,
+	},
+	processedNotification: {
+		show: false,
+		notifications: [],
 	},
 	history: {
 		show: false,

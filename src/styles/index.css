@@ -47,4 +47,9 @@ hr {
 	width: 18px;
 	border-radius: 50%;
 	display: inline-block;
-  }
+}
+
+.highlighted-date {
+	color: red !important;
+	font-weight: bold;
+}

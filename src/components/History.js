@@ -23,7 +23,7 @@ class History extends React.Component {
 		if(prevState.notificationDate !== this.state.notificationDate ||
 			prevProps.notifications !== this.props.notifications) {
 			this.setState({
-				notifications: this.props.notifications.data.filter(notification => {
+				notifications: this.props.notifications.notifications.filter(notification => {
 					const notificationDate = new Date(notification.date);
 					return notificationDate.getFullYear() === this.state.notificationDate.getFullYear() &&
 						notificationDate.getMonth() === this.state.notificationDate.getMonth() &&
