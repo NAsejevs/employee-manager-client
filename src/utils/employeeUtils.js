@@ -30,8 +30,18 @@ export const getNotifications = () => {
 	return request.post("/getNotifications");
 }
 
+window.addNotification = addNotification;
+
 export const addNotification = (type, data) => {
 	return request.post("/addNotification", { type, data }).then(() => {
+		getNotifications().then(res => {
+			store.dispatch(updateNotifications(res.data));
+		})
+	});
+}
+
+export const updateNotification = (id, type, data) => {
+	return request.post("/updateNotification", { id, type, data }).then(() => {
 		getNotifications().then(res => {
 			store.dispatch(updateNotifications(res.data));
 		})

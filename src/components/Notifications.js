@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Alert, Button, Row, Col } from "react-bootstrap";
+import { Modal, Alert, Button, Row, Col, Table } from "react-bootstrap";
 
 import BoostrapDatePicker from "./BoostrapDatePicker";
 
@@ -33,34 +33,89 @@ class Notifications extends React.Component {
 	componentDidUpdate(prevProps, prevState) {
 		if(prevState.notificationDate !== this.state.notificationDate ||
 			JSON.stringify(prevProps.notifications) !== JSON.stringify(this.props.notifications)) {
-			console.log("setting stat");
-			console.log("notifications: ", this.props.notifications);
 			this.setState({
 				notifications: this.props.notifications.notifications.filter(notification => {
 					const notificationDate = new Date(notification.date);
+					const notificationData = JSON.parse(notification.data);
 					return notificationDate.getFullYear() === this.state.notificationDate.getFullYear() &&
 						notificationDate.getMonth() === this.state.notificationDate.getMonth() &&
 						notificationDate.getDate() === this.state.notificationDate.getDate();
 				})
 			}, () => {
 				this.processNotifications();
-				console.log("length: ", this.state.notifications.length);
+				this.processHistoryNotifications();
 			});
 		}
 	}
 
 	processHistoryNotifications = () => {
-		const notifications = this.state.notifications.map((notification) => {
-			return (
-				<div>
-					{notification.type}
-				</div>
-			);
+		const processedNotifications = this.state.notifications.filter((notification) => {
+			const notificationData = JSON.parse(notification.data);
+			return notificationData.processed === true;
 		});
+
+		if(processedNotifications.length > 0) {
+			const historyNotifications = processedNotifications.map((notification, index) => {
+				const notificationData = JSON.parse(notification.data);
+				const notificationDate = new Date(notification.date);
+
+				let notificationType = "";
+				switch(notification.type) {
+					case "EMPLOYEE_LATE": {
+						notificationType = "Darba kavējums";
+						break;
+					}
+				}
+
+				let notificationStatuss = notificationData.justified ? "Attaisnots" : "Neattaisnots";
+
+				return (
+					<tbody key={index}>
+						<tr>
+							<td>{formatDate(notificationDate)}</td>
+							<td>{notificationData.surname + " " + notificationData.name}</td>
+							<td>{notificationType}</td>
+							<td>{notificationStatuss}</td>
+							<td>{notificationData.comment}</td>
+						</tr>
+					</tbody>
+				);
+			});
+	
+			const table = <Table size="sm">
+				<thead>
+					<tr>
+						<th>Datums</th>
+						<th>Vārds</th>
+						<th>Paziņojums</th>
+						<th>Statuss</th>
+						<th>Piezīme</th>
+					</tr>
+				</thead>
+				{historyNotifications}
+			</Table>
+	
+			this.setState({
+				historyNotifications: table,
+			});
+		} else {
+			this.setState({
+				historyNotifications: (
+					<h2 style={{ color: "grey" }} className="text-center">
+						Nav ierakstu...
+					</h2>
+				),
+			});
+		}
 	}
 
 	processNotifications = () => {
-		const notifications = this.state.notifications.map((notification) => {
+		const processedNotifications = this.state.notifications.filter((notification) => {
+			const notificationData = JSON.parse(notification.data);
+			return notificationData.processed !== true;
+		});
+
+		const notifications = processedNotifications.map((notification) => {
 			const notificationData = JSON.parse(notification.data);
 
 			switch(notification.type) {
@@ -114,7 +169,7 @@ class Notifications extends React.Component {
 										</Col>
 										<Col className="d-flex flex-column justify-content-center">
 											<span className="text-center">
-												<b>DARBA KAVĒJUMS</b>
+												<b>Darba kavējums</b>
 											</span>
 										</Col>
 										<Col className="d-flex flex-column justify-content-center">
@@ -131,15 +186,15 @@ class Notifications extends React.Component {
 												variant="success"
 												className="mr-1"
 												size="sm"
-												onClick={() => this.props.showProcessNotification(notification)}
+												onClick={() => this.props.showProcessNotification(notification, true)}
 											>
 												Attaisnots
 											</Button>
 											<Button
-												variant="warning"
+												variant="danger"
 												className="ml-1"
 												size="sm"
-												onClick={() => this.props.showProcessNotification(notification)}
+												onClick={() => this.props.showProcessNotification(notification, false)}
 											>
 												Neattaisnots
 											</Button>
@@ -192,6 +247,7 @@ class Notifications extends React.Component {
 
 	onShow = () => {
 		this.processNotifications();
+		this.processHistoryNotifications()
 	}
 
 	showHistory = () => {
@@ -227,28 +283,14 @@ class Notifications extends React.Component {
 					<Modal.Body>
 						<Row className="mb-3">
 							<Col>
-								<span className="d-inline">
-									{"Datums: "}
-								</span>
 								<BoostrapDatePicker
 									className="d-inline-block text-center"
 									dateFormat="dd.MM.yyyy."
 									selected={new Date(this.state.notificationDate)}
 									onChange={this.onChangeNotificationDate}
 									maxDate={new Date()}
-									dayClassName={(date) => {
-											for(let i = 0; i < this.props.notifications.notifications.length; i++) {
-												const notificationDate = new Date(this.props.notifications.notifications[i].date);
-												if(notificationDate.getDate() === date.getDate() &&
-													notificationDate.getMonth() === date.getMonth() &&
-													notificationDate.getFullYear() === date.getFullYear() &&
-													!this.props.notifications.notifications[i].type.includes("LOG")) {
-													return "highlighted-date";
-												}
-											}
-											return null;
-										}
-									}
+									dayClassName={date => {
+									}}
 								/>
 							</Col>
 							<Col>
@@ -263,7 +305,7 @@ class Notifications extends React.Component {
 						<Row>
 							<Col>
 								<span style={{ fontSize: "12px" }}>
-									* Kalendārā sarkani iekrāsoti datumi ar neapstrādātiem paziņojumiem.
+									* Atzīmējot darbinieku kā neattaisnotu iezīmēs darbiniekam noteikto dienu grafikā ar 'K'.<br/>
 								</span>
 							</Col>
 						</Row>
@@ -292,7 +334,7 @@ function mapDispatchToProps(dispatch) {
 	return {
 		hideNotifications: () => dispatch(hideNotifications()),
 		showEmployeeWorkLog: (id) => dispatch(showEmployeeWorkLog(id)),
-		showProcessNotification: (notification) => dispatch(showProcessNotification(notification)),
+		showProcessNotification: (notification, justified) => dispatch(showProcessNotification(notification, justified)),
 		hideProcessNotification: () => dispatch(hideProcessNotification()),
 	};
 }

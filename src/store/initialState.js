@@ -33,6 +33,7 @@ const initialState = {
 	processNotification: {
 		show: false,
 		notification: null,
+		justified: false,
 	},
 	processedNotification: {
 		show: false,

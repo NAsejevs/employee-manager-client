@@ -156,10 +156,11 @@ export const hideNotifications = () => {
 	}
 }
 
-export const showProcessNotification = (data) => {
+export const showProcessNotification = (data, justified) => {
 	return {
 		type: SHOW_PROCESS_NOTIFICATION,
 		payload: data,
+		justified,
 	}
 }
 
@@ -180,4 +181,3 @@ export const hideHistory = () => {
 		type: HIDE_HISTORY,
 	}
 }
-

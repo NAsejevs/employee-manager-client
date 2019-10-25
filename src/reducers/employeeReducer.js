@@ -202,6 +202,7 @@ export const employees = (state = initialState, action) => {
 					...state.processNotification,
 					notification: action.payload,
 					show: true,
+					justified: action.justified,
 				},
 			}
 		case HIDE_PROCESS_NOTIFICATION:
