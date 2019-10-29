@@ -6,7 +6,7 @@ import BoostrapDatePicker from "./BoostrapDatePicker";
 
 import { hideHistory, showEmployeeWorkLog } from "../actions/employeeActions";
 
-import { formatDate } from "../utils/commonUtils";
+import { formatDate, addZero } from "../utils/commonUtils";
 import * as LOG_TYPE from "../utils/logTypes";
 
 class History extends React.Component {
@@ -36,6 +36,30 @@ class History extends React.Component {
 	history = (notification, notificationData, employee) => {
 		let logTypeTranslated = notification.type;
 		switch(notification.type) {
+			case LOG_TYPE.LOG_EDIT_WORK_LOG: {
+				const formatTime = (date) => {
+					const dateParsed = JSON.parse(date);
+					if(dateParsed === null) {
+						return "neizgājis";
+					}
+					const dateObject = new Date(dateParsed);
+					return addZero(dateObject.getHours()) + ":" +
+						addZero(dateObject.getMinutes()) + ":" +
+						addZero(dateObject.getSeconds());
+				}
+
+				const from = notificationData.from;
+				const to = notificationData.to;
+				
+				logTypeTranslated = (<div>
+					{"izmainīja darba laiku"}<br/>
+					<div style={{ fontSize: "12px" }}>
+						No: {formatTime(from.startDate)} - {formatTime(from.endDate)}<br/>
+						Uz: {formatTime(to.startDate)} - {formatTime(to.endDate)}
+					</div>
+				</div>)
+				break;
+			}
 			case LOG_TYPE.LOG_SET_WORKING: logTypeTranslated = "atzīmēts kā ienācis"; break;
 			case LOG_TYPE.LOG_SET_NOT_WORKING: logTypeTranslated = "atzīmēts kā izgājis"; break;
 			case LOG_TYPE.LOG_EDIT_EMPLOYEE: logTypeTranslated = "regiģēts darbinieks"; break;
@@ -46,13 +70,13 @@ class History extends React.Component {
 			<Alert 
 				className="pt-0 pb-0"
 				key={notification.id} 
-				variant={"warning"}
+				variant={"primary"}
 			>
 				<Row>
-					<Col>
+					<Col className="d-flex flex-column justify-content-center">
 						{notificationData.user}
 					</Col>
-					<Col>
+					<Col className="d-flex flex-column justify-content-center">
 						{employee.surname + " " + employee.name}
 					</Col>
 					<Col className="d-flex flex-column justify-content-center">
@@ -75,6 +99,7 @@ class History extends React.Component {
 			const notificationData = JSON.parse(notification.data);
 
 			switch(notification.type) {
+				case LOG_TYPE.LOG_EDIT_WORK_LOG:
 				case LOG_TYPE.LOG_ADD_EMPLOYEE:
 				case LOG_TYPE.LOG_EDIT_EMPLOYEE:
 				case LOG_TYPE.LOG_SET_NOT_WORKING:

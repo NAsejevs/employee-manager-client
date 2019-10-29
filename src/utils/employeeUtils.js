@@ -83,10 +83,31 @@ export const deleteServerWorkLog = (id, working, employeeId) => {
 	});
 }
 
-export const editServerWorkLog = (id, startDate, endDate, working) => {
-	addNotification(LOG_TYPE.LOG_EDIT_WORK_LOG, { user: store.getState().employees.user.username, id, startDate });
+export const editServerWorkLog = (workLogId, startDate, endDate, working, employeeId, prevWorkLog) => {
+	const from = {
+		startDate: JSON.stringify(prevWorkLog.start_time),
+		endDate: JSON.stringify(prevWorkLog.end_time),
+	}
+
+	const to = {
+		startDate: JSON.stringify(startDate),
+		endDate: JSON.stringify(endDate),
+	}
+
+	console.log(from);
+	console.log(to);
+
+	addNotification(LOG_TYPE.LOG_EDIT_WORK_LOG, { 
+		user: store.getState().employees.user.username, 
+		id: employeeId, 
+		startDate,
+		endDate,
+		from,
+		to});
+
+	console.log("workLogId: ", workLogId);
 	return request.post("/editWorkLog", { 
-		id,
+		workLogId,
 		startDate,
 		endDate,
 		working,

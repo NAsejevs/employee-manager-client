@@ -305,7 +305,7 @@ class Notifications extends React.Component {
 						<Row>
 							<Col>
 								<span style={{ fontSize: "12px" }}>
-									* Atzīmējot darbinieku kā neattaisnotu iezīmēs darbiniekam noteikto dienu grafikā ar 'K'.<br/>
+									* Atzīmējot darbinieku kā 'Neattaisnots', grafikā šī diena atzīmēsies ar 'K' - Darba kavējums.<br/>
 								</span>
 							</Col>
 						</Row>

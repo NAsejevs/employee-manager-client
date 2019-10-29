@@ -584,9 +584,6 @@ class Employees extends React.Component {
 					defaultSorted={ this.defaultSorted }
 					remote={ { filter: true } }
 					pagination={ this.pagination }
-					rowStyle={(row, rowIndex) => {
-						return {backgroundColor: "red"}
-					}}
 				/>
 			</ContainerBox>
 		);

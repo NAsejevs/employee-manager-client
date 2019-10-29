@@ -185,11 +185,14 @@ class ViewEmployee extends React.Component {
 	}
 
 	confirmEditWorkLog = () => {
+		const prevWorkLog = this.state.workLog.find((workLog) => workLog.id === this.state.editWorkLog.id);
 		editServerWorkLog(
 			this.state.editWorkLog.id,
 			this.state.editWorkLog.startDate,
 			this.state.editWorkLog.endDate,
-			this.state.editWorkLog.working).then(() => {
+			this.state.editWorkLog.working,
+			this.state.employee.id,
+			prevWorkLog).then(() => {
 				this.setState({
 					editWorkLog: {
 						id: null,
