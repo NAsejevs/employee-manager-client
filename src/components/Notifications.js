@@ -110,12 +110,7 @@ class Notifications extends React.Component {
 	}
 
 	processNotifications = () => {
-		const processedNotifications = this.state.notifications.filter((notification) => {
-			const notificationData = JSON.parse(notification.data);
-			return notificationData.processed !== true;
-		});
-
-		const notifications = processedNotifications.map((notification) => {
+		const notifications = this.state.notifications.map((notification) => {
 			const notificationData = JSON.parse(notification.data);
 
 			switch(notification.type) {
@@ -154,7 +149,7 @@ class Notifications extends React.Component {
 							return (
 								<Alert 
 									key={notification.id} 
-									variant={"danger"}
+									variant={notificationData.processed ? "info" : "danger"}
 									className="p-1"
 								>
 									<Row>
@@ -182,22 +177,30 @@ class Notifications extends React.Component {
 										<Col>
 										</Col>
 										<Col className="d-flex flex-row justify-content-center">
-											<Button 
-												variant="success"
-												className="mr-1"
-												size="sm"
-												onClick={() => this.props.showProcessNotification(notification, true)}
-											>
-												Attaisnots
-											</Button>
-											<Button
-												variant="danger"
-												className="ml-1"
-												size="sm"
-												onClick={() => this.props.showProcessNotification(notification, false)}
-											>
-												Neattaisnots
-											</Button>
+											{
+												notificationData.processed
+												? (notificationData.justified 
+													? "Attaisnots (" + notificationData.comment + ")"
+													: "Neattaisnots (" + notificationData.comment + ")")
+												: (<>
+													<Button 
+														variant="success"
+														className="mr-1"
+														size="sm"
+														onClick={() => this.props.showProcessNotification(notification, true)}
+													>
+														Attaisnots
+													</Button>
+													<Button
+														variant="danger"
+														className="ml-1"
+														size="sm"
+														onClick={() => this.props.showProcessNotification(notification, false)}
+													>
+														Neattaisnots
+													</Button>
+												</>)
+											}
 										</Col>
 										<Col className="d-flex flex-column justify-content-center">
 											<span className="flex-right text-right">
