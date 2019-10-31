@@ -52,7 +52,7 @@ class History extends React.Component {
 				const to = notificationData.to;
 				
 				logTypeTranslated = (<div>
-					{"izmainīja darba laiku"}<br/>
+					{"izmainīts darba laiks"}<br/>
 					<div style={{ fontSize: "12px" }}>
 						No: {formatTime(from.startDate)} - {formatTime(from.endDate)}<br/>
 						Uz: {formatTime(to.startDate)} - {formatTime(to.endDate)}
@@ -70,7 +70,7 @@ class History extends React.Component {
 			<Alert 
 				className="pt-0 pb-0"
 				key={notification.id} 
-				variant={"primary"}
+				variant={"info"}
 			>
 				<Row>
 					<Col className="d-flex flex-column justify-content-center">

@@ -90,7 +90,7 @@ class Employees extends React.Component {
 
 		for(let i = 0; i < days; i++) {
 			const date = new Date(this.state.scheduleDate);
-			date.setDate(i);
+			date.setDate(i + 1);
 
 			let color = "RGBA(0, 0, 0, 0)";
 			if(isWeekend(date)) {
@@ -159,20 +159,24 @@ class Employees extends React.Component {
 		getSchedules(this.state.scheduleDate.getMonth()).then((res) => {
 			const newSchedules = this.props.employees.map((employee) => {
 				let days = [];
+				let checked = true;
 				const schedule = res.data.find((schedule) => {
 					return schedule.employee_id === employee.id
 				});
 
 				if(schedule === undefined) {
 					days = new Array(31).fill(" ", 0, 31);
+					checked = true;
 				} else {
 					days = JSON.parse(schedule.days);
+					checked = schedule.checked;
 				}
 
 				return {
 					employee_id: employee.id,
 					month: this.state.scheduleDate.getMonth(),
-					days: days
+					days: days,
+					checked: checked,
 				};
 			});
 	
@@ -226,8 +230,7 @@ class Employees extends React.Component {
 
 		if(JSON.stringify(prevProps.employees) !== JSON.stringify(this.props.employees) ||
 			JSON.stringify(prevState.schedules) !== JSON.stringify(this.state.schedules) ||
-			JSON.stringify(prevState.selectedFields) !== JSON.stringify(this.state.selectedFields) ||
-			JSON.stringify(prevState.uncheckedEmployees) !== JSON.stringify(this.state.uncheckedEmployees)) {
+			JSON.stringify(prevState.selectedFields) !== JSON.stringify(this.state.selectedFields)) {
 			this.onTableChange();
 		}
 
@@ -284,11 +287,9 @@ class Employees extends React.Component {
 	
 				const date = new Date(this.state.scheduleDate);
 				date.setDate(parseInt(column.text));
-				console.log(date);
 	
 				let color = "RGBA(0, 0, 0, 0)";
 				if(isWeekend(date)) {
-					console.log("is weekend!")
 					color = this.weekendColor;
 				}
 	
@@ -358,20 +359,13 @@ class Employees extends React.Component {
 		});
 	}
 
-	onEmployeeCheck = (id) => {
-		const uncheckedEmployees = [...this.state.uncheckedEmployees];
-		const employeeIndex = uncheckedEmployees.indexOf(id);
+	onEmployeeCheck = (id, scheduleIndex) => {
+		let newSchedules = JSON.parse(JSON.stringify(this.state.schedules));
 		
-		if(employeeIndex === -1) {
-			uncheckedEmployees.push(id);
-		} else {
-			uncheckedEmployees.splice(employeeIndex, 1);
-		}
+		newSchedules[scheduleIndex].checked = !newSchedules[scheduleIndex].checked;
 
 		this.setState({
-			uncheckedEmployees: uncheckedEmployees
-		}, () => {
-			console.log(this.state.uncheckedEmployees);
+			schedules: newSchedules,
 		});
 	}
 
@@ -384,7 +378,8 @@ class Employees extends React.Component {
 			return {
 				employee_id: employee.id,
 				month: this.state.scheduleDate.getMonth(),
-				days: newDays
+				days: newDays,
+				checked: true,
 			};
 		});
 
@@ -405,7 +400,7 @@ class Employees extends React.Component {
 					id: employee.id,
 					name: employee.name,
 					surname: employee.surname,
-					checked: !this.state.uncheckedEmployees.includes(employee.id),
+					checked: this.state.schedules[index] === undefined ? true : this.state.schedules[index].checked
 				},
 				position: employee.position ? employee.position.toString() : "",
 				company: employee.company ? employee.company.toString() : "",
@@ -415,6 +410,7 @@ class Employees extends React.Component {
 				schedule: this.state.schedules[index],
 				scheduleIndex: index,
 				selectedFields: this.state.selectedFields,
+				checked: this.state.schedules[index] === undefined ? true : this.state.schedules[index].checked
 			});
 		});
 
@@ -428,8 +424,8 @@ class Employees extends React.Component {
 			<nobr>
 				<Form.Check 
 					type="checkbox"
-					checked={cell.checked}
-					onChange={() => this.onEmployeeCheck(cell.id)}
+					checked={this.state.schedules[row.scheduleIndex].checked}
+					onChange={() => this.onEmployeeCheck(cell.id, cell.scheduleIndex)}
 					className="mr-1 d-inline"
 				/>
 				<Button 
@@ -515,6 +511,7 @@ class Employees extends React.Component {
 					onDataFiltered={this.onDataFiltered}
 					onFilterChange={this.onFilterChange}
 					filterData={filterData => this.filterData = filterData}
+					scheduleFilters={true}
 				/>
 				<Row className="mt-3 text-center" style={{ fontSize: "14px" }}>
 					<Col>

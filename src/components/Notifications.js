@@ -110,7 +110,16 @@ class Notifications extends React.Component {
 	}
 
 	processNotifications = () => {
-		const notifications = this.state.notifications.map((notification) => {
+		const notifications = this.state.notifications.sort((a, b) => {
+			const aData = JSON.parse(a.data);
+			const bData = JSON.parse(b.data);
+
+			if(aData.processed != undefined) {
+				return 1;
+			} else {
+				return -1;
+			}
+		}).map((notification) => {
 			const notificationData = JSON.parse(notification.data);
 
 			switch(notification.type) {
@@ -146,18 +155,60 @@ class Notifications extends React.Component {
 								}
 							}
 
+							const ButtonsAndStatus = () => {
+								if(notificationData.processed) {
+									return (
+										<div className="text-center">
+											{ notificationData.justified ? "Attaisnots" : "Neattaisnots" }
+											{/* { 
+												notificationData.comment !== undefined && notificationData.comment !== null 
+												? <div>
+													({ notificationData.comment })
+												</div>
+												: null
+											} */}
+										</div>
+									);
+								} else {
+									return (
+										<>
+											<Button 
+												variant="success"
+												className="mr-1 pt-0 pb-0"
+												size="sm"
+												onClick={() => this.props.showProcessNotification(notification, true)}
+											>
+												Attaisnots
+											</Button>
+											<Button
+												variant="danger"
+												className="ml-1 pt-0 pb-0"
+												size="sm"
+												onClick={() => this.props.showProcessNotification(notification, false)}
+											>
+												Neattaisnots
+											</Button>
+										</>
+									);
+								}
+							}
+
 							return (
 								<Alert 
+									className="pt-0 pb-1"
 									key={notification.id} 
-									variant={notificationData.processed ? "info" : "danger"}
-									className="p-1"
+									variant={
+										notificationData.processed 
+										? notificationData.justified ? "secondary" : "secondary"
+										: "info"
+									}
 								>
 									<Row>
 										<Col>
 											<Button
 												variant="link"
 												onClick={() => this.props.showEmployeeWorkLog(employee.id)}
-												className="pl-0"
+												className="pt-0 pb-0"
 											>
 												{employee.surname + " " + employee.name}
 											</Button>
@@ -177,30 +228,7 @@ class Notifications extends React.Component {
 										<Col>
 										</Col>
 										<Col className="d-flex flex-row justify-content-center">
-											{
-												notificationData.processed
-												? (notificationData.justified 
-													? "Attaisnots (" + notificationData.comment + ")"
-													: "Neattaisnots (" + notificationData.comment + ")")
-												: (<>
-													<Button 
-														variant="success"
-														className="mr-1"
-														size="sm"
-														onClick={() => this.props.showProcessNotification(notification, true)}
-													>
-														Attaisnots
-													</Button>
-													<Button
-														variant="danger"
-														className="ml-1"
-														size="sm"
-														onClick={() => this.props.showProcessNotification(notification, false)}
-													>
-														Neattaisnots
-													</Button>
-												</>)
-											}
+											{<ButtonsAndStatus/>}
 										</Col>
 										<Col className="d-flex flex-column justify-content-center">
 											<span className="flex-right text-right">

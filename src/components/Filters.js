@@ -51,7 +51,8 @@ class Filters extends React.PureComponent {
 			prevState.showArchive !== this.state.showArchive
 			|| prevState.showInactive !== this.state.showInactive
 			|| prevState.showWorking !== this.state.showWorking
-			|| prevState.showNotWorking !== this.state.showNotWorking
+            || prevState.showNotWorking !== this.state.showNotWorking
+            || prevState.showScheduleUnchecked !== this.state.showScheduleUnchecked
 			|| prevState.nameFilter !== this.state.nameFilter
 			|| prevState.positionFilter !== this.state.positionFilter
             || prevState.companyFilter !== this.state.companyFilter
@@ -65,7 +66,8 @@ class Filters extends React.PureComponent {
 			||prevState.showArchive !== this.state.showArchive
 			|| prevState.showInactive !== this.state.showInactive
 			|| prevState.showWorking !== this.state.showWorking
-			|| prevState.showNotWorking !== this.state.showNotWorking
+            || prevState.showNotWorking !== this.state.showNotWorking
+            || prevState.showScheduleUnchecked !== this.state.showScheduleUnchecked
 			|| prevState.nameFilter !== this.state.nameFilter
 			|| prevState.positionFilter !== this.state.positionFilter
             || prevState.companyFilter !== this.state.companyFilter
@@ -83,7 +85,8 @@ class Filters extends React.PureComponent {
 			showArchive: this.state.showArchive,
 			showInactive: this.state.showInactive,
 			showWorking: this.state.showWorking,
-			showNotWorking: this.state.showNotWorking,
+            showNotWorking: this.state.showNotWorking,
+            showScheduleUnchecked: this.state.showScheduleUnchecked,
 			nameFilter: this.state.nameFilter,
 			positionFilter: this.state.positionFilter,
             companyFilter: this.state.companyFilter,
@@ -143,6 +146,9 @@ class Filters extends React.PureComponent {
 			}
 			if(row.working && this.state.showNotWorking) {
 				return false;
+            }
+            if(this.props.scheduleFilters && !row.checked && !this.state.showScheduleUnchecked) {
+				return false;
 			}
 			if(!row.working && this.state.showWorking) {
 				return false;
@@ -170,6 +176,10 @@ class Filters extends React.PureComponent {
 
 	onToggleShowNotWorking = () => {
 		this.setState({ showNotWorking: !this.state.showNotWorking });
+    }
+    
+    onToggleShowScheduleUnchecked = () => {
+		this.setState({ showScheduleUnchecked: !this.state.showScheduleUnchecked });
 	}
 
 	onChangeNameFilter = (e) => {
@@ -377,6 +387,18 @@ class Filters extends React.PureComponent {
                                                     onChange={this.onToggleShowNotWorking}
                                                 />
                                             </Form.Group>
+                                            {
+                                                this.props.scheduleFilters
+                                                ? (<Form.Group>
+                                                    <Form.Check 
+                                                        type="checkbox" 
+                                                        label="Rādīt neatzīmētos grafika darbiniekus"
+                                                        checked={this.state.showScheduleUnchecked}
+                                                        onChange={this.onToggleShowScheduleUnchecked}
+                                                    />
+                                                </Form.Group>)
+                                                : null
+                                            }
                                         </Col>
                                         <Col>
                                             <Form.Group>
