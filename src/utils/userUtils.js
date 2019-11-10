@@ -5,7 +5,7 @@ export const initialSettings = {
 	showArchive: false,
 	showInactive: false,
 	showWorking: false,
-	showNotWorking: false,
+	showNotWorking: true,
 	nameFilter: "",
 	positionFilter: "",
 	companyFilter: "",

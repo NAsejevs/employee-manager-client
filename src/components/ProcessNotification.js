@@ -85,6 +85,10 @@ class ProcessNotification extends React.PureComponent {
 					header += " (Darba kavējums)";
 					break;
 				}
+				default: {
+					header += " (N/A)";
+					break;
+				}
 			}
 
 			return (

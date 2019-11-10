@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Modal, Alert, Button, Row, Col } from "react-bootstrap";
+import { Modal, Alert, Row, Col } from "react-bootstrap";
 
 import BoostrapDatePicker from "./BoostrapDatePicker";
 
@@ -64,6 +64,10 @@ class History extends React.Component {
 			case LOG_TYPE.LOG_SET_NOT_WORKING: logTypeTranslated = "atzīmēts kā izgājis"; break;
 			case LOG_TYPE.LOG_EDIT_EMPLOYEE: logTypeTranslated = "regiģēts darbinieks"; break;
 			case LOG_TYPE.LOG_ADD_EMPLOYEE: logTypeTranslated = "pievienots darbinieks"; break;
+			default: {
+				logTypeTranslated = "N/A";
+				break;
+			}
 		}
 
 		return (

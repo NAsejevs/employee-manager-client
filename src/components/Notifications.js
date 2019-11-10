@@ -36,7 +36,6 @@ class Notifications extends React.Component {
 			this.setState({
 				notifications: this.props.notifications.notifications.filter(notification => {
 					const notificationDate = new Date(notification.date);
-					const notificationData = JSON.parse(notification.data);
 					return notificationDate.getFullYear() === this.state.notificationDate.getFullYear() &&
 						notificationDate.getMonth() === this.state.notificationDate.getMonth() &&
 						notificationDate.getDate() === this.state.notificationDate.getDate();
@@ -63,6 +62,10 @@ class Notifications extends React.Component {
 				switch(notification.type) {
 					case "EMPLOYEE_LATE": {
 						notificationType = "Darba kavējums";
+						break;
+					}
+					default: {
+						notificationType = "N/A";
 						break;
 					}
 				}
@@ -112,9 +115,8 @@ class Notifications extends React.Component {
 	processNotifications = () => {
 		const notifications = this.state.notifications.sort((a, b) => {
 			const aData = JSON.parse(a.data);
-			const bData = JSON.parse(b.data);
 
-			if(aData.processed != undefined) {
+			if(aData.processed !== undefined) {
 				return 1;
 			} else {
 				return -1;

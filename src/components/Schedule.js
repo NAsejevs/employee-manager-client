@@ -144,7 +144,9 @@ class Employees extends React.Component {
 	}
 
 	componentDidMount() {
-		this.fetchSchedules();
+		setTimeout(() => {
+			this.fetchSchedules();
+		}, 2000);
 
 		window.addEventListener("keydown", (event) => {
 			this.keyDown[event.keyCode] = true;
@@ -184,7 +186,9 @@ class Employees extends React.Component {
 				this.setState({
 					schedules: JSON.parse(JSON.stringify(data)),
 					selectedFields: [],
-				}, () => this.onTableChange());
+				}, () => {
+					this.onTableChange();
+				});
 			});
 		});
 	}
@@ -192,20 +196,24 @@ class Employees extends React.Component {
 	checkEmptySchedules = () => {
 		const newSchedules = this.props.employees.map((employee) => {
 			let days = [];
+			let checked = true;
 			const schedule = this.state.schedules.find((schedule) => {
 				return schedule.employee_id === employee.id
 			});
 
 			if(schedule === undefined) {
 				days = new Array(31).fill(" ", 0, 31);
+				checked = true;
 			} else {
 				days = schedule.days;
+				checked = schedule.checked;
 			}
 
 			return {
 				employee_id: employee.id,
 				month: this.state.scheduleDate.getMonth(),
-				days: days
+				days: days,
+				checked: checked,
 			};
 		});
 
@@ -218,11 +226,17 @@ class Employees extends React.Component {
 		});
 	}
 
-	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.employees.length === 0 && this.props.employees.length !== 0) {
-			this.fetchSchedules();
+	shouldComponentUpdate(nextProps, nextState) {
+		console.log(nextState.schedules.length);
+		console.log(nextProps.employees.length);
+		if(nextState.schedules.length === 0 ||
+			nextProps.employees.length === 0) {
+			return false;
 		}
+		return true;
+	}
 
+	componentDidUpdate(prevProps, prevState) {
 		if(JSON.stringify(prevProps.employees) !== JSON.stringify(this.props.employees) &&
 			this.props.employees.length > 0) {
 			this.checkEmptySchedules();
@@ -400,7 +414,8 @@ class Employees extends React.Component {
 					id: employee.id,
 					name: employee.name,
 					surname: employee.surname,
-					checked: this.state.schedules[index] === undefined ? true : this.state.schedules[index].checked
+					checked: this.state.schedules[index].checked,
+					scheduleIndex: index,
 				},
 				position: employee.position ? employee.position.toString() : "",
 				company: employee.company ? employee.company.toString() : "",
@@ -420,11 +435,12 @@ class Employees extends React.Component {
 	}
 
 	nameFormatter = (cell, row) => {
+		console.log(cell.checked);
 		return (
 			<nobr>
 				<Form.Check 
 					type="checkbox"
-					checked={this.state.schedules[row.scheduleIndex].checked}
+					checked={cell.checked}
 					onChange={() => this.onEmployeeCheck(cell.id, cell.scheduleIndex)}
 					className="mr-1 d-inline"
 				/>
@@ -505,6 +521,8 @@ class Employees extends React.Component {
 	}
 
 	render() {
+		
+
 		return (
 			<ContainerBox header={"Grafiks"}>
 				<Filters 

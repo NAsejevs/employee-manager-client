@@ -30,8 +30,6 @@ export const getNotifications = () => {
 	return request.post("/getNotifications");
 }
 
-window.addNotification = addNotification;
-
 export const addNotification = (type, data) => {
 	return request.post("/addNotification", { type, data }).then(() => {
 		getNotifications().then(res => {
