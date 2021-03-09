@@ -6,6 +6,7 @@ import en from 'date-fns/locale/en-GB';
 import "react-datepicker/dist/react-datepicker.css";
 
 const BoostrapDatePicker = (props) => {
+    console.log(props);
     return (
         <div className={props.className}>
             <DatePicker

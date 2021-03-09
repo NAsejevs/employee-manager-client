@@ -10,6 +10,8 @@ export const initialSettings = {
 	positionFilter: "",
 	companyFilter: "",
 	pageSize: 10,
+    startDate: new Date(),
+    endDate: new Date(),
 }
 
 export const checkSession = () => {
