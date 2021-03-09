@@ -30,6 +30,8 @@ class Filters extends React.PureComponent {
 
         this.state = {
             ...initialSettings,
+            startDate,
+            endDate,
             ...settings,
 			dropdown: {
 				currentFilter: "Šodiena",
