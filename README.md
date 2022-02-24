@@ -1,6 +1,6 @@
 # Employee Manager (client)
 
-Web app for managing employee worh hours.
+Web app for managing employee work hours.
 
 Interacts with:
 - [Employee Manager (server)](https://github.com/NAsejevs/employee-manager-server)
